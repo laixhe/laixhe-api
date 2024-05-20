@@ -1,0 +1,240 @@
+definitions:
+  auth.LoginRequest:
+    properties:
+      email:
+        description: 邮箱
+        type: string
+      password:
+        description: 密码
+        maxLength: 20
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  auth.LoginResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/user.User'
+    type: object
+  auth.RefreshResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  auth.RegisterRequest:
+    properties:
+      age:
+        description: 用户年龄
+        maximum: 200
+        minimum: 0
+        type: integer
+      email:
+        description: 用户邮箱
+        type: string
+      password:
+        description: 用户密码
+        maxLength: 20
+        minLength: 6
+        type: string
+      uname:
+        description: 用户名
+        maxLength: 30
+        minLength: 2
+        type: string
+    required:
+    - age
+    - email
+    - password
+    - uname
+    type: object
+  auth.RegisterResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/user.User'
+    type: object
+  code.ECode:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 100
+    - 101
+    - 102
+    - 103
+    - 104
+    - 105
+    - 106
+    - 107
+    type: integer
+    x-enum-comments:
+      ECode_AuthExpire: 授权过期
+      ECode_AuthInvalid: 授权无效
+      ECode_AuthNotLogin: 未授权登录
+      ECode_AuthUserError: 用户或密码错误
+      ECode_EmailExist: 邮箱已存在
+      ECode_EmailNotExist: 邮箱不存在
+      ECode_Param: 参数错误
+      ECode_Service: 服务错误
+      ECode_Success: 成功
+      ECode_Unknown: 未知错误
+      ECode_UserExist: 用户已存在
+      ECode_UserNotExist: 用户不存在
+    x-enum-varnames:
+    - ECode_Success
+    - ECode_Unknown
+    - ECode_Service
+    - ECode_Param
+    - ECode_AuthNotLogin
+    - ECode_AuthExpire
+    - ECode_AuthInvalid
+    - ECode_AuthUserError
+    - ECode_UserExist
+    - ECode_UserNotExist
+    - ECode_EmailExist
+    - ECode_EmailNotExist
+  result.Result:
+    properties:
+      code:
+        allOf:
+        - $ref: '#/definitions/code.ECode'
+        description: 响应码
+      data:
+        description: 数据
+      msg:
+        description: 响应信息
+        type: string
+    type: object
+  user.InfoResponse:
+    properties:
+      user:
+        $ref: '#/definitions/user.User'
+    type: object
+  user.ListResponse:
+    properties:
+      users:
+        items:
+          $ref: '#/definitions/user.User'
+        type: array
+    type: object
+  user.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      uid:
+        type: integer
+      uname:
+        type: string
+    type: object
+info:
+  contact: {}
+  title: API接口
+paths:
+  /api/auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求body参数
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/auth.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.LoginResponse'
+      summary: 登录用户
+  /api/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token令牌
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.RefreshResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/result.Result'
+      summary: 刷新Jwt
+  /api/auth/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求body参数
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/auth.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.RegisterResponse'
+      summary: 注册用户
+  /api/user/info:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token令牌
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.InfoResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/result.Result'
+      summary: 用户信息
+  /api/user/list:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token令牌
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.ListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/result.Result'
+      summary: 用户列表
+swagger: "2.0"

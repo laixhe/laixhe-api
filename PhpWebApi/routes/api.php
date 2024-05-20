@@ -1,0 +1,18 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
+use App\Http\Middleware\AuthJwt;
+
+
+Route::prefix('auth')->group(function () {
+    Route::post('register', [AuthController::class, 'register']);
+    Route::post('login', [AuthController::class, 'login']);
+});
+
+Route::prefix('user')->middleware(AuthJwt::class)->group(function () {
+    Route::get('info', [UserController::class, 'info']);
+    Route::get('list', [UserController::class, 'list']);
+});

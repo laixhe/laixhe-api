@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "webapi/profile/gen/user;user";
+
+import "user/user.proto";
+
+// 请求-用户列表
+message ListRequest {
+}
+
+// 响应-用户列表
+message ListResponse {
+  repeated user.User users = 1;
+}

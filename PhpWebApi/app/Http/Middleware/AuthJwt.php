@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use App\Result\ResultCode;
+use App\Utils\JwtUtil;
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class AuthJwt
+{
+    public function handle(Request $request, Closure $next): Response
+    {
+        $authorization = $request->header('Authorization');
+        if (strlen($authorization) <= 7) {
+            return response_error(ResultCode::AuthInvalid);
+        }
+        $token = substr($authorization, 7);
+        try {
+            $claims = JwtUtil::getInstance()->validatorToken($token);
+            $uid = (int)$claims->get('uid');
+
+            $request->headers->set('uid', $uid);
+        } catch (\Exception $e) {
+            return response_exception($e->getCode(), $e->getMessage());
+        }
+        return $next($request);
+    }
+}

@@ -1,0 +1,118 @@
+server:
+  port: 9090
+spring:
+  application:
+    name: WebApi
+  profiles:
+    # 切换开发环境 开发(dev)、测试（test）、生产（prod）
+    active: dev
+  servlet:
+    multipart:
+      enabled: true
+      # 单个文件最大限制
+      max-file-size: 2048MB
+      # 总上传文件总大小
+      max-request-size: 2048MB
+
+  datasource:
+    # 从 springboot3.0 开始 mysql 驱动改为 com.mysql.cj.jdbc.Driver ，而非 com.mysql.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/webapi?characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+    # 使用 druid 数据源
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      # 初始化时建立物理连接的个数
+      initial-size: 5
+      # 连接池的最小空闲数量
+      min-idle: 5
+      # 连接池最大连接数量
+      max-active: 20
+      # 获取连接时最大等待时间，单位毫秒
+      max-wait: 60000
+      # 用来检测数据库连接是否有效的 sql 必须是一个查询语句
+      validation-query: SELECT 1 FROM DUAL
+      # 检测连接是否有效的超时时间，单位是秒
+      validation-query-timeout: 3000
+      # 申请连接时会执行 validationQuery 检测连接是否有效,开启会降低性能,默认为 true
+      test-on-borrow: false
+      # 归还连接时会执行 validationQuery 检测连接是否有效,开启会降低性能,默认为 true
+      test-on-return: false
+      # 是否在连接池空闲一段时间后检验连接有效性，如果空闲时间大于 timeBetweenEvictionRunsMillis，执行 validationQuery 检测连接是否有效
+      test-while-idle: true
+      # 是否缓存 preparedStatement, 也就是 PSCache 对支持游标的数据库性能提升巨大，比如说 oracle,在 mysql 下建议关闭
+      pool-prepared-statements: false
+      # 要启用 PSCache，必须配置大于0，当大于0时，poolPreparedStatements 自动触发修改为 true。在 Druid 中，不会存在 Oracle 下 PSCache 占用内存过多的问题，可以把这个数值配置大一些，比如说100
+      max-pool-prepared-statement-per-connection-size: -1
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒(作为 testWhileIdle 执行的依据)
+      time-between-eviction-runs-millis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      min-evictable-idle-time-millis: 30000
+      # 配置连接池中连接，在时间段内一直空闲，被逐出连接池的时间，单位毫秒。在 minEvictableIdleTimeMillis 基础上扩展，会在 minEvictableIdleTimeMillis 基础上判断连接是否空闲（默认逐出时间就是 minEvictableIdleTimeMillis ）
+      max-evictable-idle-time-millis: 600000
+      #max-open-prepared-statements: 600000 #和上面的等价
+      # 是否使用统计
+      use-global-data-source-stat: true
+      # 合并多个 DruidDataSource 的监控数据
+      connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      # 设置监控统计拦截的 filters，去掉后监控界面 sql 无法统计，stat: 监控统计、Slf4j:日志记录、waLL: 防御sqL注入
+      filters: stat, wall, slf4j
+      web-stat-filter:
+        # 是否启用 StatFilter 默认值 true
+        enabled: true
+        # 添加过滤规则
+        url-pattern: /*
+        # 忽略过滤的格式
+        exclusions: /druid/*,*.js,*.gif,*.jpg,*.png,*.css,*.ico
+      stat-view-servlet:
+        # 是否启用 StatViewServlet 默认值 true
+        enabled: true
+        # 访问路径为 /druid 时，跳转到 StatViewServlet
+        url-pattern: /druid/*
+        # 是否能够重置数据
+        reset-enable: false
+        # 需要账号密码才能访问控制台，默认为 root
+        login-username: druid
+        login-password: druid
+        # IP白名单
+        allow: 127.0.0.1
+
+  data:
+    redis:
+      # Redis数据库索引（默认为0）
+      database: 0
+      # Redis服务器地址
+      host: 127.0.0.1
+      # Redis服务器连接密码（默认为空）
+      password:
+      # Redis服务器连接端口
+      port: 6379
+      # 连接空闲超过 N (s秒、ms毫秒，不加单位时使用毫秒)后关闭，0为禁用，这里配置值和 tcp-keepalive 值一致
+      timeout: 1800000
+      # Lettuce 连接池配置
+      lettuce:
+        pool:
+          # 允许最大连接数，默认 8（负值表示没有限制），推荐值：大于cpu * 2，通常为(cpu * 2) + 2
+          max-active: 20
+          # 最大空闲连接数，默认 8 ，推荐值：cpu * 2
+          max-idle: 5
+          # 最小空闲连接数，默认 0
+          min-idle: 0
+          # 连接用完时，新的请求等待时间(s秒、ms毫秒)，超过该时间抛出异常，默认 -1（负值表示没有限制）
+          max-wait: -1
+
+mybatis-flex:
+  mapper-locations:
+    - classpath*:/mapper/*.xml
+
+jwt:
+  # 密钥
+  secret: 7vTd3cHkMd8LhBcSzPn50G8c
+  # 有效期（秒）
+  expire: 864000
+
+logging:
+  level:
+    com.laixhe: debug
+    #root: debug
