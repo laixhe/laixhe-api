@@ -27,7 +27,7 @@ class RegisterRequest implements IRequest
             [
                 'email' => '邮箱格式不正确！',
                 'password' => '密码长度在6~20之间！',
-                'uname' => '用户长度在2~30之间！',
+                'uname' => '用户名长度在2~30之间！',
                 'age' => '年龄在0~200之间！',
             ]);
         if ($validator->fails()) {

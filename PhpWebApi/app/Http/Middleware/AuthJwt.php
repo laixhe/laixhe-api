@@ -20,6 +20,9 @@ class AuthJwt
         try {
             $claims = JwtUtil::getInstance()->validatorToken($token);
             $uid = (int)$claims->get('uid');
+            if($uid <= 0) {
+                return response_error(ResultCode::AuthInvalid);
+            }
 
             $request->headers->set('uid', $uid);
         } catch (\Exception $e) {

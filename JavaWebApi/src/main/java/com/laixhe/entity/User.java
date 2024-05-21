@@ -31,10 +31,12 @@ public class User {
     private double score;
     // 登录时间
     private LocalDateTime loginAt;
-    // 更新时间
-    @Column(onUpdateValue = "now()", onInsertValue = "now()")
-    private LocalDateTime updateAt;
     // 创建时间
     @Column(onInsertValue = "now()")
     private LocalDateTime createdAt;
+    // 更新时间
+    @Column(onUpdateValue = "now()", onInsertValue = "now()")
+    private LocalDateTime updatedAt;
+    // 删除时间
+    private LocalDateTime deletedAt;
 }

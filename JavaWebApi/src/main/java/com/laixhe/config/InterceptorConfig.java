@@ -9,6 +9,7 @@ import com.laixhe.interceptor.JWTInterceptor;
 
 /**
  * 指定拦截路径
+ *
  * @author laixhe
  */
 @Slf4j
@@ -18,7 +19,10 @@ public class InterceptorConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new JWTInterceptor())
                 .addPathPatterns("/api/**")
-                .excludePathPatterns("/api/auth/login");
+                .excludePathPatterns(
+                        "/api/auth/login",
+                        "/api/auth/register"
+                );
     }
 }
 

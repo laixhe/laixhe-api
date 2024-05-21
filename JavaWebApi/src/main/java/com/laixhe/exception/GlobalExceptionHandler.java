@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
         StringBuilder errorMsg = new StringBuilder();
         errors.forEach(error -> errorMsg.append(error.getDefaultMessage()).append("; "));
 
-        return Result.otherErr(ResultCode.ERROR_PARAM, errorMsg.toString());
+        return Result.otherErr(ResultCode.Param, errorMsg.toString());
     }
 
     /**
@@ -51,7 +51,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
     public <T> Result<T> exceptionHandler(Exception e) {
-        return Result.otherErr(ResultCode.ERROR_SERVER, e.getMessage());
+        return Result.otherErr(ResultCode.Service, e.getMessage());
     }
 
 }

@@ -16,11 +16,11 @@ class LoginRequest implements IRequest
     {
         $validator = Validator::make($params, [
             'email' => ['required', 'email'],
-            'password' => ['required', 'string', 'min:6', 'max:10'],
+            'password' => ['required', 'string', 'min:6', 'max:20'],
         ],
             [
                 'email' => '邮箱格式不正确！',
-                'password' => '密码格式不正确！',
+                'password' => '密码长度应该在6到20位！',
             ]);
         if ($validator->fails()) {
             return new Result(ResultCode::Param, $validator->errors()->first(), []);

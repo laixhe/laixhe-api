@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 use App\Result\ResultCode;
@@ -9,7 +10,7 @@ use App\Http\Services\UserService;
 
 class UserController extends Controller
 {
-    public function info(Request $request)
+    public function info(Request $request): JsonResponse
     {
         $uid = (int)$request->header('uid');
         $userService = new UserService();
@@ -28,7 +29,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function list(Request $request)
+    public function list(Request $request): JsonResponse
     {
         $userService = new UserService();
         $users = $userService->list();

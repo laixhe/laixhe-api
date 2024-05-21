@@ -14,7 +14,6 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.Map;
 
 import com.laixhe.config.JwtConfig;
@@ -59,8 +58,12 @@ public class JWTUtils {
                 builder.withClaim(key, (Integer) value);
             }
         });
+        Instant instant = Instant.now();
+        Instant instantExp = instant.plusSeconds(jwtConfig.getExpire());
         // 设置过期时间
-        builder.withExpiresAt(new Date((Instant.now().getEpochSecond() + jwtConfig.getExpire()) * 1000));
+        builder.withExpiresAt(instantExp)
+                .withIssuedAt(instant)
+                .withNotBefore(instant);
         // 生成 token
         return builder.sign(Algorithm.HMAC256(jwtConfig.getSecret()));
     }
@@ -77,16 +80,16 @@ public class JWTUtils {
                     .build().verify(token);
         } catch (SignatureVerificationException e) {
             // 签名无效
-            throw new BusinessException(ResultCode.ERROR_PROMPT, e.getMessage());
+            throw new BusinessException(ResultCode.AuthInvalid, e.getMessage());
         } catch (TokenExpiredException e2) {
             // token 过期
-            throw new BusinessException(ResultCode.ERROR_PROMPT, e2.getMessage());
+            throw new BusinessException(ResultCode.AuthExpire, e2.getMessage());
         } catch (AlgorithmMismatchException | IncorrectClaimException e3) {
             // token 无效
-            throw new BusinessException(ResultCode.ERROR_PROMPT, e3.getMessage());
+            throw new BusinessException(ResultCode.AuthInvalid, e3.getMessage());
         } catch (Exception e4) {
             // 签名无效
-            throw new BusinessException(ResultCode.ERROR_PROMPT, e4.getMessage());
+            throw new BusinessException(ResultCode.AuthInvalid, e4.getMessage());
         }
     }
 

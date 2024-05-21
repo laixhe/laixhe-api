@@ -1,5 +1,5 @@
 server:
-  port: 9090
+  port: 80
 spring:
   application:
     name: WebApi
@@ -108,9 +108,9 @@ mybatis-flex:
 
 jwt:
   # 密钥
-  secret: 7vTd3cHkMd8LhBcSzPn50G8c
+  secret: 6Kbj0VFeXYMp60lEyiFoVq4UzqX8Z0GSSfnvTh2VuAQn0oHgQNYexU6yYVTk4xf9
   # 有效期（秒）
-  expire: 864000
+  expire: 604800
 
 logging:
   level:

@@ -4,6 +4,7 @@ namespace App\Utils;
 
 use DateTimeZone;
 use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Token\DataSet;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key\InMemory;
@@ -78,22 +79,24 @@ class JwtUtil
     {
         $now = new \DateTimeImmutable();
         $config = $this->config;
+        $token = null;
         try {
             $token = $config->parser()->parse($jwt);
-            $claims = $token->claims();
-
-            $exp = $claims->get('exp')->setTimezone(new DateTimeZone(date_default_timezone_get()));
-            if ($exp < $now) {
-                throw new \RuntimeException('', ResultCode::AuthExpire->value);
-            }
-            $uid = (int)$claims->get('uid');
-            if($uid <= 0) {
-                throw new \RuntimeException('', ResultCode::AuthInvalid->value);
-            }
-            return $claims;
         } catch (\Exception $e) {
             throw new \RuntimeException('', ResultCode::AuthInvalid->value);
         }
+
+        $claims = $token->claims();
+
+        $exp = $claims->get('exp')->setTimezone(new DateTimeZone(date_default_timezone_get()));
+        if ($exp < $now) {
+            throw new \RuntimeException('', ResultCode::AuthExpire->value);
+        }
+        $uid = (int)$claims->get('uid');
+        if($uid <= 0) {
+            throw new \RuntimeException('', ResultCode::AuthInvalid->value);
+        }
+        return $claims;
     }
 
 }

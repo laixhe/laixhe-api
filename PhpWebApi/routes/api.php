@@ -10,6 +10,7 @@ use App\Http\Middleware\AuthJwt;
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
+    Route::post('refresh', [AuthController::class, 'refresh'])->middleware(AuthJwt::class);
 });
 
 Route::prefix('user')->middleware(AuthJwt::class)->group(function () {

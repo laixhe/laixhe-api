@@ -22,15 +22,15 @@ public class Result<T> implements Serializable {
 
     public static <T> Result<T> success(T data) {
         Result<T> result = new Result<>();
-        result.setCode(ResultCode.SUCCESS.getCode());
-        result.setMsg(ResultCode.SUCCESS.getMsg());
+        result.setCode(ResultCode.Success.getCode());
+        result.setMsg(ResultCode.Success.getMsg());
         result.setData(data);
         return result;
     }
 
     public static <T> Result<T> error(String msg) {
         Result<T> result = new Result<>();
-        result.setCode(ResultCode.ERROR_SERVER.getCode());
+        result.setCode(ResultCode.Service.getCode());
         result.setMsg(msg);
         return result;
     }

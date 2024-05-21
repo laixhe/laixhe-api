@@ -1,8 +1,7 @@
-package com.laixhe.request;
+package com.laixhe.request.auth;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.ToString;
@@ -18,6 +17,7 @@ public class LoginRequest {
     @Email(message="邮箱格式不正确")
     private String email;
     @NotBlank(message="密码不能为空")
-    @Size(min=6, max=20, message="密码长度应该在6到20位")
+    @Size(min=6, max=20, message="密码长度在6~20之间！")
     private String password;
+
 }
