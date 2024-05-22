@@ -47,18 +47,6 @@ redis:
   # 哨兵主从(当有值时为:主从模式)(当没值时且addr有多个时为:分布式集群)
   master:
 
-mongodb:
-  # 连接地址
-  uri: mongodb://127.0.0.1:27017
-  # 指定数据库
-  database: "test"
-  # 最大连接的数量
-  max_pool_size: 100
-  # 最小连接的数量
-  min_pool_size: 5
-  # 最大连接的空闲时间(设置了连接可复用的最大时间)(单位秒)
-  max_conn_idle_time: 300
-
 jwt:
   secret_key: 6Kbj0VFeXYMp60lEyiFoVq4UzqX8Z0GSSfnvTh2VuAQn0oHgQNYexU6yYVTk4xf9
   # 过期时长(单位秒)

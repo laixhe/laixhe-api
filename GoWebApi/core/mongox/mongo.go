@@ -12,6 +12,22 @@ import (
 	"webapi/core/logx"
 )
 
+/**
+
+mongodb:
+  # 连接地址
+  uri: mongodb://127.0.0.1:27017
+  # 指定数据库
+  database: "test"
+  # 最大连接的数量
+  max_pool_size: 100
+  # 最小连接的数量
+  min_pool_size: 5
+  # 最大连接的空闲时间(设置了连接可复用的最大时间)(单位秒)
+  max_conn_idle_time: 300
+
+*/
+
 type Config struct {
 	Uri             string `mapstructure:"uri"`                // 连接地址
 	Database        string `mapstructure:"database"`           // 指定数据库

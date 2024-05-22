@@ -14,6 +14,21 @@ import (
 	"webapi/core/redisx"
 )
 
+/**
+
+app:
+  pid: webapi.pid
+
+servers:
+  http:
+    ip: 0.0.0.0
+    port: 80
+  grpc:
+    ip: 0.0.0.0
+    port: 5900
+
+*/
+
 // AppConfig 项目配置
 type AppConfig struct {
 	Pid     string `mapstructure:"pid"`     // PID 存放文件

@@ -10,6 +10,24 @@ import (
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 )
 
+/**
+
+log:
+  # 日志文件路径
+  path: logs.log
+  # 日志模式 console file
+  run_type: console
+  # 日志级别 debug  info  error
+  level: debug
+  # 每个日志文件保存大小 20M
+  max_size: 20
+  # 保留 N 个备份
+  max_backups: 20
+  # 保留 N 天
+  max_age: 7
+
+*/
+
 var (
 	once        sync.Once
 	zapLogger   *zap.Logger

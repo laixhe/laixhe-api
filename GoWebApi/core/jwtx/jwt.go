@@ -7,6 +7,15 @@ import (
 	jwt "github.com/golang-jwt/jwt/v5"
 )
 
+/**
+
+jwt:
+  secret_key: 6Kbj0VFeXYMp60lEyiFoVq4UzqX8Z0GSSfnvTh2VuAQn0oHgQNYexU6yYVTk4xf9
+  # 过期时长(单位秒)
+  expire_time: 604800
+
+*/
+
 var (
 	ErrTokenExpired = errors.New("token is expired") // 令牌已过期
 	ErrTokenInvalid = errors.New("token invalid")    // 令牌无效

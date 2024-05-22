@@ -11,6 +11,24 @@ import (
 	"webapi/core/logx"
 )
 
+/**
+
+redis:
+  # 多个地址是以 , 分割
+  addr: 127.0.0.1:6379
+  # 选择N号数据库
+  db_num: 0
+  # 密码
+  password:
+  # 最大链接数
+  pool_size: 100
+  # 空闲链接数
+  min_idle_conn: 5
+  # 哨兵主从(当有值时为:主从模式)(当没值时且addr有多个时为:分布式集群)
+  master:
+
+*/
+
 type Config struct {
 	Addr        string `mapstructure:"addr"`          // 多个地址是以 , 分割
 	DbNum       uint   `mapstructure:"db_num"`        // 选择N号数据库

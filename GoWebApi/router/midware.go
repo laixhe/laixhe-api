@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
@@ -34,7 +35,7 @@ func GinLogger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
 		logx.Info("gin",
-			zap.String("requested", c.GetHeader("requested")),
+			zap.String("request_id", requestid.Get(c)),
 			zap.Int("status", c.Writer.Status()),
 			zap.String("method", c.Request.Method),
 			zap.String("path", c.Request.URL.Path),

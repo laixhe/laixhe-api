@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import com.laixhe.interceptor.JWTInterceptor;
 
 /**
- * 指定拦截路径
+ * 全局拦截路径
  *
  * @author laixhe
  */
