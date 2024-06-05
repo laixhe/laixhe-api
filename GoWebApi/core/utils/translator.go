@@ -28,7 +28,7 @@ func ValidatorTranslator(language string) (err error) {
 		var is bool
 		trans, is = universalTranslator.GetTranslator(language)
 		if !is {
-			return fmt.Errorf("uni.GetTranslator(%s) failed", language)
+			return fmt.Errorf("translator.GetTranslator(%s) failed", language)
 		}
 		// 注册翻译器
 		switch language {

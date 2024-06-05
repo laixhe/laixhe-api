@@ -114,5 +114,8 @@ jwt:
 
 logging:
   level:
+    # debug info warn error
     com.laixhe: debug
-    #root: debug
+#  file:
+#    name: logs.log
+
