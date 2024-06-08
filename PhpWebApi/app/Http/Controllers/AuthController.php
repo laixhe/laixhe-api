@@ -11,11 +11,19 @@ use App\Http\Services\AuthService;
 use App\Result\ResultCode;
 use App\Utils\JwtUtil;
 
+/**
+ * 鉴权相关
+ */
 class AuthController extends Controller
 {
-    // 注册
+    /**
+     * 注册
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function register(Request $request): JsonResponse
     {
+        // 获取想要的请求参数
         $req = $request->only([
             'email',
             'password',
@@ -27,11 +35,11 @@ class AuthController extends Controller
         if ($error !== null) {
             return response_result($error);
         }
-
+        //
         $loginService = new AuthService();
         try {
             $user = $loginService->register($registerRequest);
-            $token = JwtUtil::getInstance()->createToken(['uid' => $user['id']]);
+            $token = JwtUtil::getInstance()->createToken($user['id']);
             return response_success([
                 'token' => $token,
                 'user' => [
@@ -46,9 +54,14 @@ class AuthController extends Controller
         }
     }
 
-    // 登录
+    /**
+     * 登录
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function Login(Request $request): JsonResponse
     {
+        // 获取想要的请求参数
         $req = $request->only([
             'email',
             'password',
@@ -67,7 +80,7 @@ class AuthController extends Controller
 
         $token = '';
         try {
-            $token = JwtUtil::getInstance()->createToken(['uid' => $user['id']]);
+            $token = JwtUtil::getInstance()->createToken($user['id']);
         } catch (\Throwable $e) {
             return response_exception($e->getCode(), $e->getMessage());
         }
@@ -83,14 +96,19 @@ class AuthController extends Controller
         ]);
     }
 
-    // 刷新Jwt
+    /**
+     * 刷新Jwt
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function refresh(Request $request): JsonResponse
     {
+        // 获取登录用户ID
         $uid = (int)$request->header('uid');
 
         $token = '';
         try {
-            $token = JwtUtil::getInstance()->createToken(['uid' => $uid]);
+            $token = JwtUtil::getInstance()->createToken($uid);
         } catch (\Throwable $e) {
             return response_exception($e->getCode(), $e->getMessage());
         }

@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 
-from app.controller import RegisterRouterList
+from app.controllers import RegisterRouterList
 from app.errors import register_custom_error_handle
 
 # 实例化

@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * 用户表
+ */
 class User extends BaseModel
 {
     use HasFactory;
@@ -27,14 +29,16 @@ class User extends BaseModel
     public $timestamps = true;
 
 //    // 可修改的表字段
-//    protected $fillable = [
-//        'password',
-//        'email',
-//        'uname',
-//        'age',
-//        'score',
-//        'login_at',
-//    ];
+    protected $fillable = [
+        'password',
+        'email',
+        'uname',
+        'age',
+        'score',
+        'login_at',
+        self::UPDATED_AT,
+        self::DELETED_AT,
+    ];
 
 //    // 隐藏查询结果的字段
 //    protected $hidden = ['password'];

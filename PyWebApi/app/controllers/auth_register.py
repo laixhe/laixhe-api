@@ -10,16 +10,17 @@ router = APIRouter(
 )
 
 
-class AuthLoginRequest(BaseModel):
+class AuthRegisterRequest(BaseModel):
     email: EmailStr = Field(default=..., min_length=4, description="邮箱")
     password: str = Field(default=..., min_length=6, max_length=20, description="密码")
-    # phone: str = Field(default=..., regex=r'^1\d{10}$', description="手机号")
+    uname: str = Field(default=..., min_length=2, max_length=30, description="用户名")
+    age: int = Field(default=..., ge=0, le=200, description="年龄")
 
 
-@router.post("/login")
-async def auth_login(req: AuthLoginRequest) -> response.HttpResponse:
+@router.post("/register")
+async def auth_register(req: AuthRegisterRequest) -> response.HttpResponse:
     """
-    登录
+    注册
     """
 
     return response.response_success(req)

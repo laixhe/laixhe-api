@@ -7,13 +7,15 @@ use App\Result\ResultCode;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
+/**
+ * 注册请求参数
+ */
 class RegisterRequest implements IRequest
 {
     public string $email = '';
     public string $password = '';
     public string $uname = '';
     public int $age = 0;
-
 
     public function validator(array $params): ?Result
     {

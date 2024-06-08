@@ -6,6 +6,9 @@ use App\Result\Result;
 use App\Result\ResultCode;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * 登录请求参数
+ */
 class LoginRequest implements IRequest
 {
     public string $email = '';
