@@ -1,5 +1,6 @@
 package com.laixhe.service.impl;
 
+import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +36,10 @@ public class UserServiceImpl implements UserService {
     public InfoResponse info(int uid) {
 
         QueryWrapper queryWrapper = QueryWrapper.create()
+                .select("id", "email", "uname", "created_at")
                 .eq("id", uid)
                 .isNull("deleted_at");
-        // SELECT * FROM `user` WHERE id = ? AND deleted_at IS NULL LIMIT 1
+        // SELECT id, email, uname, created_at FROM `user` WHERE id = ? AND deleted_at IS NULL  LIMIT 1
         User user = userMapper.selectOneByQuery(queryWrapper);
         if (user == null) {
             throw new BusinessException(ResultCode.AuthNotLogin, "");
@@ -55,13 +57,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ListResponse list() {
+    public ListResponse list(int size, int page) {
 
+        //QueryWrapper queryWrapper = QueryWrapper.create()
+        //        .select("id", "email", "uname", "created_at")
+        //        .isNull("deleted_at")
+        //        .orderBy("id DESC");
+        // SELECT id, email, uname, created_at FROM `user` WHERE deleted_at IS NULL ORDER BY id DESC
+        //List<User> users = userMapper.selectListByQuery(queryWrapper);
+
+        // SELECT COUNT(*) AS `total` FROM `user` WHERE deleted_at IS NULL
+        // SELECT id, email, uname, created_at FROM `user` WHERE deleted_at IS NULL ORDER BY id DESC LIMIT 2, 20
         QueryWrapper queryWrapper = QueryWrapper.create()
+                .select("id", "email", "uname", "created_at")
                 .isNull("deleted_at")
                 .orderBy("id DESC");
-        // SELECT * FROM `user` WHERE deleted_at IS NULL ORDER BY id DESC
-        List<User> users = userMapper.selectListByQuery(queryWrapper);
+
+        Page<User> userPage = userMapper.paginate(page, size, queryWrapper);
+        List<User> users = userPage.getRecords();
 
         List<UserResponse> userResponses = new ArrayList<>();
         for (User user : users) {
@@ -74,8 +87,32 @@ public class UserServiceImpl implements UserService {
         }
 
         ListResponse resp = new ListResponse();
-        resp.setUsers(userResponses);
+        resp.setList(userResponses);
+        resp.setPage((int) userPage.getPageNumber());
+        resp.setSize((int) userPage.getPageSize());
+        resp.setTotal((int) userPage.getTotalRow());
         return resp;
+    }
+
+    @Override
+    public void update(int uid, String uname){
+
+        // SELECT id, email FROM `user` WHERE uname = ? AND deleted_at IS NULL LIMIT 1
+        QueryWrapper queryWrapper = QueryWrapper.create()
+                .select("id", "email")
+                .eq("uname", uname)
+                .isNull("deleted_at");
+        // SELECT id, email FROM `user` WHERE uname = ? AND deleted_at IS NULL LIMIT 1
+        User user = userMapper.selectOneByQuery(queryWrapper);
+        if (user != null) {
+            throw new BusinessException(ResultCode.Param, "用户名已存在！");
+        }
+
+        // UPDATE `user` SET `uname` = ? ,`updated_at` = now() WHERE id = ? LIMIT 1
+        user = new User();
+        user.setUname(uname);
+        queryWrapper = QueryWrapper.create().eq("id", uid).limit(1);
+        userMapper.updateByQuery(user, queryWrapper);
     }
 
 }

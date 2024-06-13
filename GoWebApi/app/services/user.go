@@ -40,17 +40,20 @@ func (s *Service) UserInfo(c *gin.Context, req *pbUser.InfoRequest) (*pbUser.Inf
 }
 
 func (s *Service) UserList(c *gin.Context, req *pbUser.ListRequest) (*pbUser.ListResponse, error) {
-	users, err := s.data.User.List()
+	users, total, err := s.data.User.List(int(req.Size), int(req.Page))
 	if err != nil {
 		logx.Errorf("UserList %v", err)
 		return nil, errorx.ServiceError(err)
 	}
 
 	resp := &pbUser.ListResponse{
-		Users: make([]*pbUser.User, 0, len(users)),
+		List:  make([]*pbUser.User, 0, len(users)),
+		Total: int32(total),
+		Size:  req.Size,
+		Page:  req.Page,
 	}
 	for _, user := range users {
-		resp.Users = append(resp.Users, &pbUser.User{
+		resp.List = append(resp.List, &pbUser.User{
 			Uid:       user.Uid,
 			Uname:     user.Uname,
 			Email:     user.Email,

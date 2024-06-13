@@ -144,6 +144,18 @@
                         "description": "Bearer token令牌",
                         "name": "Authorization",
                         "in": "header"
+                    },
+                    {
+                        "type": "string",
+                        "description": "每页页数(数量)",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "当前页数",
+                        "name": "page",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -322,11 +334,20 @@
         "user.ListResponse": {
             "type": "object",
             "properties": {
-                "users": {
+                "list": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/user.User"
                     }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },
@@ -334,15 +355,19 @@
             "type": "object",
             "properties": {
                 "created_at": {
+                    "description": "创建时间",
                     "type": "string"
                 },
                 "email": {
+                    "description": "用户邮箱",
                     "type": "string"
                 },
                 "uid": {
+                    "description": "用户ID",
                     "type": "integer"
                 },
                 "uname": {
+                    "description": "用户名",
                     "type": "string"
                 }
             }

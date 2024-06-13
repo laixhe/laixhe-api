@@ -28,7 +28,7 @@ public class User {
     // 用户年龄
     private Integer age;
     // 用户分数
-    private double score;
+    private Double score;
     // 登录时间
     private LocalDateTime loginAt;
     // 创建时间

@@ -11,5 +11,8 @@ import java.util.List;
 @Data
 @ToString
 public class ListResponse {
-    private List<UserResponse> users;
+    private List<UserResponse> list;
+    private int total;
+    private int page;
+    private int size;
 }

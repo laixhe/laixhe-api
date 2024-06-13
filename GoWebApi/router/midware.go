@@ -33,16 +33,18 @@ func Cors() gin.HandlerFunc {
 // GinLogger 日志
 func GinLogger() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if logx.GetLevel() == logx.LogLevelDebug {
+			logx.Debug("gin",
+				zap.String("request_id", requestid.Get(c)),
+				zap.Int("status", c.Writer.Status()),
+				zap.String("method", c.Request.Method),
+				zap.String("path", c.Request.URL.Path),
+				zap.String("query", c.Request.URL.RawQuery),
+				zap.String("ip", c.ClientIP()),
+				zap.String("agent", c.Request.UserAgent()),
+			)
+		}
 		c.Next()
-		logx.Info("gin",
-			zap.String("request_id", requestid.Get(c)),
-			zap.Int("status", c.Writer.Status()),
-			zap.String("method", c.Request.Method),
-			zap.String("path", c.Request.URL.Path),
-			zap.String("query", c.Request.URL.RawQuery),
-			zap.String("ip", c.ClientIP()),
-			zap.String("agent", c.Request.UserAgent()),
-		)
 	}
 }
 
@@ -50,6 +52,7 @@ func GinLogger() gin.HandlerFunc {
 func GinRecovery() gin.HandlerFunc {
 	return gin.CustomRecovery(func(c *gin.Context, err interface{}) {
 		logx.Error("gin",
+			zap.String("request_id", requestid.Get(c)),
 			zap.Int("status", c.Writer.Status()),
 			zap.String("method", c.Request.Method),
 			zap.String("path", c.Request.URL.Path),

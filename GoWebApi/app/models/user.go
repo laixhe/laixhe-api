@@ -51,9 +51,25 @@ func (*User) FirstID(uid uint64) (User, error) {
 	return user, err
 }
 
-func (*User) List() ([]User, error) {
+func (*User) List(size, page int) ([]User, int64, error) {
 	var users []User
 	// SELECT * FROM `user` WHERE `user`.`deleted_at` IS NULL ORDER BY id DESC
-	err := gormx.Order("id DESC").Find(&users).Error
-	return users, err
+	//err := gormx.Order("id DESC").Find(&users).Error
+
+	var total int64
+	offset := (page - 1) * size
+
+	// SELECT count(*) FROM `user` WHERE `deleted_at` IS NULL
+	err := gormx.Model(&User{}).Count(&total).Error
+	if err != nil || total == 0 {
+		return nil, 0, err
+	}
+	// SELECT `id`,`uname`,`email`,`created_at` FROM `user` WHERE `deleted_at` IS NULL ORDER BY id DESC LIMIT ?
+	err = gormx.
+		Select([]string{"id", "uname", "email", "created_at"}).
+		Order("id DESC").
+		Offset(offset).
+		Limit(size).
+		Find(&users).Error
+	return users, total, err
 }

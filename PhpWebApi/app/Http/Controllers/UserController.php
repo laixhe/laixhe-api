@@ -46,8 +46,25 @@ class UserController extends Controller
      */
     public function list(Request $request): JsonResponse
     {
+        /**
+         * 采用 laravel 的 paginate 分页机制，会自动获取请求参数 page
+         * GET http://webapi.laixhe.com/api/user/list?page=2
+         * POST Content-Type: application/x-www-form-urlencoded
+         * POST Content-Type: application/json
+         * 只要有 page 参数都可以被  paginate 分页机制获取到
+         */
+        // 分页当前页数
+        //$page = (int) $request->input('page', 0);
+        // 每页页数(数量)
+        $size = (int) $request->input('size', 0);
+        if ($size <= 0) {
+            $size = 20;
+        }
+
         $userService = new UserService();
-        $users = $userService->list();
+        $dbData = $userService->list($size);
+
+        $users = $dbData->items();
         $data = [];
         foreach ($users as $user) {
             $data[] = [
@@ -57,7 +74,14 @@ class UserController extends Controller
                 'created_at' => $user['created_at'],
             ];
         }
-        return response_success($data);
+        $result = [
+            'list'  => $data,
+            'total' => $dbData->total(),
+            'page'  => $dbData->currentPage(),
+            'size'  => $dbData->perPage(),
+        ];
+
+        return response_success($result);
     }
 
 }

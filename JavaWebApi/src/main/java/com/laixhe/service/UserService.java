@@ -8,5 +8,6 @@ import com.laixhe.response.user.ListResponse;
  */
 public interface UserService {
     InfoResponse info(int uid);
-    ListResponse list();
+    ListResponse list(int size, int page);
+    void update(int uid, String uname);
 }

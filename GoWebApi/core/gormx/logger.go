@@ -19,5 +19,7 @@ func NewWriter(w logger.Writer) *Writer {
 
 // Printf 格式化打印日志
 func (w *Writer) Printf(message string, data ...interface{}) {
-	logx.Debug(fmt.Sprintf(message, data...))
+	if logx.GetLevel() == logx.LogLevelDebug {
+		logx.Debug(fmt.Sprintf(message, data...))
+	}
 }

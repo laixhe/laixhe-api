@@ -1,3 +1,8 @@
+####
+```
+composer install
+```
+
 #### 生成中间件
 ```
 php artisan make:middleware ApiAuth

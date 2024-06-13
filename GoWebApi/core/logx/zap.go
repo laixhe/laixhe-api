@@ -32,6 +32,7 @@ var (
 	once        sync.Once
 	zapLogger   *zap.Logger
 	sugarLogger *zap.SugaredLogger
+	config      *Config
 )
 
 // Config 配置
@@ -48,39 +49,38 @@ type Config struct {
 
 // Init 初始日志
 func Init(c *Config) {
-	if c.RunType == LogRunFile {
-		initSizeFile(c)
-	} else {
-		initConsole(c)
-	}
+	once.Do(func() {
+		if c.RunType == LogRunFile {
+			initSizeFile(c)
+		} else {
+			initConsole(c)
+		}
+		config = c
+	})
 }
 
 // initSizeFile 初始 zap 日志，按大小切割和备份个数、文件有效期
 func initSizeFile(c *Config) {
-	once.Do(func() {
-		// 日志分割
-		hook := &lumberjack.Logger{
-			Filename:   c.Path, // 日志文件路径，默认 os.TempDir()
-			MaxSize:    int(c.MaxSize),
-			MaxBackups: int(c.MaxBackups),
-			MaxAge:     int(c.MaxAge),
-			Compress:   c.Compress,
-		}
-		// 打印到文件
-		write := zapcore.AddSync(hook)
-		// 初始 zap 日志
-		zapInit(write, c.Level, int(c.CallerSkip)+callerSkip)
-	})
+	// 日志分割
+	hook := &lumberjack.Logger{
+		Filename:   c.Path, // 日志文件路径，默认 os.TempDir()
+		MaxSize:    int(c.MaxSize),
+		MaxBackups: int(c.MaxBackups),
+		MaxAge:     int(c.MaxAge),
+		Compress:   c.Compress,
+	}
+	// 打印到文件
+	write := zapcore.AddSync(hook)
+	// 初始 zap 日志
+	zapInit(write, c.Level, int(c.CallerSkip)+callerSkip)
 }
 
 // initConsole 初始 zap 日志，输出到终端
 func initConsole(c *Config) {
-	once.Do(func() {
-		// 打印到控制台
-		write := zapcore.AddSync(os.Stdout)
-		// 初始 zap 日志
-		zapInit(write, c.Level, int(c.CallerSkip)+callerSkip)
-	})
+	// 打印到控制台
+	write := zapcore.AddSync(os.Stdout)
+	// 初始 zap 日志
+	zapInit(write, c.Level, int(c.CallerSkip)+callerSkip)
 }
 
 // zapInit 初始化 zap 基本信息
@@ -138,6 +138,10 @@ func zapInit(write zapcore.WriteSyncer, logLevel LogLevel, callerSkip int) {
 	//zapLogger = zap.New(core, caller, addCallerSkip, development, filed)
 	zapLogger = zap.New(core, caller, addCallerSkip, development)
 	sugarLogger = zapLogger.Sugar()
+}
+
+func GetLevel() LogLevel {
+	return config.Level
 }
 
 // zapTimeEncoder 日志时间格式

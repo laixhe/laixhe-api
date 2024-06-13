@@ -36,7 +36,6 @@ func (u *User) Info(c *gin.Context) {
 		return
 	}
 
-	logx.Infof("resp:%s", resp)
 	result.ResponseSuccess(c, resp)
 }
 
@@ -45,18 +44,32 @@ func (u *User) Info(c *gin.Context) {
 // @Summary	用户列表
 // @Accept   json
 // @Produce  json
-// @Param Authorization header string false "Bearer token令牌"
-// @Success  200    {object}  user.ListResponse
-// @Success  400    {object}  result.Result
+// @Param    Authorization header    string  false "Bearer token令牌"
+// @Param    size          query     string  false "每页页数(数量)"
+// @Param    page          query     string  false "当前页数"
+// @Success  200           {object}  user.ListResponse
+// @Success  400           {object}  result.Result
 // @Router   /api/user/list [get]
 func (u *User) List(c *gin.Context) {
 	req := &pbUser.ListRequest{}
+	if err := c.ShouldBindQuery(req); err != nil {
+		logx.Infof("req:%s", req)
+		result.ResponseError(c, err)
+		return
+	}
+	logx.Infof("req:%s", req)
+	if req.Size <= 0 {
+		req.Size = 20
+	}
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+
 	resp, err := u.service.UserList(c, req)
 	if err != nil {
 		result.ResponseError(c, err)
 		return
 	}
 
-	logx.Infof("resp:%s", resp)
 	result.ResponseSuccess(c, resp)
 }
