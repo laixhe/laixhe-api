@@ -183,6 +183,47 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/user/update": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "修改用户信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token令牌",
+                        "name": "Authorization",
+                        "in": "header"
+                    },
+                    {
+                        "description": "请求body参数",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/user.UpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/user.UpdateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -360,6 +401,28 @@ const docTemplate = `{
                     "type": "integer"
                 }
             }
+        },
+        "user.UpdateRequest": {
+            "type": "object",
+            "required": [
+                "login_at",
+                "uname"
+            ],
+            "properties": {
+                "login_at": {
+                    "description": "登录时间",
+                    "type": "string"
+                },
+                "uname": {
+                    "description": "用户名",
+                    "type": "string",
+                    "maxLength": 30,
+                    "minLength": 2
+                }
+            }
+        },
+        "user.UpdateResponse": {
+            "type": "object"
         },
         "user.User": {
             "type": "object",

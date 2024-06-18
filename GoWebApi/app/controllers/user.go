@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
+	"time"
+	"webapi/core/errorx"
 
 	"webapi/app/result"
 	"webapi/app/services"
@@ -66,6 +69,40 @@ func (u *User) List(c *gin.Context) {
 	}
 
 	resp, err := u.service.UserList(c, req)
+	if err != nil {
+		result.ResponseError(c, err)
+		return
+	}
+
+	result.ResponseSuccess(c, resp)
+}
+
+// Update 修改用户信息
+//
+// @Summary	修改用户信息
+// @Accept   json
+// @Produce  json
+// @Param    Authorization header    string  false "Bearer token令牌"
+// @Param    body          body      user.UpdateRequest   ture "请求body参数"
+// @Success  200           {object}  user.UpdateResponse
+// @Success  400           {object}  result.Result
+// @Router   /api/user/update [post]
+func (u *User) Update(c *gin.Context) {
+	req := &pbUser.UpdateRequest{}
+	if err := c.ShouldBindJSON(req); err != nil {
+		logx.Infof("req:%s", req)
+		result.ResponseError(c, err)
+		return
+	}
+	logx.Infof("req:%s", req)
+
+	_, err := time.ParseInLocation(time.DateTime, req.LoginAt, time.Local)
+	if err != nil {
+		result.ResponseError(c, errorx.ParamError(errors.New("登录时间格式不对！")))
+		return
+	}
+
+	resp, err := u.service.UserUpdate(c, req)
 	if err != nil {
 		result.ResponseError(c, err)
 		return

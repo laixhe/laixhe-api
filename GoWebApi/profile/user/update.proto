@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "webapi/profile/gen/user;user";
+
+message UpdateRequest {
+  // 用户名
+  string uname = 1; // @gotags: binding:"required,min=2,max=30"
+  // 登录时间
+  string login_at = 2; // @gotags: binding:"required"
+}
+
+message UpdateResponse {
+}

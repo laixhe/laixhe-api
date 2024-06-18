@@ -10,6 +10,8 @@ import lombok.ToString;
 import java.time.LocalDateTime;
 
 /**
+ * 用户表模型
+ *
  * @author laixhe
  */
 @Data

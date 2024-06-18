@@ -9,12 +9,12 @@ class HttpResponse(BaseModel):
     data: Any | None  # 具体数据
 
 
-def response_success(resp: Any) -> HttpResponse:
+def success(resp: Any) -> HttpResponse:
     """ 成功响应 """
     return HttpResponse(data=resp)
 
 
-def response_fail(msg: str, code: int = 1) -> HttpResponse:
+def fail(msg: str, code: int = 1) -> HttpResponse:
     """ 响应失败 """
     return HttpResponse(
         code=code,

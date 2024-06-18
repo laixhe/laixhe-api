@@ -23,4 +23,4 @@ async def auth_register(req: AuthRegisterRequest) -> response.HttpResponse:
     注册
     """
 
-    return response.response_success(req)
+    return response.success(req)

@@ -3,6 +3,10 @@
  - 
 ```
 uvicorn main:app --reload
+
+http://127.0.0.1/docs
+http://127.0.0.1/redoc
+http://127.0.0.1/openapi.json
 ```
 
 ```

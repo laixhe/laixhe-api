@@ -18,6 +18,7 @@ Route::middleware(AssignRequestId::class)->group(function () {
     Route::prefix('user')->middleware(AuthJwt::class)->group(function () {
         Route::get('info', [UserController::class, 'info']);
         Route::get('list', [UserController::class, 'list']);
+        Route::post('update', [UserController::class, 'update']);
     });
 
 });

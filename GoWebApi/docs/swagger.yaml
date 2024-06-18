@@ -129,6 +129,22 @@ definitions:
       total:
         type: integer
     type: object
+  user.UpdateRequest:
+    properties:
+      login_at:
+        description: 登录时间
+        type: string
+      uname:
+        description: 用户名
+        maxLength: 30
+        minLength: 2
+        type: string
+    required:
+    - login_at
+    - uname
+    type: object
+  user.UpdateResponse:
+    type: object
   user.User:
     properties:
       created_at:
@@ -255,4 +271,30 @@ paths:
           schema:
             $ref: '#/definitions/result.Result'
       summary: 用户列表
+  /api/user/update:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token令牌
+        in: header
+        name: Authorization
+        type: string
+      - description: 请求body参数
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/user.UpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.UpdateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/result.Result'
+      summary: 修改用户信息
 swagger: "2.0"

@@ -8,7 +8,7 @@ namespace App\Result;
 class Result
 {
     public ResultCode $code; // 响应码
-    public string $msg; // 响应信息
+    public string $msg; // 响应错误信息
     public array $data; // 数据
 
     public function __construct(ResultCode $code, string $msg, array $data)

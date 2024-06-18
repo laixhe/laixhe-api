@@ -33,25 +33,31 @@ public class AuthController {
         this.authService = authService;
     }
 
-    // 注册
+    /**
+     * 注册
+     */
     @PostMapping("/register")
     public Result<RegisterResponse> register(@RequestBody @Validated RegisterRequest req) {
-        log.info("Register RegisterRequest={}", req.toString());
+        log.info("Register {}", req.toString());
 
         RegisterResponse resp = authService.register(req);
         return Result.success(resp);
     }
 
-    // 登录
+    /**
+     * 登录
+     */
     @PostMapping("/login")
     public Result<LoginResponse> login(@RequestBody @Validated LoginRequest req) {
-        log.info("login LoginRequest={}", req.toString());
+        log.info("login {}", req.toString());
 
         LoginResponse resp = authService.login(req.getEmail(), req.getPassword());
         return Result.success(resp);
     }
 
-    // 刷新Jwt
+    /**
+     * 刷新Jwt
+     */
     @PostMapping("/refresh")
     public Result<RefreshResponse> refresh(HttpServletRequest request) {
         int uid = (int) request.getAttribute("uid");

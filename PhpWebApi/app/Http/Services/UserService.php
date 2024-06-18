@@ -2,9 +2,13 @@
 
 namespace App\Http\Services;
 
+use RuntimeException;
+
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 use App\Models\User;
+use App\Result\ResultCode;
+use App\Http\Request\UserUpdateRequest;
 
 /**
  * 用户服务相关
@@ -45,5 +49,30 @@ class UserService
             ->select(['id', 'uname', 'email', 'created_at'])
             ->orderByDesc('id')
             ->paginate($size);
+    }
+
+    /**
+     * 修改用户信息
+     * @param int $uid
+     * @param UserUpdateRequest $req
+     * @return void
+     */
+    public function update(int $uid, UserUpdateRequest $req): void
+    {
+        // select `id` from `user` where `uname` = ? and `deleted_at` is null limit 1
+        $userID = User::query()->where('uname', $req->uname)->value('id');
+        if (!empty($userID)) {
+            $userID = (int)$userID;
+            if ($userID === $uid){
+                return;
+            }
+            throw new RuntimeException('用户名已存在！', ResultCode::Param->value);
+        }
+
+        // update `user` set `uname` = ?, `login_at` = ?, `updated_at` = ? where `id` = ? and `deleted_at` is null limit 1
+        User::query()->where('id', $uid)->limit(1)->update([
+            'uname' => $req->uname,
+            'login_at' => $req->login_at
+        ]);
     }
 }

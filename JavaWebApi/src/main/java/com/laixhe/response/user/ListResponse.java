@@ -6,6 +6,8 @@ import lombok.ToString;
 import java.util.List;
 
 /**
+ * 查询用户列表响应参数
+ *
  * @author laixhe
  */
 @Data

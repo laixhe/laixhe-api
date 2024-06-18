@@ -5,9 +5,11 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-module/carbon/v2"
 	"gorm.io/gorm"
 
 	"webapi/app/middleware"
+	"webapi/app/models"
 	"webapi/core/errorx"
 	"webapi/core/logx"
 	pbCode "webapi/profile/gen/code"
@@ -61,4 +63,36 @@ func (s *Service) UserList(c *gin.Context, req *pbUser.ListRequest) (*pbUser.Lis
 		})
 	}
 	return resp, nil
+}
+
+func (s *Service) UserUpdate(c *gin.Context, req *pbUser.UpdateRequest) (*pbUser.UpdateResponse, error) {
+	uid, errx := middleware.Uid(c)
+	if errx != nil {
+		return nil, errx
+	}
+
+	user, err := s.data.User.FirstUname(req.Uname)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		logx.Errorf("UserUpdate %v", err)
+		return nil, errorx.ServiceError(err)
+	}
+	if err == nil {
+		if user.Uid == uid {
+			return &pbUser.UpdateResponse{}, nil
+		}
+		return nil, errorx.ParamError(errors.New("用户名已存在！"))
+	}
+
+	user = models.User{
+		Uid:     uid,
+		Uname:   req.Uname,
+		LoginAt: carbon.Parse(req.LoginAt).StdTime(),
+	}
+	err = s.data.User.Update(&user)
+	if err != nil {
+		logx.Errorf("Update %v", err)
+		return nil, errorx.ServiceError(err)
+	}
+
+	return &pbUser.UpdateResponse{}, nil
 }

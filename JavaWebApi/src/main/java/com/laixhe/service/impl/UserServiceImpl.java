@@ -1,11 +1,12 @@
 package com.laixhe.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,22 +96,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void update(int uid, String uname){
+    public void update(int uid, String uname, LocalDateTime loginAt) {
 
         // SELECT id, email FROM `user` WHERE uname = ? AND deleted_at IS NULL LIMIT 1
         QueryWrapper queryWrapper = QueryWrapper.create()
                 .select("id", "email")
                 .eq("uname", uname)
                 .isNull("deleted_at");
-        // SELECT id, email FROM `user` WHERE uname = ? AND deleted_at IS NULL LIMIT 1
         User user = userMapper.selectOneByQuery(queryWrapper);
         if (user != null) {
+            if (user.getId().equals(uid)) {
+                return;
+            }
             throw new BusinessException(ResultCode.Param, "用户名已存在！");
         }
 
-        // UPDATE `user` SET `uname` = ? ,`updated_at` = now() WHERE id = ? LIMIT 1
+        // UPDATE `user` SET `uname` = ? , `login_at` = ? , `updated_at` = now() WHERE id = ? LIMIT 1
         user = new User();
         user.setUname(uname);
+        user.setLoginAt(loginAt);
         queryWrapper = QueryWrapper.create().eq("id", uid).limit(1);
         userMapper.updateByQuery(user, queryWrapper);
     }

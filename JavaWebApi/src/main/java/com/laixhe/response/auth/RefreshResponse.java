@@ -4,6 +4,8 @@ import lombok.Data;
 import lombok.ToString;
 
 /**
+ * 登录响应参数
+ *
  * @author laixhe
  */
 @Data

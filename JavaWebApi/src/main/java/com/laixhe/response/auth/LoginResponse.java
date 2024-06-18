@@ -6,6 +6,8 @@ import lombok.ToString;
 import com.laixhe.response.user.UserResponse;
 
 /**
+ * 登录响应参数
+ *
  * @author laixhe
  */
 @Data

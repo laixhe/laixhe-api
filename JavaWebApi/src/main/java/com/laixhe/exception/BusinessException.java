@@ -9,6 +9,7 @@ import com.laixhe.result.ResultCode;
 
 /**
  * 自定义业务异常类
+ *
  * @author laixhe
  */
 @Setter

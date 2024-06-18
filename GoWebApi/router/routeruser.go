@@ -17,6 +17,7 @@ func UserRouter(r *gin.RouterGroup) {
 	// token
 
 	jwt := user.Use(middleware.JwtAuth())
-	jwt.GET("info", c.Info) // 用户信息
-	jwt.GET("list", c.List) // 用户列表
+	jwt.GET("info", c.Info)      // 用户信息
+	jwt.GET("list", c.List)      // 用户列表
+	jwt.POST("update", c.Update) // 修改用户信息
 }

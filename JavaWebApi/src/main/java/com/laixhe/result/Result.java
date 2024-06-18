@@ -7,13 +7,23 @@ import java.io.Serializable;
 import com.laixhe.exception.BusinessException;
 
 /**
+ * 响应请求
+ *
  * @author laixhe
  */
 @Data
 public class Result<T> implements Serializable {
-
+    /**
+     * 响应码
+     */
     private int code;
+    /**
+     * 响应错误信息
+     */
     private String msg;
+    /**
+     * 数据
+     */
     private T data;
 
     public static <T> Result<T> success() {
@@ -35,7 +45,9 @@ public class Result<T> implements Serializable {
         return result;
     }
 
-    // 自定义异常返回的结果
+    /**
+     * 自定义异常返回的结果
+     */
     public static <T> Result<T> businessErr(BusinessException e) {
         Result<T> result = new Result<>();
         result.setCode(e.getCode().getCode());
@@ -44,7 +56,9 @@ public class Result<T> implements Serializable {
         return result;
     }
 
-    // 其他异常处理方法返回的结果
+    /**
+     * 其他异常处理方法返回的结果
+     */
     public static <T> Result<T> otherErr(ResultCode resultCode, String msg) {
         Result<T> result = new Result<>();
         result.setCode(resultCode.getCode());

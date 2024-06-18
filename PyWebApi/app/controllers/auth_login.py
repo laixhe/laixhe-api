@@ -1,25 +1,21 @@
 from fastapi import APIRouter
-# 导入pydantic对应的模型基类
-from pydantic import BaseModel, Field, EmailStr
 
+from app.request.auth_login import AuthLoginRequest
+from app.services.auth_login import service_auth_login
 from app.types import response
 
 router = APIRouter(
-    prefix="/auth",
+    prefix="/api/auth",
     tags=["鉴权相关"]
 )
 
 
-class AuthLoginRequest(BaseModel):
-    email: EmailStr = Field(default=..., min_length=4, description="邮箱")
-    password: str = Field(default=..., min_length=6, max_length=20, description="密码")
-    # phone: str = Field(default=..., regex=r'^1\d{10}$', description="手机号")
-
-
-@router.post("/login")
+@router.post("/login", summary='登录')
 async def auth_login(req: AuthLoginRequest) -> response.HttpResponse:
     """
     登录
     """
 
-    return response.response_success(req)
+    await service_auth_login(req)
+
+    return response.success(req)

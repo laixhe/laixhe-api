@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Result\ResultCode;
 use App\Http\Services\UserService;
+use App\Http\Request\UserUpdateRequest;
 
 /**
  * 用户相关
@@ -56,7 +57,7 @@ class UserController extends Controller
         // 分页当前页数
         //$page = (int) $request->input('page', 0);
         // 每页页数(数量)
-        $size = (int) $request->input('size', 0);
+        $size = (int)$request->input('size', 0);
         if ($size <= 0) {
             $size = 20;
         }
@@ -75,13 +76,42 @@ class UserController extends Controller
             ];
         }
         $result = [
-            'list'  => $data,
+            'list' => $data,
             'total' => $dbData->total(),
-            'page'  => $dbData->currentPage(),
-            'size'  => $dbData->perPage(),
+            'page' => $dbData->currentPage(),
+            'size' => $dbData->perPage(),
         ];
 
         return response_success($result);
+    }
+
+    /**
+     * 修改用户信息
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function update(Request $request): JsonResponse
+    {
+        // 获取登录用户ID
+        $uid = (int)$request->header('uid');
+        // 获取想要的请求参数
+        $req = $request->only([
+            'uname',
+            'login_at',
+        ]);
+        $userUpdateRequest = new UserUpdateRequest();
+        $error = $userUpdateRequest->validator($req);
+        if ($error !== null) {
+            return response_result($error);
+        }
+        //
+        $userService = new UserService();
+        try {
+            $userService->update($uid, $userUpdateRequest);
+        } catch (\Throwable $e) {
+            return response_exception($e->getCode(), $e->getMessage());
+        }
+        return response_success();
     }
 
 }
