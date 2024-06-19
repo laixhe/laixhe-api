@@ -2,7 +2,8 @@ import uvicorn
 from fastapi import FastAPI
 
 from app.controllers import RegisterRouterList
-from app.errors import register_custom_error_handle
+from app.exception import register_custom_error_handle
+from config import appSettings
 
 # 实例化
 # docs_url=None: 代表关闭 SwaggerUi
@@ -19,4 +20,5 @@ for item in RegisterRouterList:
 
 
 if __name__ == "__main__":
-    uvicorn.run(app="main:app", host="0.0.0.0", port=80, reload=True)
+    print(appSettings)
+    uvicorn.run(app="main:app", host=appSettings.app_host, port=appSettings.app_port, reload=appSettings.app_debug)

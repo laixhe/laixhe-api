@@ -2,7 +2,7 @@ from fastapi import APIRouter
 # 导入pydantic对应的模型基类
 from pydantic import BaseModel, Field, EmailStr
 
-from app.types import response
+from app.result import result
 
 router = APIRouter(
     prefix="/auth",
@@ -18,9 +18,9 @@ class AuthRegisterRequest(BaseModel):
 
 
 @router.post("/register")
-async def auth_register(req: AuthRegisterRequest) -> response.HttpResponse:
+async def auth_register(req: AuthRegisterRequest) -> result.Result:
     """
     注册
     """
 
-    return response.success(req)
+    return result.success(req)

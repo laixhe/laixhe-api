@@ -1,23 +1,30 @@
-import os
+from pydantic_settings import BaseSettings
 
-# =========== 数据库配置 ===========
 
-# 数据库驱动
-DB_DRIVER = os.getenv('DB_DRIVER', 'mysql')
-# 数据库地址
-DB_HOST = os.getenv('DB_HOST', '127.0.0.1')
-# 数据库端口
-DB_PORT = os.getenv('DB_PORT', 3306)
-# 数据库名称
-DB_DATABASE = os.getenv('DB_DATABASE', 'webapi')
-# 数据库账号
-DB_USERNAME = os.getenv('DB_USERNAME', 'root')
-# 数据库密码
-DB_PASSWORD = os.getenv('DB_PASSWORD', '')
-# 数据表前缀
-DB_PREFIX = os.getenv('DB_PREFIX', '')
-# 是否开启调试模式：是-True,否-False
-DB_DEBUG = (os.getenv('DB_DEBUG', 'True') == 'True')
-# MySQL数据库链接(当前使用的数据库)
-SQLALCHEMY_MYSQL_URL = 'mysql+pymysql://' + DB_USERNAME + ':' + DB_PASSWORD + '@' + DB_HOST + ':' + str(
-    DB_PORT) + '/' + DB_DATABASE + '?charset=utf8mb4'
+class AppConfigSettings(BaseSettings):
+
+    """应用配置"""
+
+    app_name: str = ""
+    app_host: str = "127.0.0.1"
+    app_port: int = 8080
+    app_debug: bool = False
+
+    """数据库配置"""
+
+    # 数据库连接
+    db_dsn: str = ""
+    # 使用打印SQL日志信息
+    db_echo_sql: bool = True
+    # 连接池中的初始连接数，默认为 5
+    db_pool_size: int = 5
+    # 连接池中允许的最大超出连接数，默认为 10
+    db_max_overflow: int = 10
+
+    """jwt配置"""
+
+    # 秘钥
+    jwt_secret: str = ""
+    # 过期时间(秒)
+    jwt_expire: int = 604800
+
