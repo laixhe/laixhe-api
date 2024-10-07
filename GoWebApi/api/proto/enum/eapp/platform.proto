@@ -7,6 +7,10 @@ option go_package = "webapi/api/gen/enum/eapp;eapp";
 // 平台
 enum platform {
   unknown   = 0;
+  // 安卓
   android   = 1;
+  // 苹果
   ios       = 2;
+  // 网页
+  web       = 3;
 }

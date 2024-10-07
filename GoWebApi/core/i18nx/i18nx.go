@@ -4,40 +4,38 @@ import (
 	"context"
 	"errors"
 
+	"github.com/gin-gonic/gin"
 	"github.com/gogf/gf/v2/i18n/gi18n"
+
+	"webapi/api/gen/enum/eapp"
 )
 
 // 头部
-
-type LanguageContextKey struct{}
 
 const LanguageHeaderKey = "accept-language"
 
 var (
 	i18n = gi18n.New()
 
-	CtxZhCn = context.Background()
-	CtxEn   = context.Background()
+	CtxCn = context.Background()
+	CtxEn = context.Background()
 )
 
 func Init() {
-	i18n.SetLanguage("zh-cn")
-	CtxZhCn = gi18n.WithLanguage(context.Background(), "zh-cn")
-	CtxEn = gi18n.WithLanguage(context.Background(), "en")
+	i18n.SetLanguage(eapp.Language_zh_cn.String())
+	CtxCn = gi18n.WithLanguage(context.Background(), eapp.Language_zh_cn.String())
+	CtxEn = gi18n.WithLanguage(context.Background(), eapp.Language_en.String())
 }
 
-func FromContext(ctx context.Context, str string) string {
-	language, ok := ctx.Value(LanguageContextKey{}).(string)
-	if !ok {
-		return i18n.Translate(CtxZhCn, str)
+func FromContext(c *gin.Context, s string) string {
+	language := c.Request.Header.Get(LanguageHeaderKey)
+	if language == eapp.Language_en.String() {
+		return i18n.Translate(CtxEn, s)
 	}
-	if language == "en" {
-		return i18n.Translate(CtxEn, str)
-	}
-	return i18n.Translate(CtxZhCn, str)
+	return i18n.Translate(CtxCn, s)
 }
 
-func FromContextError(ctx context.Context, str string) error {
-	errStr := FromContext(ctx, str)
+func FromContextError(c *gin.Context, s string) error {
+	errStr := FromContext(c, s)
 	return errors.New(errStr)
 }

@@ -8,7 +8,7 @@ import (
 
 	"webapi/api/gen/ecode"
 	"webapi/core/errorx"
-	"webapi/core/utils"
+	"webapi/core/ginx/validatorx"
 )
 
 // ResponseModel 响应请求的公共模型
@@ -30,7 +30,7 @@ func ResponseError(err error) *ResponseModel {
 	if errors.As(err, &ev) {
 		return &ResponseModel{
 			Code: ecode.ECode_Param,
-			Msg:  utils.TranslatorErrorString(ev),
+			Msg:  validatorx.TranslatorErrorString(ev),
 		}
 	}
 	var ejut *json.UnmarshalTypeError

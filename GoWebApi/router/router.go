@@ -10,8 +10,8 @@ import (
 	"webapi/api/gen/config/clog"
 	"webapi/core/confx"
 	"webapi/core/ginx"
+	"webapi/core/ginx/validatorx"
 	"webapi/core/logx"
-	"webapi/core/utils"
 )
 
 // Router gin 路由
@@ -23,7 +23,7 @@ func Router() *gin.Engine {
 	}
 
 	// Validator(表单验证)多语言提示文本
-	if err := utils.ValidatorTranslator("zh"); err != nil {
+	if err := validatorx.ValidatorTranslator("zh"); err != nil {
 		logx.Errorf("gin set translator error:%v", err)
 		return nil
 	}
@@ -33,7 +33,7 @@ func Router() *gin.Engine {
 	// 中间件
 	r.Use(requestid.New(requestid.WithGenerator(func() string {
 		return xid.New().String()
-	}))) // 请求ID
+	})))                   // 请求ID
 	r.Use(ginx.Cors())     // 跨域
 	r.Use(ginx.Logger())   // 日志
 	r.Use(ginx.Recovery()) // 出现 panic 恢复正常

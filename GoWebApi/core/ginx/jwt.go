@@ -15,23 +15,23 @@ import (
 
 // JwtAuth 鉴权
 func JwtAuth() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
+	return func(c *gin.Context) {
 		var parseTokenErr error
-		token := ctx.Request.Header.Get(jwtx.Authorization)
+		token := c.Request.Header.Get(jwtx.Authorization)
 		if len(token) > 0 {
 			if strings.HasPrefix(token, jwtx.Bearer) {
 				claims, err := jwtx.ParseToken(token[jwtx.BearerLen:])
 				if err == nil {
-					ctx.Set(jwtx.AuthorizationClaimsHeaderKey, claims)
-					ctx.Next()
+					c.Set(jwtx.AuthorizationClaimsHeaderKey, claims)
+					c.Next()
 					return
 				}
 				parseTokenErr = errorx.AuthInvalidError(err)
 			}
 		}
-		ctx.JSON(http.StatusOK, responsex.ResponseError(parseTokenErr))
+		c.JSON(http.StatusOK, responsex.ResponseError(parseTokenErr))
 		// 返回错误
-		ctx.Abort()
+		c.Abort()
 	}
 }
 

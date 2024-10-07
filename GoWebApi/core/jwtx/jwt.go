@@ -23,8 +23,6 @@ const (
 
 // 头部
 
-type AuthorizationContextKey struct{}
-
 const AuthorizationClaimsHeaderKey = "AuthorizationClaims"
 
 // Checking 检查

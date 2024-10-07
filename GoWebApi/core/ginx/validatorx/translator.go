@@ -1,4 +1,4 @@
-package utils
+package validatorx
 
 import (
 	"fmt"
@@ -11,12 +11,14 @@ import (
 	"github.com/go-playground/validator/v10"
 	enTranslations "github.com/go-playground/validator/v10/translations/en"
 	zhTranslations "github.com/go-playground/validator/v10/translations/zh"
+
+	"webapi/api/gen/enum/eapp"
 )
 
 // 全局翻译器
 var trans translator.Translator
 
-// ValidatorTranslator Validator(表单验证)多语言提示文本
+// ValidatorTranslator 表单验证多语言提示文本
 func ValidatorTranslator(language string) (err error) {
 	// 修改 gin 框架中 Validator 引擎属性，实现自定制
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
@@ -32,9 +34,9 @@ func ValidatorTranslator(language string) (err error) {
 		}
 		// 注册翻译器
 		switch language {
-		case "en":
+		case eapp.Language_en.String():
 			err = enTranslations.RegisterDefaultTranslations(v, trans)
-		case "zh":
+		case eapp.Language_zh_cn.String():
 			err = zhTranslations.RegisterDefaultTranslations(v, trans)
 		default:
 			err = zhTranslations.RegisterDefaultTranslations(v, trans)

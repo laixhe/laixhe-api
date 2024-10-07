@@ -7,6 +7,7 @@ import (
 	"webapi/core/confx/appx"
 	"webapi/core/confx/serverx"
 	"webapi/core/gormx"
+	"webapi/core/jwtx"
 	"webapi/core/redisx"
 	"webapi/docs"
 )
@@ -20,11 +21,11 @@ func Init(configFile, gitVersion string) {
 
 	// config check
 	appx.Checking()
+	jwtx.Checking()
 	serverx.Checking()
 
 	// init db
 	gormx.Init(confx.Get().GetDb())
 	//mongox.Init(confx.Get().GetMongodb())
-	// init redis
 	redisx.Init(confx.Get().GetRedis())
 }
