@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "webapi/api/gen/user;user";
+
+import "proto/user/user.proto";
+
+// 请求-用户信息
+message InfoRequest {
+}
+
+// 响应-用户信息
+message InfoResponse {
+  user.User user = 1;
+}
