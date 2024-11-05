@@ -67,12 +67,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/auth.RefreshResponse"
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/responsex.ResponseModel"
-                        }
                     }
                 }
             }
@@ -129,12 +123,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/user.InfoRequest"
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/responsex.ResponseModel"
-                        }
                     }
                 }
             }
@@ -174,12 +162,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/user.ListResponse"
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/responsex.ResponseModel"
-                        }
                     }
                 }
             }
@@ -214,12 +196,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/user.UpdateResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/responsex.ResponseModel"
                         }
                     }
                 }
@@ -306,80 +282,6 @@ const docTemplate = `{
                 },
                 "user": {
                     "$ref": "#/definitions/user.User"
-                }
-            }
-        },
-        "ecode.ECode": {
-            "type": "integer",
-            "enum": [
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                100,
-                101,
-                102,
-                103,
-                104,
-                105,
-                106,
-                107,
-                108
-            ],
-            "x-enum-comments": {
-                "ECode_AuthExpire": "授权过期",
-                "ECode_AuthInvalid": "授权无效",
-                "ECode_AuthUserError": "用户或密码错误",
-                "ECode_EmailExist": "邮箱已存在",
-                "ECode_EmailNotExist": "邮箱不存在",
-                "ECode_JsonEncode": "json编码错误",
-                "ECode_JsonParse": "json解析错误",
-                "ECode_Param": "参数错误",
-                "ECode_PhoneExist": "手机号码已存在",
-                "ECode_PhoneNotExist": "手机号码不存在",
-                "ECode_Service": "服务错误",
-                "ECode_Success": "成功",
-                "ECode_TipMessage": "提示错误消息",
-                "ECode_UserExist": "用户已存在",
-                "ECode_UserNotExist": "用户不存在"
-            },
-            "x-enum-varnames": [
-                "ECode_Success",
-                "ECode_Service",
-                "ECode_Param",
-                "ECode_TipMessage",
-                "ECode_JsonParse",
-                "ECode_JsonEncode",
-                "ECode_AuthInvalid",
-                "ECode_AuthExpire",
-                "ECode_AuthUserError",
-                "ECode_UserExist",
-                "ECode_UserNotExist",
-                "ECode_EmailExist",
-                "ECode_EmailNotExist",
-                "ECode_PhoneExist",
-                "ECode_PhoneNotExist"
-            ]
-        },
-        "responsex.ResponseModel": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "description": "响应码",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/ecode.ECode"
-                        }
-                    ]
-                },
-                "data": {
-                    "description": "数据"
-                },
-                "msg": {
-                    "description": "响应信息",
-                    "type": "string"
                 }
             }
         },

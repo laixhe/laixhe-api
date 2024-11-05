@@ -21,7 +21,7 @@ api:
 	mv ./webapi/api/gen ./api
 	rm -rf ./webapi
 	protoc-go-inject-tag -input="./api/gen/*/*.pb.go"
-	protoc-go-inject-tag -input="./api/gen/*/*/*.pb.go"
+	#protoc-go-inject-tag -input="./api/gen/*/*/*.pb.go"
 
 .PHONY: build
 build:

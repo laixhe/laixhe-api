@@ -5,17 +5,19 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/laixhe/gonet/errorx"
+	"github.com/laixhe/gonet/ginx"
+	"github.com/laixhe/gonet/jwtx"
+	"github.com/laixhe/gonet/logx"
+	"github.com/laixhe/gonet/utils"
 	"github.com/rs/xid"
 	"gorm.io/gorm"
 
 	pbAuth "webapi/api/gen/auth"
+	"webapi/api/gen/ecode"
 	pbUser "webapi/api/gen/user"
 	"webapi/app/models"
-	"webapi/core/errorx"
-	"webapi/core/ginx"
-	"webapi/core/jwtx"
-	"webapi/core/logx"
-	"webapi/core/utils"
+	"webapi/core"
 )
 
 // AuthRegister 注册
@@ -50,7 +52,7 @@ func (s *Service) AuthRegister(c *gin.Context, req *pbAuth.RegisterRequest) (*pb
 		return nil, errorx.ServiceError(err)
 	}
 
-	token, err := jwtx.GenToken(user.Uid, xid.New().String())
+	token, err := jwtx.GenToken(core.Config().Jwt, user.Uid, xid.New().String())
 	if err != nil {
 		logx.Errorf("GenToken %v", err)
 		return nil, errorx.ServiceError(err)
@@ -72,15 +74,15 @@ func (s *Service) AuthLogin(c *gin.Context, req *pbAuth.LoginRequest) (*pbAuth.L
 	user, err := s.data.User.FirstEmail(req.Email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errorx.AuthUserError(nil)
+			return nil, errorx.New(int32(ecode.ECode_AuthUserError), nil)
 		}
 		logx.Errorf("FirstEmail %v", err)
 		return nil, errorx.ServiceError(err)
 	}
 	if !utils.BcryptPasswordCheck(req.Password, user.Password) {
-		return nil, errorx.AuthUserError(err)
+		return nil, errorx.New(int32(ecode.ECode_AuthUserError), nil)
 	}
-	token, err := jwtx.GenToken(user.Uid, xid.New().String())
+	token, err := jwtx.GenToken(core.Config().Jwt, user.Uid, xid.New().String())
 	if err != nil {
 		logx.Errorf("GenToken %v", err)
 		return nil, errorx.ServiceError(err)
@@ -103,7 +105,7 @@ func (s *Service) AuthRefresh(c *gin.Context, req *pbAuth.RefreshRequest) (*pbAu
 	if err != nil {
 		return nil, err
 	}
-	token, err := jwtx.GenToken(uid, xid.New().String())
+	token, err := jwtx.GenToken(core.Config().Jwt, uid, xid.New().String())
 	if err != nil {
 		logx.Errorf("GenToken %v", err)
 		return nil, errorx.ServiceError(err)

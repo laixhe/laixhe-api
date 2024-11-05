@@ -1,31 +1,46 @@
 package core
 
 import (
+	"fmt"
 	"time"
 
-	"webapi/core/confx"
-	"webapi/core/confx/appx"
-	"webapi/core/confx/serverx"
-	"webapi/core/gormx"
-	"webapi/core/jwtx"
-	"webapi/core/redisx"
+	"github.com/laixhe/gonet"
+
+	"webapi/core/config"
 	"webapi/docs"
 )
 
+type Core struct {
+	Config *config.Config
+}
+
+var coreData *Core
+
 func Init(configFile, gitVersion string) {
 	// init config
-	confx.Init(configFile)
+	c := config.Init(configFile).AppChecking().HttpChecking().JwtChecking()
 	// init api doc
 	docs.SwaggerInfo.Description = docs.ErrorDescription()
 	docs.SwaggerInfo.Version = gitVersion + "-" + time.Now().Format(time.DateTime)
 
-	// config check
-	appx.Checking()
-	jwtx.Checking()
-	serverx.Checking()
-
 	// init db
-	gormx.Init(confx.Get().GetDb())
-	//mongox.Init(confx.Get().GetMongodb())
-	redisx.Init(confx.Get().GetRedis())
+	if err := gonet.GormInit(c.Gorm); err != nil {
+		panic(err)
+	}
+	if err := gonet.MongoInit(c.Mongodb); err != nil {
+		panic(err)
+	}
+	if err := gonet.RedisInit(c.Redis); err != nil {
+		panic(err)
+	}
+
+	coreData = &Core{Config: c}
+}
+
+func Config() *config.Config {
+	return coreData.Config
+}
+
+func HttpAddr() string {
+	return fmt.Sprintf(":%d", coreData.Config.Http.Port)
 }

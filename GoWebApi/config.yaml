@@ -3,9 +3,8 @@ app:
   mode: debug
   pid: webapi.pid
 
-servers:
-  http:
-    ip: 0.0.0.0
+http:
+    ip:
     port: 80
     timeout: 0
 
@@ -23,7 +22,7 @@ log:
   # 保留 N 天
   max_age: 7
 
-db:
+gorm:
   # 连接地址
   dsn: root:123456@tcp(127.0.0.1:3306)/webapi?charset=utf8mb4&parseTime=True&loc=Local
   # 设置空闲连接池中连接的最大数量

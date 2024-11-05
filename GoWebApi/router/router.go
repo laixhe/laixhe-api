@@ -3,27 +3,28 @@ package router
 import (
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
+	"github.com/laixhe/gonet/ginx"
+	"github.com/laixhe/gonet/ginx/validatorx"
+	"github.com/laixhe/gonet/logx"
+	"github.com/laixhe/gonet/proto/gen/config/clog"
+	"github.com/laixhe/gonet/proto/gen/enum/eapp"
 	"github.com/rs/xid"
 	swaggerFiles "github.com/swaggo/files"
 	swaggerGin "github.com/swaggo/gin-swagger"
 
-	"webapi/api/gen/config/clog"
-	"webapi/core/confx"
-	"webapi/core/ginx"
-	"webapi/core/ginx/validatorx"
-	"webapi/core/logx"
+	"webapi/core"
 )
 
 // Router gin 路由
 func Router() *gin.Engine {
-	if confx.Get().Log.Level == clog.LevelType_debug.String() {
+	if core.Config().Log.Level == clog.LevelType_debug.String() {
 		gin.SetMode(gin.DebugMode)
 	} else {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
 	// Validator(表单验证)多语言提示文本
-	if err := validatorx.ValidatorTranslator("zh"); err != nil {
+	if err := validatorx.ValidatorTranslator(eapp.Language_zh.String()); err != nil {
 		logx.Errorf("gin set translator error:%v", err)
 		return nil
 	}
@@ -33,7 +34,7 @@ func Router() *gin.Engine {
 	// 中间件
 	r.Use(requestid.New(requestid.WithGenerator(func() string {
 		return xid.New().String()
-	})))                   // 请求ID
+	}))) // 请求ID
 	r.Use(ginx.Cors())     // 跨域
 	r.Use(ginx.Logger())   // 日志
 	r.Use(ginx.Recovery()) // 出现 panic 恢复正常

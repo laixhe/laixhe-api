@@ -2,9 +2,10 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/laixhe/gonet/ginx"
 
 	"webapi/app/controllers"
-	"webapi/core/ginx"
+	"webapi/core"
 )
 
 // AuthRouter 鉴权相关
@@ -19,6 +20,6 @@ func AuthRouter(r *gin.RouterGroup) {
 
 	// token
 
-	jwt := auth.Use(ginx.JwtAuth())
+	jwt := auth.Use(ginx.JwtAuth(core.Config().Jwt))
 	jwt.POST("/refresh", c.Refresh) // 刷新Jwt
 }

@@ -2,11 +2,11 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/laixhe/gonet/ginx"
+	"github.com/laixhe/gonet/logx"
 
 	pbAuth "webapi/api/gen/auth"
 	"webapi/app/services"
-	"webapi/core/ginx"
-	"webapi/core/logx"
 )
 
 type Auth struct {
@@ -30,19 +30,19 @@ func NewAuth() *Auth {
 func (a *Auth) Register(c *gin.Context) {
 	req := &pbAuth.RegisterRequest{}
 	if err := c.ShouldBindJSON(req); err != nil {
-		ginx.Error(c, err)
+		ginx.ErrorJSON(c, err)
 		return
 	}
 	logx.Infof("req:%s", req)
 
 	resp, err := a.service.AuthRegister(c, req)
 	if err != nil {
-		ginx.Error(c, err)
+		ginx.ErrorJSON(c, err)
 		return
 	}
 
 	logx.Infof("resp:%s", resp)
-	ginx.Success(c, resp)
+	ginx.SuccessJSON(c, resp)
 }
 
 // Login 登录
@@ -56,19 +56,19 @@ func (a *Auth) Register(c *gin.Context) {
 func (a *Auth) Login(c *gin.Context) {
 	req := &pbAuth.LoginRequest{}
 	if err := c.ShouldBindJSON(req); err != nil {
-		ginx.Error(c, err)
+		ginx.ErrorJSON(c, err)
 		return
 	}
 	logx.Infof("req:%s", req)
 
 	resp, err := a.service.AuthLogin(c, req)
 	if err != nil {
-		ginx.Error(c, err)
+		ginx.ErrorJSON(c, err)
 		return
 	}
 
 	logx.Infof("resp:%s", resp)
-	ginx.Success(c, resp)
+	ginx.SuccessJSON(c, resp)
 }
 
 // Refresh 刷新Jwt
@@ -78,16 +78,15 @@ func (a *Auth) Login(c *gin.Context) {
 // @Produce  json
 // @Param Authorization header string false "Bearer token令牌"
 // @Success  200    {object}  auth.RefreshResponse
-// @Success  400    {object}  responsex.ResponseModel
 // @Router   /api/auth/refresh [post]
 func (a *Auth) Refresh(c *gin.Context) {
 	req := &pbAuth.RefreshRequest{}
 	resp, err := a.service.AuthRefresh(c, req)
 	if err != nil {
-		ginx.Error(c, err)
+		ginx.ErrorJSON(c, err)
 		return
 	}
 
 	logx.Infof("resp:%s", resp)
-	ginx.Success(c, resp)
+	ginx.SuccessJSON(c, resp)
 }

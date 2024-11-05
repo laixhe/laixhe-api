@@ -6,13 +6,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-module/carbon/v2"
+	"github.com/laixhe/gonet/errorx"
+	"github.com/laixhe/gonet/ginx"
+	"github.com/laixhe/gonet/logx"
 	"gorm.io/gorm"
 
 	pbUser "webapi/api/gen/user"
 	"webapi/app/models"
-	"webapi/core/errorx"
-	"webapi/core/ginx"
-	"webapi/core/logx"
 )
 
 func (s *Service) UserInfo(c *gin.Context, req *pbUser.InfoRequest) (*pbUser.InfoResponse, error) {
@@ -79,7 +79,7 @@ func (s *Service) UserUpdate(c *gin.Context, req *pbUser.UpdateRequest) (*pbUser
 		if user.Uid == uid {
 			return &pbUser.UpdateResponse{}, nil
 		}
-		return nil, errorx.ParamError(errors.New("用户名已存在！"))
+		return nil, errorx.ParamErrorStr("用户名已存在！")
 	}
 
 	user = models.User{
