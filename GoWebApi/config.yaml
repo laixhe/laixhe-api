@@ -9,10 +9,10 @@ http:
     timeout: 0
 
 log:
+  # 日志模式 console file
+  run: console
   # 日志文件路径
   path: logs.log
-  # 日志模式 console file
-  run_type: console
   # 日志级别 debug  info  error
   level: debug
   # 每个日志文件保存大小 20M

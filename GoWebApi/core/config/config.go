@@ -26,6 +26,7 @@ type Config struct {
 func Init(configFile string) *Config {
 	c := &Config{}
 	configx.Init(configFile, false, c)
+	logx.Init(c.Log)
 	return c
 }
 

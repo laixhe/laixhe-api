@@ -14,7 +14,7 @@ import (
 	"gorm.io/gorm"
 
 	pbAuth "webapi/api/gen/auth"
-	"webapi/api/gen/ecode"
+	"webapi/api/gen/code"
 	pbUser "webapi/api/gen/user"
 	"webapi/app/models"
 	"webapi/core"
@@ -74,13 +74,13 @@ func (s *Service) AuthLogin(c *gin.Context, req *pbAuth.LoginRequest) (*pbAuth.L
 	user, err := s.data.User.FirstEmail(req.Email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errorx.New(int32(ecode.ECode_AuthUserError), nil)
+			return nil, errorx.New(int32(code.Code_AuthUserError), nil)
 		}
 		logx.Errorf("FirstEmail %v", err)
 		return nil, errorx.ServiceError(err)
 	}
 	if !utils.BcryptPasswordCheck(req.Password, user.Password) {
-		return nil, errorx.New(int32(ecode.ECode_AuthUserError), nil)
+		return nil, errorx.New(int32(code.Code_AuthUserError), nil)
 	}
 	token, err := jwtx.GenToken(core.Config().Jwt, user.Uid, xid.New().String())
 	if err != nil {

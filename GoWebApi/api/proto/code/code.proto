@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-package ecode;
+package code;
 
-option go_package = "webapi/api/gen/ecode;ecode";
+option go_package = "webapi/api/gen/code;code";
 
 // 错误状态码
-enum ECode {
+enum Code {
     Success              = 0;   // 成功
     AuthUserError        = 101; // 用户或密码错误
     UserExist            = 102; // 用户已存在

@@ -27,9 +27,9 @@ func Init(configFile, gitVersion string) {
 	if err := gonet.GormInit(c.Gorm); err != nil {
 		panic(err)
 	}
-	if err := gonet.MongoInit(c.Mongodb); err != nil {
-		panic(err)
-	}
+	// if err := gonet.MongoInit(c.Mongodb); err != nil {
+	// 	panic(err)
+	// }
 	if err := gonet.RedisInit(c.Redis); err != nil {
 		panic(err)
 	}
