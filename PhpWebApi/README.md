@@ -1,6 +1,7 @@
 ####
 ```
 composer install
+composer update
 ```
 
 #### 生成中间件
