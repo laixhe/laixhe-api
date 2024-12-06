@@ -2,11 +2,11 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/laixhe/gonet/xgin"
 	"github.com/laixhe/gonet/xlog"
 
 	"webapi/api/gen/pbauth"
 	"webapi/app/services"
+	"webapi/core"
 )
 
 type Auth struct {
@@ -30,19 +30,21 @@ func NewAuth() *Auth {
 func (a *Auth) Register(c *gin.Context) {
 	req := &pbauth.RegisterRequest{}
 	if err := c.ShouldBindJSON(req); err != nil {
-		xgin.ErrorJSON(c, err)
+		core.JSONErrorParse(c, err)
 		return
 	}
+	//
 	xlog.Infof("req:%s", req)
-
+	//
 	resp, err := a.service.AuthRegister(c, req)
 	if err != nil {
-		xgin.ErrorJSON(c, err)
+		core.JSONError(c, err)
 		return
 	}
-
+	//
 	xlog.Infof("resp:%s", resp)
-	xgin.SuccessJSON(c, resp)
+	//
+	core.JSONSuccess(c, resp)
 }
 
 // Login 登录
@@ -56,19 +58,21 @@ func (a *Auth) Register(c *gin.Context) {
 func (a *Auth) Login(c *gin.Context) {
 	req := &pbauth.LoginRequest{}
 	if err := c.ShouldBindJSON(req); err != nil {
-		xgin.ErrorJSON(c, err)
+		core.JSONErrorParse(c, err)
 		return
 	}
+	//
 	xlog.Infof("req:%s", req)
-
+	//
 	resp, err := a.service.AuthLogin(c, req)
 	if err != nil {
-		xgin.ErrorJSON(c, err)
+		core.JSONError(c, err)
 		return
 	}
-
+	//
 	xlog.Infof("resp:%s", resp)
-	xgin.SuccessJSON(c, resp)
+	//
+	core.JSONSuccess(c, resp)
 }
 
 // Refresh 刷新Jwt
@@ -83,10 +87,11 @@ func (a *Auth) Refresh(c *gin.Context) {
 	req := &pbauth.RefreshRequest{}
 	resp, err := a.service.AuthRefresh(c, req)
 	if err != nil {
-		xgin.ErrorJSON(c, err)
+		core.JSONError(c, err)
 		return
 	}
-
+	//
 	xlog.Infof("resp:%s", resp)
-	xgin.SuccessJSON(c, resp)
+	//
+	core.JSONSuccess(c, resp)
 }

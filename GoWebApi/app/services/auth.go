@@ -13,7 +13,7 @@ import (
 	"github.com/rs/xid"
 	"gorm.io/gorm"
 
-	"webapi/api/gen/code"
+	"webapi/api/gen/ecode"
 	"webapi/api/gen/pbauth"
 	"webapi/api/gen/pbuser"
 	"webapi/app/models"
@@ -21,23 +21,24 @@ import (
 )
 
 // AuthRegister 注册
-func (s *Service) AuthRegister(c *gin.Context, req *pbauth.RegisterRequest) (*pbauth.RegisterResponse, error) {
+func (s *Service) AuthRegister(c *gin.Context, req *pbauth.RegisterRequest) (*pbauth.RegisterResponse, xerror.IError) {
 	u, err := s.data.User.FirstEmail(req.Email)
 	if err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			xlog.Errorf("FirstEmail %v", err)
-			return nil, xerror.ServiceError(err)
+			return nil, core.ErrorService(err)
 		}
 	}
 	if u.Uid > 0 {
-		return nil, xerror.ParamError(nil)
+		return nil, core.ErrorParam(nil)
 	}
-
+	//
 	password, err := xutil.BcryptPasswordHash(req.Password)
 	if err != nil {
 		xlog.Errorf("FirstEmail %v", err)
-		return nil, xerror.ServiceError(err)
+		return nil, core.ErrorService(err)
 	}
+	//
 	user := &models.User{
 		Password: password,
 		Email:    req.Email,
@@ -49,15 +50,16 @@ func (s *Service) AuthRegister(c *gin.Context, req *pbauth.RegisterRequest) (*pb
 	err = s.data.User.Create(user)
 	if err != nil {
 		xlog.Errorf("Create %v", err)
-		return nil, xerror.ServiceError(err)
+		return nil, core.ErrorService(err)
 	}
-
+	//
 	token, err := xjwt.GenToken(core.Config().Jwt, user.Uid, xid.New().String())
 	if err != nil {
 		xlog.Errorf("GenToken %v", err)
-		return nil, xerror.ServiceError(err)
+		return nil, core.ErrorService(err)
 	}
-	resp := &pbauth.RegisterResponse{
+	//
+	return &pbauth.RegisterResponse{
 		Token: token,
 		User: &pbuser.User{
 			Uid:       user.Uid,
@@ -65,29 +67,30 @@ func (s *Service) AuthRegister(c *gin.Context, req *pbauth.RegisterRequest) (*pb
 			Email:     user.Email,
 			CreatedAt: user.CreatedAt.Format(time.DateTime),
 		},
-	}
-	return resp, nil
+	}, nil
 }
 
 // AuthLogin 登录
-func (s *Service) AuthLogin(c *gin.Context, req *pbauth.LoginRequest) (*pbauth.LoginResponse, error) {
+func (s *Service) AuthLogin(c *gin.Context, req *pbauth.LoginRequest) (*pbauth.LoginResponse, xerror.IError) {
 	user, err := s.data.User.FirstEmail(req.Email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, xerror.New(int32(code.Code_AuthUserError), nil)
+			return nil, core.NewError(ecode.ECode_AuthUserError, nil)
 		}
 		xlog.Errorf("FirstEmail %v", err)
-		return nil, xerror.ServiceError(err)
+		return nil, core.ErrorService(err)
 	}
+	//
 	if !xutil.BcryptPasswordCheck(req.Password, user.Password) {
-		return nil, xerror.New(int32(code.Code_AuthUserError), nil)
+		return nil, core.NewError(ecode.ECode_AuthUserError, nil)
 	}
 	token, err := xjwt.GenToken(core.Config().Jwt, user.Uid, xid.New().String())
 	if err != nil {
 		xlog.Errorf("GenToken %v", err)
-		return nil, xerror.ServiceError(err)
+		return nil, core.ErrorService(err)
 	}
-	resp := &pbauth.LoginResponse{
+	//
+	return &pbauth.LoginResponse{
 		Token: token,
 		User: &pbuser.User{
 			Uid:       user.Uid,
@@ -95,23 +98,23 @@ func (s *Service) AuthLogin(c *gin.Context, req *pbauth.LoginRequest) (*pbauth.L
 			Email:     user.Email,
 			CreatedAt: user.CreatedAt.Format(time.DateTime),
 		},
-	}
-	return resp, nil
+	}, nil
 }
 
 // AuthRefresh 刷新Jwt
-func (s *Service) AuthRefresh(c *gin.Context, req *pbauth.RefreshRequest) (*pbauth.RefreshResponse, error) {
-	uid, err := xgin.ContextUid(c)
-	if err != nil {
-		return nil, err
+func (s *Service) AuthRefresh(c *gin.Context, req *pbauth.RefreshRequest) (*pbauth.RefreshResponse, xerror.IError) {
+	uid := xgin.ContextUid(c)
+	if uid == 0 {
+		return nil, core.ErrorAuthInvalid(nil)
 	}
+	//
 	token, err := xjwt.GenToken(core.Config().Jwt, uid, xid.New().String())
 	if err != nil {
 		xlog.Errorf("GenToken %v", err)
-		return nil, xerror.ServiceError(err)
+		return nil, core.ErrorService(err)
 	}
-	resp := &pbauth.RefreshResponse{
+	//
+	return &pbauth.RefreshResponse{
 		Token: token,
-	}
-	return resp, nil
+	}, nil
 }

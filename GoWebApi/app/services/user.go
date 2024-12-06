@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	carbon "github.com/dromara/carbon/v2"
+	"github.com/gin-gonic/gin"
 	"github.com/laixhe/gonet/xerror"
 	"github.com/laixhe/gonet/xgin"
 	"github.com/laixhe/gonet/xlog"
@@ -13,40 +13,41 @@ import (
 
 	"webapi/api/gen/pbuser"
 	"webapi/app/models"
+	"webapi/core"
 )
 
-func (s *Service) UserInfo(c *gin.Context, req *pbuser.InfoRequest) (*pbuser.InfoResponse, error) {
-	uid, err := xgin.ContextUid(c)
-	if err != nil {
-		return nil, err
+func (s *Service) UserInfo(c *gin.Context, req *pbuser.InfoRequest) (*pbuser.InfoResponse, xerror.IError) {
+	uid := xgin.ContextUid(c)
+	if uid == 0 {
+		return nil, core.ErrorAuthInvalid(nil)
 	}
-
+	//
 	user, err := s.data.User.FirstID(uid)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, xerror.AuthInvalidError(err)
+			return nil, core.ErrorAuthInvalid(err)
 		}
 		xlog.Errorf("UserInfo %v", err)
-		return nil, xerror.ServiceError(err)
+		return nil, core.ErrorService(err)
 	}
-	resp := &pbuser.InfoResponse{
+	//
+	return &pbuser.InfoResponse{
 		User: &pbuser.User{
 			Uid:       user.Uid,
 			Uname:     user.Uname,
 			Email:     user.Email,
 			CreatedAt: user.CreatedAt.Format(time.DateTime),
 		},
-	}
-	return resp, nil
+	}, nil
 }
 
-func (s *Service) UserList(c *gin.Context, req *pbuser.ListRequest) (*pbuser.ListResponse, error) {
+func (s *Service) UserList(c *gin.Context, req *pbuser.ListRequest) (*pbuser.ListResponse, xerror.IError) {
 	users, total, err := s.data.User.List(int(req.Size), int(req.Page))
 	if err != nil {
 		xlog.Errorf("UserList %v", err)
-		return nil, xerror.ServiceError(err)
+		return nil, core.ErrorService(err)
 	}
-
+	//
 	resp := &pbuser.ListResponse{
 		List:  make([]*pbuser.User, 0, len(users)),
 		Total: int32(total),
@@ -61,27 +62,28 @@ func (s *Service) UserList(c *gin.Context, req *pbuser.ListRequest) (*pbuser.Lis
 			CreatedAt: user.CreatedAt.Format(time.DateTime),
 		})
 	}
+	//
 	return resp, nil
 }
 
-func (s *Service) UserUpdate(c *gin.Context, req *pbuser.UpdateRequest) (*pbuser.UpdateResponse, error) {
-	uid, err := xgin.ContextUid(c)
-	if err != nil {
-		return nil, err
+func (s *Service) UserUpdate(c *gin.Context, req *pbuser.UpdateRequest) (*pbuser.UpdateResponse, xerror.IError) {
+	uid := xgin.ContextUid(c)
+	if uid == 0 {
+		return nil, core.ErrorAuthInvalid(nil)
 	}
-
+	//
 	user, err := s.data.User.FirstUname(req.Uname)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		xlog.Errorf("UserUpdate %v", err)
-		return nil, xerror.ServiceError(err)
+		return nil, core.ErrorService(err)
 	}
 	if err == nil {
 		if user.Uid == uid {
 			return &pbuser.UpdateResponse{}, nil
 		}
-		return nil, xerror.ParamErrorStr("用户名已存在！")
+		return nil, core.ErrorParamStr("用户名已存在！")
 	}
-
+	//
 	user = models.User{
 		Uid:     uid,
 		Uname:   req.Uname,
@@ -90,8 +92,8 @@ func (s *Service) UserUpdate(c *gin.Context, req *pbuser.UpdateRequest) (*pbuser
 	err = s.data.User.Update(&user)
 	if err != nil {
 		xlog.Errorf("Update %v", err)
-		return nil, xerror.ServiceError(err)
+		return nil, core.ErrorService(err)
 	}
-
+	//
 	return &pbuser.UpdateResponse{}, nil
 }

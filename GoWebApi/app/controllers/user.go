@@ -4,12 +4,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/laixhe/gonet/xerror"
-	"github.com/laixhe/gonet/xgin"
-	"github.com/laixhe/gonet/xlog"
 
 	"webapi/api/gen/pbuser"
 	"webapi/app/services"
+	"webapi/core"
 )
 
 type User struct {
@@ -34,11 +32,11 @@ func (u *User) Info(c *gin.Context) {
 	req := &pbuser.InfoRequest{}
 	resp, err := u.service.UserInfo(c, req)
 	if err != nil {
-		xgin.ErrorJSON(c, err)
+		core.JSONError(c, err)
 		return
 	}
-
-	xgin.SuccessJSON(c, resp)
+	//
+	core.JSONSuccess(c, resp)
 }
 
 // List 用户列表
@@ -54,25 +52,24 @@ func (u *User) Info(c *gin.Context) {
 func (u *User) List(c *gin.Context) {
 	req := &pbuser.ListRequest{}
 	if err := c.ShouldBindQuery(req); err != nil {
-		xlog.Infof("req:%s", req)
-		xgin.ErrorJSON(c, err)
+		core.JSONErrorParse(c, err)
 		return
 	}
-	xlog.Infof("req:%s", req)
+	//
 	if req.Size <= 0 {
 		req.Size = 20
 	}
 	if req.Page <= 0 {
 		req.Page = 1
 	}
-
+	//
 	resp, err := u.service.UserList(c, req)
 	if err != nil {
-		xgin.ErrorJSON(c, err)
+		core.JSONError(c, err)
 		return
 	}
-
-	xgin.SuccessJSON(c, resp)
+	//
+	core.JSONSuccess(c, resp)
 }
 
 // Update 修改用户信息
@@ -87,23 +84,20 @@ func (u *User) List(c *gin.Context) {
 func (u *User) Update(c *gin.Context) {
 	req := &pbuser.UpdateRequest{}
 	if err := c.ShouldBindJSON(req); err != nil {
-		xlog.Infof("req:%s", req)
-		xgin.ErrorJSON(c, err)
+		core.JSONErrorParse(c, err)
 		return
 	}
-	xlog.Infof("req:%s", req)
-
-	_, err := time.ParseInLocation(time.DateTime, req.LoginAt, time.Local)
-	if err != nil {
-		xgin.ErrorJSON(c, xerror.ParamErrorStr("登录时间格式不对！"))
+	//
+	if _, err := time.ParseInLocation(time.DateTime, req.LoginAt, time.Local); err != nil {
+		core.JSONErrorParamStr(c, "登录时间格式不对！")
 		return
 	}
-
+	//
 	resp, err := u.service.UserUpdate(c, req)
 	if err != nil {
-		xgin.ErrorJSON(c, err)
+		core.JSONError(c, err)
 		return
 	}
-
-	xgin.SuccessJSON(c, resp)
+	//
+	core.JSONSuccess(c, resp)
 }
