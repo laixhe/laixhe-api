@@ -33,7 +33,7 @@ func Router() *gin.Engine {
 	// 中间件
 	r.Use(requestid.New(requestid.WithGenerator(func() string {
 		return xid.New().String()
-	})))                   // 请求ID
+	}))) // 请求ID
 	r.Use(xgin.Cors())     // 跨域
 	r.Use(xgin.Logger())   // 日志
 	r.Use(xgin.Recovery()) // 出现 panic 恢复正常
