@@ -4,9 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/laixhe/gonet/xlog"
 
-	"webapi/api/gen/pbauth"
 	"webapi/app/services"
 	"webapi/core"
+	"webapi/protocol/gen/pbauth"
 )
 
 type Auth struct {

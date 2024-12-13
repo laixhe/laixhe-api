@@ -5,9 +5,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"webapi/api/gen/pbuser"
 	"webapi/app/services"
 	"webapi/core"
+	"webapi/protocol/gen/pbuser"
 )
 
 type User struct {

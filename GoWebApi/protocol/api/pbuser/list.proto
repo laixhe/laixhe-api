@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package pbuser;
+
+option go_package = "webapi/protocol/gen/pbuser;pbuser";
+
+import "pbuser/user.proto";
+
+// 请求-用户列表
+message ListRequest {
+  // 每页页数(数量)
+  int32 size = 1; // @gotags: form:"size"
+  // 当前页数
+  int32 page = 2; // @gotags: form:"page"
+}
+
+// 响应-用户列表
+message ListResponse {
+  repeated User list = 1;
+  int32 total = 2;
+  int32 size = 3;
+  int32 page = 4;
+}

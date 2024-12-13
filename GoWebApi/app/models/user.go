@@ -32,48 +32,48 @@ func (*User) TableName() string {
 
 func (u *User) Create(user *User) error {
 	// INSERT INTO `user` (`password`,`email`,`uname`,`age`,`score`,`login_at`,`created_at`,`updated_at`,`deleted_at`) VALUES (?,?,?,?,?,?,?,?,?)
-	return gonet.GormClient().Client().Create(user).Error
+	return gonet.Gorm().Client().Create(user).Error
 }
 
 func (u *User) FirstEmail(email string) (User, error) {
 	var user User
 	// SELECT * FROM `user` WHERE email = ? AND `deleted_at` IS NULL ORDER BY `id` LIMIT 1
-	err := gonet.GormClient().Client().Where("email", email).First(&user).Error
+	err := gonet.Gorm().Client().Where("email", email).First(&user).Error
 	return user, err
 }
 
 func (u *User) FirstUname(uname string) (User, error) {
 	var user User
 	// SELECT * FROM `user` WHERE `uname` = ? AND `deleted_at` IS NULL ORDER BY `id` LIMIT 1
-	err := gonet.GormClient().Client().Where("uname", uname).First(&user).Error
+	err := gonet.Gorm().Client().Where("uname", uname).First(&user).Error
 	return user, err
 }
 
 func (u *User) FirstID(uid uint64) (User, error) {
 	var user User
 	// SELECT * FROM `user` WHERE id = ? AND `deleted_at` IS NULL ORDER BY `id` LIMIT 1
-	// err := gonet.GormClient().Where("id = ?", uid).First(&user).Error
+	// err := gonet.Gorm().Where("id = ?", uid).First(&user).Error
 
 	// SELECT * FROM `user` WHERE id = ? AND `deleted_at` IS NULL LIMIT 1
-	err := gonet.GormClient().Client().Where("id", uid).Take(&user).Error
+	err := gonet.Gorm().Client().Where("id", uid).Take(&user).Error
 	return user, err
 }
 
 func (u *User) List(size, page int) ([]User, int64, error) {
 	var users []User
 	// SELECT * FROM `user` WHERE `deleted_at` IS NULL ORDER BY `id` DESC
-	//err := gonet.GormClient().Order(clause.OrderByColumn{Column: clause.Column{Name: "id"}, Desc: true}).Find(&users).Error
+	//err := gonet.Gorm().Order(clause.OrderByColumn{Column: clause.Column{Name: "id"}, Desc: true}).Find(&users).Error
 
 	var total int64
 	offset := (page - 1) * size
 
 	// SELECT count(*) FROM `user` WHERE `deleted_at` IS NULL
-	err := gonet.GormClient().Client().Model(u).Count(&total).Error
+	err := gonet.Gorm().Client().Model(u).Count(&total).Error
 	if err != nil || total == 0 {
 		return nil, 0, err
 	}
 	// SELECT `id`,`uname`,`email`,`created_at` FROM `user` WHERE `deleted_at` IS NULL ORDER BY `id` DESC LIMIT ?
-	err = gonet.GormClient().Client().
+	err = gonet.Gorm().Client().
 		Select([]string{"id", "uname", "email", "created_at"}).
 		Order(clause.OrderByColumn{Column: clause.Column{Name: "id"}, Desc: true}).
 		Offset(offset).
@@ -84,5 +84,5 @@ func (u *User) List(size, page int) ([]User, int64, error) {
 
 func (u *User) Update(user *User) error {
 	// UPDATE `user` SET `uname`=?,`login_at`=?,`updated_at`=? WHERE `id` = ? AND `deleted_at` IS NULL
-	return gonet.GormClient().Client().Model(u).Select([]string{"uname", "login_at"}).Where("id", user.Uid).Updates(user).Error
+	return gonet.Gorm().Client().Model(u).Select([]string{"uname", "login_at"}).Where("id", user.Uid).Updates(user).Error
 }

@@ -24,16 +24,15 @@ func Init(configFile, gitVersion string) {
 	docs.SwaggerInfo.Version = gitVersion + "-" + time.Now().Format(time.DateTime)
 
 	// init db
-	if err := gonet.GormInit(c.Gorm); err != nil {
+	if err := gonet.InitGorm(c.Gorm); err != nil {
 		panic(err)
 	}
-	// if err := gonet.MongoInit(c.Mongodb); err != nil {
+	// if err := gonet.InitMongo(c.Mongodb); err != nil {
 	// 	panic(err)
 	// }
-	if err := gonet.RedisInit(c.Redis); err != nil {
+	if err := gonet.InitRedis(c.Redis); err != nil {
 		panic(err)
 	}
-
 	coreData = &Core{Config: c}
 }
 

@@ -13,11 +13,11 @@ import (
 	"github.com/rs/xid"
 	"gorm.io/gorm"
 
-	"webapi/api/gen/ecode"
-	"webapi/api/gen/pbauth"
-	"webapi/api/gen/pbuser"
 	"webapi/app/models"
 	"webapi/core"
+	"webapi/protocol/gen/ecode"
+	"webapi/protocol/gen/pbauth"
+	"webapi/protocol/gen/pbuser"
 )
 
 // AuthRegister 注册

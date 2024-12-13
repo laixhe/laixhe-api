@@ -1,13 +1,13 @@
 package config
 
 import (
-	"github.com/laixhe/gonet/proto/gen/config/capp"
-	"github.com/laixhe/gonet/proto/gen/config/cauth"
-	"github.com/laixhe/gonet/proto/gen/config/cgorm"
-	"github.com/laixhe/gonet/proto/gen/config/clog"
-	"github.com/laixhe/gonet/proto/gen/config/cmongodb"
-	"github.com/laixhe/gonet/proto/gen/config/credis"
-	"github.com/laixhe/gonet/proto/gen/config/cserver"
+	"github.com/laixhe/gonet/protocol/gen/config/capp"
+	"github.com/laixhe/gonet/protocol/gen/config/cauth"
+	"github.com/laixhe/gonet/protocol/gen/config/cgorm"
+	"github.com/laixhe/gonet/protocol/gen/config/clog"
+	"github.com/laixhe/gonet/protocol/gen/config/cmongodb"
+	"github.com/laixhe/gonet/protocol/gen/config/credis"
+	"github.com/laixhe/gonet/protocol/gen/config/cserver"
 	"github.com/laixhe/gonet/xconfig"
 	"github.com/laixhe/gonet/xjwt"
 	"github.com/laixhe/gonet/xlog"
@@ -36,7 +36,7 @@ func (c *Config) AppChecking() *Config {
 		panic("app config is nil")
 	}
 	if c.App.Version == "" {
-		c.App.Version = "v0.1"
+		c.App.Version = "0.1"
 	}
 	if c.App.Mode == "" {
 		c.App.Mode = capp.ModeType_debug.String()

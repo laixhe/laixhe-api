@@ -11,9 +11,9 @@ import (
 	"github.com/laixhe/gonet/xlog"
 	"gorm.io/gorm"
 
-	"webapi/api/gen/pbuser"
 	"webapi/app/models"
 	"webapi/core"
+	"webapi/protocol/gen/pbuser"
 )
 
 func (s *Service) UserInfo(c *gin.Context, req *pbuser.InfoRequest) (*pbuser.InfoResponse, xerror.IError) {

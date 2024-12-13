@@ -1,5 +1,5 @@
 app:
-  version: "v0.1"
+  version: "0.1"
   mode: debug
   pid: webapi.pid
 

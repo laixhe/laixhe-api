@@ -1,8 +1,6 @@
-GOHOSTOS:=$(shell go env GOHOSTOS)
-GOPATH:=$(shell go env GOPATH)
 GIT_VERSION=$(shell git describe --tags --always)
 
-API_PROTO_FILES=$(shell find api -name *.proto)
+PROTOCOL_PROTO_FILES=$(shell find protocol/api -name *.proto)
 
 .PHONY: init
 init:
@@ -11,17 +9,17 @@ init:
 	go install github.com/swaggo/swag/cmd/swag@latest
 	go install github.com/favadi/protoc-go-inject-tag@latest
 
-.PHONY: api
-api:
-	rm -rf ./api/gen
-	protoc --proto_path=./api \
-		--proto_path=./third_party \
+.PHONY: protocol
+protocol:
+	rm -rf ./protocol/gen
+	protoc --proto_path=./protocol/api \
+		--proto_path=./protocol/third_party \
 		--go_out=./ \
-		$(API_PROTO_FILES)
-	mv ./webapi/api/gen ./api
+		$(PROTOCOL_PROTO_FILES)
+	mv ./webapi/protocol/gen ./protocol
 	rm -rf ./webapi
-	protoc-go-inject-tag -input="./api/gen/*/*.pb.go"
-	protoc-go-inject-tag -input="./api/gen/*/*/*.pb.go"
+	find protocol/gen -type f -name '*.pb.go' -exec sed -i 's/,omitempty"`/\"\`/g' {} +
+	protoc-go-inject-tag -input="./protocol/gen/*/*.pb.go"
 
 .PHONY: build
 build:
