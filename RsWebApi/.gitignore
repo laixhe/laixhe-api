@@ -1,4 +1,3 @@
-/.fleet
-/.idea
-/.vscode
-
+.idea
+.vscode
+/target

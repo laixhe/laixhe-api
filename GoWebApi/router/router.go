@@ -33,7 +33,7 @@ func Router() *gin.Engine {
 		g.Use(xgin.Logger())       // 日志
 		g.Use(xgin.Recovery())     // 出现 panic 恢复正常
 		// 分组
-		apiRouter := g.Group("/api")
+		apiRouter := g.Group("api")
 		{
 			AuthRouter(apiRouter) // 鉴权相关
 			UserRouter(apiRouter) // 用户相关
