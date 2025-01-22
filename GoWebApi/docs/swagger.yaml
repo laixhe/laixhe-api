@@ -1,0 +1,228 @@
+definitions:
+  pbauth.LoginRequest:
+    properties:
+      email:
+        description: 邮箱
+        type: string
+      password:
+        description: 密码
+        maxLength: 20
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  pbauth.LoginResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/pbuser.User'
+    type: object
+  pbauth.RefreshResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  pbauth.RegisterRequest:
+    properties:
+      age:
+        description: 用户年龄
+        maximum: 200
+        minimum: 0
+        type: integer
+      email:
+        description: 用户邮箱
+        type: string
+      password:
+        description: 用户密码
+        maxLength: 20
+        minLength: 6
+        type: string
+      uname:
+        description: 用户名
+        maxLength: 30
+        minLength: 2
+        type: string
+    required:
+    - age
+    - email
+    - password
+    - uname
+    type: object
+  pbauth.RegisterResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/pbuser.User'
+    type: object
+  pbuser.InfoRequest:
+    type: object
+  pbuser.ListResponse:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/pbuser.User'
+        type: array
+      page:
+        type: integer
+      size:
+        type: integer
+      total:
+        type: integer
+    type: object
+  pbuser.UpdateRequest:
+    properties:
+      login_at:
+        description: 登录时间
+        type: string
+      uname:
+        description: 用户名
+        maxLength: 30
+        minLength: 2
+        type: string
+    required:
+    - login_at
+    - uname
+    type: object
+  pbuser.UpdateResponse:
+    type: object
+  pbuser.User:
+    properties:
+      created_at:
+        description: 创建时间
+        type: string
+      email:
+        description: 用户邮箱
+        type: string
+      uid:
+        description: 用户ID
+        type: integer
+      uname:
+        description: 用户名
+        type: string
+    type: object
+info:
+  contact: {}
+  title: API接口
+paths:
+  /api/auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求body参数
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/pbauth.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pbauth.LoginResponse'
+      summary: 登录用户
+  /api/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token令牌
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pbauth.RefreshResponse'
+      summary: 刷新Jwt
+  /api/auth/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求body参数
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/pbauth.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pbauth.RegisterResponse'
+      summary: 注册用户
+  /api/user/info:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token令牌
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pbuser.InfoRequest'
+      summary: 用户信息
+  /api/user/list:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token令牌
+        in: header
+        name: Authorization
+        type: string
+      - description: 每页页数(数量)
+        in: query
+        name: size
+        type: string
+      - description: 当前页数
+        in: query
+        name: page
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pbuser.ListResponse'
+      summary: 用户列表
+  /api/user/update:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token令牌
+        in: header
+        name: Authorization
+        type: string
+      - description: 请求body参数
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/pbuser.UpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pbuser.UpdateResponse'
+      summary: 修改用户信息
+swagger: "2.0"
