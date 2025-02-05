@@ -5,12 +5,12 @@ go 1.23
 require (
 	github.com/dromara/carbon/v2 v2.5.2
 	github.com/gin-gonic/gin v1.10.0
-	github.com/laixhe/gonet v0.0.0-20250120033856-7a055e131a33
+	github.com/laixhe/gonet v0.0.0-20250123082856-0288c69e7b93
 	github.com/rs/xid v1.6.0
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.4
-	google.golang.org/protobuf v1.36.3
+	google.golang.org/protobuf v1.36.4
 	gorm.io/gorm v1.25.12
 )
 

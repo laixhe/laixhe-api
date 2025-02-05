@@ -10,15 +10,15 @@
         "laravel/framework": "^11.39",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10",
-        "lcobucci/jwt": "^5.4"
+        "lcobucci/jwt": "^5.5"
     },
     "require-dev": {
         "roave/security-advisories": "dev-latest",
         "fakerphp/faker": "^1.24",
         "laravel/pint": "^1.20",
-        "laravel/sail": "^1.40",
+        "laravel/sail": "^1.41",
         "mockery/mockery": "^1.6",
-        "nunomaduro/collision": "^8.5",
+        "nunomaduro/collision": "^8.6",
         "spatie/laravel-ignition": "^2.8"
     },
     "autoload": {
