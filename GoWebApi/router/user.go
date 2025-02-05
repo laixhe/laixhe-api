@@ -17,12 +17,12 @@ func UserRouter(r *gin.RouterGroup) {
 	//}
 
 	// token auto
-	//jwtAutoRouter := groupRouter.Use(xgin.JwtAuthAuto(core.Config().Jwt, core.ErrorAuthInvalid(nil)))
+	//jwtAutoRouter := groupRouter.Group("", xgin.JwtAuthAuto(core.Config().Jwt, core.ErrorAuthInvalid(nil)))
 	//{
 	//}
 
 	// token
-	jwtRouter := groupRouter.Use(xgin.JwtAuth(core.Config().Jwt, core.ErrorAuthInvalid(nil)))
+	jwtRouter := groupRouter.Group("", xgin.JwtAuth(core.Config().Jwt, core.ErrorAuthInvalid(nil)))
 	{
 		jwtRouter.GET("info", c.Info)      // 用户信息
 		jwtRouter.GET("list", c.List)      // 用户列表

@@ -19,12 +19,12 @@ func AuthRouter(r *gin.RouterGroup) {
 	}
 
 	// token auto
-	//jwtAutoRouter := groupRouter.Use(xgin.JwtAuthAuto(core.Config().Jwt, core.ErrorAuthInvalid(nil)))
+	//jwtAutoRouter := groupRouter.Group("", xgin.JwtAuthAuto(core.Config().Jwt, core.ErrorAuthInvalid(nil)))
 	//{
 	//}
 
 	// token
-	jwtRouter := groupRouter.Use(xgin.JwtAuth(core.Config().Jwt, core.ErrorAuthInvalid(nil)))
+	jwtRouter := groupRouter.Group("", xgin.JwtAuth(core.Config().Jwt, core.ErrorAuthInvalid(nil)))
 	{
 		jwtRouter.POST("refresh", c.Refresh) // 刷新Jwt
 	}
