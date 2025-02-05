@@ -1,4 +1,4 @@
-FROM golang:1.23-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 ENV GOPROXY=https://goproxy.cn,direct
 ENV TZ=Asia/Shanghai
@@ -12,8 +12,10 @@ RUN go build -o webapi
 
 FROM alpine
 
-ENV TZ=Asia/Shanghai
+# 镜像加速， 添加 alpine apk 源（中科大）
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
 
+ENV TZ=Asia/Shanghai
 RUN apk add tzdata && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo "Asia/Shanghai" > /etc/timezone
 
 WORKDIR /webapi

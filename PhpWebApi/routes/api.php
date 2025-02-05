@@ -7,7 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Middleware\AssignRequestId;
 use App\Http\Middleware\AuthJwt;
 
-Route::middleware(AssignRequestId::class)->group(function () {
+Route::middleware(AssignRequestId::class)->prefix('v1')->group(function () {
 
     Route::prefix('auth')->group(function () {
         Route::post('register', [AuthController::class, 'register']);

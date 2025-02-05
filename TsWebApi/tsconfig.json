@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "types": ["bun-types"],
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,                            
+    "skipLibCheck": true,
+    "strict": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@middleware/*": ["middlewares/*"],
+      "@route/*": ["routes/*"],
+      "@core/*": ["core/*"],
+      "@entity/*": ["app/entity/*"],
+      "@model/*": ["app/models/*"],
+      "@service/*": ["app/services/*"],
+      "@controller/*": ["app/controllers/*"],
+    }
+  }
+}

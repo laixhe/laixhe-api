@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/laixhe/gonet/protocol/gen/config/clog"
 	"github.com/laixhe/gonet/xgin"
-	"github.com/laixhe/gonet/xgin/xvalidator"
 	"github.com/laixhe/gonet/xlog"
 	swaggerFiles "github.com/swaggo/files"
 	swaggerGin "github.com/swaggo/gin-swagger"
@@ -20,26 +19,28 @@ func Router() *gin.Engine {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	// Validator(表单验证)多语言提示文本
-	if err := xvalidator.ValidatorTranslator(xvalidator.Zh); err != nil {
+	if err := xgin.ValidatorTranslator(xgin.Zh); err != nil {
 		xlog.Errorf("gin set translator error:%v", err)
 		return nil
 	}
-	//g := gin.Default()
-	g := gin.New()
+	//r := gin.Default()
+	r := gin.New()
 	{
 		// 中间件
-		g.Use(xgin.SetRequestID()) // 设置请求ID
-		g.Use(xgin.Cors())         // 跨域
-		g.Use(xgin.Logger())       // 日志
-		g.Use(xgin.Recovery())     // 出现 panic 恢复正常
+		r.Use(xgin.SetRequestID()) // 设置请求ID
+		r.Use(xgin.Cors())         // 跨域
+		r.Use(xgin.Logger())       // 日志
+		r.Use(xgin.Recovery())     // 出现 panic 恢复正常
 		// 分组
-		apiRouter := g.Group("api")
+		apiRouter := r.Group("api")
+		// 分组 v1
+		v1Router := apiRouter.Group("v1")
 		{
-			AuthRouter(apiRouter) // 鉴权相关
-			UserRouter(apiRouter) // 用户相关
+			AuthRouter(v1Router) // 鉴权相关
+			UserRouter(v1Router) // 用户相关
 		}
 		// doc 接口文档
-		g.GET("/swagger/*any", swaggerGin.WrapHandler(swaggerFiles.Handler))
+		r.GET("/swagger/*any", swaggerGin.WrapHandler(swaggerFiles.Handler))
 	}
-	return g
+	return r
 }

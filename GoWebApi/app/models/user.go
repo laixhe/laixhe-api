@@ -14,13 +14,12 @@ const UserTable = "user"
 
 // User 用户表
 type User struct {
-	Uid       uint64         `gorm:"column:id;type:int unsigned;not null;AUTO_INCREMENT;primaryKey;comment:用户ID自增"`
+	ID        int64          `gorm:"column:id;type:int unsigned;not null;AUTO_INCREMENT;primaryKey;comment:用户ID自增"`
 	Password  string         `gorm:"column:password;type:string;size:120;not null;default:'';comment:密码"`
 	Email     string         `gorm:"column:email;type:string;size:100;not null;default:'';comment:邮箱"`
 	Uname     string         `gorm:"column:uname;type:string;size:100;not null;default:'';comment:用户名"`
-	Age       uint32         `gorm:"column:age;type:tinyint unsigned;not null;default:0;comment:年龄"`
+	Age       int32          `gorm:"column:age;type:tinyint unsigned;not null;default:0;comment:年龄"`
 	Score     float64        `gorm:"column:score;type:decimal(10,2) unsigned;not null;default:0.00;comment:分数"`
-	LoginAt   time.Time      `gorm:"column:login_at;type:datetime;not null;comment:登录时间"`
 	CreatedAt time.Time      `gorm:"column:created_at;type:datetime;not null;comment:创建时间"`
 	UpdatedAt time.Time      `gorm:"column:updated_at;type:datetime;not null;comment:更新时间"`
 	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间"`
@@ -31,7 +30,7 @@ func (*User) TableName() string {
 }
 
 func (u *User) Create(user *User) error {
-	// INSERT INTO `user` (`password`,`email`,`uname`,`age`,`score`,`login_at`,`created_at`,`updated_at`,`deleted_at`) VALUES (?,?,?,?,?,?,?,?,?)
+	// INSERT INTO `user` (`password`,`email`,`uname`,`age`,`score`,`created_at`,`updated_at`,`deleted_at`) VALUES (?,?,?,?,?,?,?,?)
 	return gonet.Gorm().Client().Create(user).Error
 }
 
@@ -49,7 +48,7 @@ func (u *User) FirstUname(uname string) (User, error) {
 	return user, err
 }
 
-func (u *User) FirstID(uid uint64) (User, error) {
+func (u *User) FirstID(uid int64) (User, error) {
 	var user User
 	// SELECT * FROM `user` WHERE id = ? AND `deleted_at` IS NULL ORDER BY `id` LIMIT 1
 	// err := gonet.Gorm().Where("id = ?", uid).First(&user).Error
@@ -83,6 +82,10 @@ func (u *User) List(size, page int) ([]User, int64, error) {
 }
 
 func (u *User) Update(user *User) error {
-	// UPDATE `user` SET `uname`=?,`login_at`=?,`updated_at`=? WHERE `id` = ? AND `deleted_at` IS NULL
-	return gonet.Gorm().Client().Model(u).Select([]string{"uname", "login_at"}).Where("id", user.Uid).Updates(user).Error
+	// UPDATE `user` SET `uname`=?,`updated_at`=? WHERE `id` = ? AND `deleted_at` IS NULL
+	return gonet.Gorm().Client().
+		Model(&User{}).
+		Select([]string{"uname"}).
+		Where("id", user.ID).
+		Updates(user).Error
 }

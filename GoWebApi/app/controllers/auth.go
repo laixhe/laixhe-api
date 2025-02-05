@@ -8,7 +8,6 @@ import (
 	"github.com/laixhe/gonet/xlog"
 
 	"webapi/app/services"
-	"webapi/core"
 	"webapi/protocol/gen/pbauth"
 )
 
@@ -29,25 +28,20 @@ func NewAuth() *Auth {
 // @Produce  json
 // @Param    body   body      pbauth.RegisterRequest   ture "请求body参数"
 // @Success  200    {object}  pbauth.RegisterResponse
-// @Router   /api/auth/register [post]
+// @Router   /api/v1/auth/register [post]
 func (a *Auth) Register(c *gin.Context) {
 	req := &pbauth.RegisterRequest{}
 	if err := c.ShouldBindJSON(req); err != nil {
-		core.JSONErrorParse(c, err)
+		xgin.ErrorResponse(c, err)
 		return
 	}
-	//
 	xlog.Info(fmt.Sprintf("req:%v", req), xgin.ZapField(c)...)
-	//
 	resp, err := a.service.AuthRegister(c, req)
 	if err != nil {
-		core.JSONError(c, err)
+		xgin.ErrorResponse(c, err)
 		return
 	}
-	//
-	xlog.Info(fmt.Sprintf("resp:%v", resp), xgin.ZapField(c)...)
-	//
-	xgin.SuccessJSON(c, resp)
+	xgin.Success(c, resp)
 }
 
 // Login 登录
@@ -57,25 +51,19 @@ func (a *Auth) Register(c *gin.Context) {
 // @Produce  json
 // @Param    body   body      pbauth.LoginRequest   ture "请求body参数"
 // @Success  200    {object}  pbauth.LoginResponse
-// @Router   /api/auth/login [post]
+// @Router   /api/v1/auth/login [post]
 func (a *Auth) Login(c *gin.Context) {
 	req := &pbauth.LoginRequest{}
 	if err := c.ShouldBindJSON(req); err != nil {
-		core.JSONErrorParse(c, err)
+		xgin.ErrorResponse(c, err)
 		return
 	}
-	//
-	xlog.Info(fmt.Sprintf("req:%v", req), xgin.ZapField(c)...)
-	//
 	resp, err := a.service.AuthLogin(c, req)
 	if err != nil {
-		core.JSONError(c, err)
+		xgin.ErrorResponse(c, err)
 		return
 	}
-	//
-	xlog.Info(fmt.Sprintf("resp:%v", resp), xgin.ZapField(c)...)
-	//
-	xgin.SuccessJSON(c, resp)
+	xgin.Success(c, resp)
 }
 
 // Refresh 刷新Jwt
@@ -85,16 +73,13 @@ func (a *Auth) Login(c *gin.Context) {
 // @Produce  json
 // @Param Authorization header string false "Bearer token令牌"
 // @Success  200    {object}  pbauth.RefreshResponse
-// @Router   /api/auth/refresh [post]
+// @Router   /api/v1/auth/refresh [post]
 func (a *Auth) Refresh(c *gin.Context) {
 	req := &pbauth.RefreshRequest{}
 	resp, err := a.service.AuthRefresh(c, req)
 	if err != nil {
-		core.JSONError(c, err)
+		xgin.ErrorResponse(c, err)
 		return
 	}
-	//
-	xlog.Info(fmt.Sprintf("resp:%v", resp), xgin.ZapField(c)...)
-	//
-	xgin.SuccessJSON(c, resp)
+	xgin.Success(c, resp)
 }

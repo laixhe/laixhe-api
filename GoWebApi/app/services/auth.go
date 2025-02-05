@@ -4,17 +4,16 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/laixhe/gonet/xcrypto"
 	"github.com/laixhe/gonet/xerror"
 	"github.com/laixhe/gonet/xgin"
 	"github.com/laixhe/gonet/xgorm"
 	"github.com/laixhe/gonet/xjwt"
 	"github.com/laixhe/gonet/xlog"
-	"github.com/laixhe/gonet/xutil"
 	"github.com/rs/xid"
 
 	"webapi/app/models"
 	"webapi/core"
-	"webapi/protocol/gen/ecode"
 	"webapi/protocol/gen/pbauth"
 	"webapi/protocol/gen/pbuser"
 )
@@ -25,17 +24,17 @@ func (s *Service) AuthRegister(c *gin.Context, req *pbauth.RegisterRequest) (*pb
 	if err != nil {
 		if !xgorm.IsRecordNotFound(err) {
 			xlog.Error(err.Error(), xgin.ZapField(c)...)
-			return nil, core.ErrorService(err)
+			return nil, xgin.IErrorServer(err)
 		}
 	}
-	if u.Uid > 0 {
-		return nil, core.ErrorParam(nil)
+	if u.ID > 0 {
+		return nil, xgin.IErrorParse(nil)
 	}
 	//
-	password, err := xutil.BcryptPasswordHash(req.Password)
+	password, err := xcrypto.BcryptPasswordHash(req.Password)
 	if err != nil {
 		xlog.Error(err.Error(), xgin.ZapField(c)...)
-		return nil, core.ErrorService(err)
+		return nil, xgin.IErrorServer(err)
 	}
 	//
 	user := &models.User{
@@ -44,24 +43,25 @@ func (s *Service) AuthRegister(c *gin.Context, req *pbauth.RegisterRequest) (*pb
 		Uname:    req.Uname,
 		Age:      req.Age,
 		Score:    0,
-		LoginAt:  time.Now(),
 	}
 	err = s.data.User.Create(user)
 	if err != nil {
 		xlog.Error(err.Error(), xgin.ZapField(c)...)
-		return nil, core.ErrorService(err)
+		return nil, xgin.IErrorServer(err)
 	}
 	//
-	token, err := xjwt.GenToken(core.Config().Jwt, user.Uid, xid.New().String())
+	claims := &xjwt.CustomClaims{Uid: int(user.ID)}
+	claims.ID = xid.New().String()
+	token, err := xjwt.GenToken(core.Config().Jwt, claims)
 	if err != nil {
 		xlog.Error(err.Error(), xgin.ZapField(c)...)
-		return nil, core.ErrorService(err)
+		return nil, xgin.IErrorServer(err)
 	}
 	//
 	return &pbauth.RegisterResponse{
 		Token: token,
 		User: &pbuser.User{
-			Uid:       user.Uid,
+			Uid:       user.ID,
 			Uname:     user.Uname,
 			Email:     user.Email,
 			CreatedAt: user.CreatedAt.Format(time.DateTime),
@@ -74,25 +74,27 @@ func (s *Service) AuthLogin(c *gin.Context, req *pbauth.LoginRequest) (*pbauth.L
 	user, err := s.data.User.FirstEmail(req.Email)
 	if err != nil {
 		if xgorm.IsRecordNotFound(err) {
-			return nil, core.NewError(ecode.ECode_AuthUserError, nil)
+			return nil, xgin.IErrorAuthInvalid(nil)
 		}
 		xlog.Error(err.Error(), xgin.ZapField(c)...)
-		return nil, core.ErrorService(err)
+		return nil, xgin.IErrorServer(err)
 	}
 	//
-	if !xutil.BcryptPasswordCheck(req.Password, user.Password) {
-		return nil, core.NewError(ecode.ECode_AuthUserError, nil)
+	if !xcrypto.BcryptPasswordCheck(req.Password, user.Password) {
+		return nil, xgin.IErrorAuthInvalid(nil)
 	}
-	token, err := xjwt.GenToken(core.Config().Jwt, user.Uid, xid.New().String())
+	claims := &xjwt.CustomClaims{Uid: int(user.ID)}
+	claims.ID = xid.New().String()
+	token, err := xjwt.GenToken(core.Config().Jwt, claims)
 	if err != nil {
 		xlog.Error(err.Error(), xgin.ZapField(c)...)
-		return nil, core.ErrorService(err)
+		return nil, xgin.IErrorServer(err)
 	}
 	//
 	return &pbauth.LoginResponse{
 		Token: token,
 		User: &pbuser.User{
-			Uid:       user.Uid,
+			Uid:       user.ID,
 			Uname:     user.Uname,
 			Email:     user.Email,
 			CreatedAt: user.CreatedAt.Format(time.DateTime),
@@ -104,13 +106,15 @@ func (s *Service) AuthLogin(c *gin.Context, req *pbauth.LoginRequest) (*pbauth.L
 func (s *Service) AuthRefresh(c *gin.Context, req *pbauth.RefreshRequest) (*pbauth.RefreshResponse, xerror.IError) {
 	uid := xgin.ContextUid(c)
 	if uid == 0 {
-		return nil, core.ErrorAuthInvalid(nil)
+		return nil, xgin.IErrorAuthInvalid(nil)
 	}
 	//
-	token, err := xjwt.GenToken(core.Config().Jwt, uid, xid.New().String())
+	claims := &xjwt.CustomClaims{Uid: uid}
+	claims.ID = xid.New().String()
+	token, err := xjwt.GenToken(core.Config().Jwt, claims)
 	if err != nil {
 		xlog.Error(err.Error(), xgin.ZapField(c)...)
-		return nil, core.ErrorService(err)
+		return nil, xgin.IErrorServer(err)
 	}
 	//
 	return &pbauth.RefreshResponse{

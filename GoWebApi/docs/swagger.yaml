@@ -75,16 +75,12 @@ definitions:
     type: object
   pbuser.UpdateRequest:
     properties:
-      login_at:
-        description: 登录时间
-        type: string
       uname:
         description: 用户名
         maxLength: 30
         minLength: 2
         type: string
     required:
-    - login_at
     - uname
     type: object
   pbuser.UpdateResponse:
@@ -108,59 +104,6 @@ info:
   contact: {}
   title: API接口
 paths:
-  /api/auth/login:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: 请求body参数
-        in: body
-        name: body
-        schema:
-          $ref: '#/definitions/pbauth.LoginRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/pbauth.LoginResponse'
-      summary: 登录用户
-  /api/auth/refresh:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Bearer token令牌
-        in: header
-        name: Authorization
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/pbauth.RefreshResponse'
-      summary: 刷新Jwt
-  /api/auth/register:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: 请求body参数
-        in: body
-        name: body
-        schema:
-          $ref: '#/definitions/pbauth.RegisterRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/pbauth.RegisterResponse'
-      summary: 注册用户
   /api/user/info:
     get:
       consumes:
@@ -225,4 +168,57 @@ paths:
           schema:
             $ref: '#/definitions/pbuser.UpdateResponse'
       summary: 修改用户信息
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求body参数
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/pbauth.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pbauth.LoginResponse'
+      summary: 登录用户
+  /api/v1/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token令牌
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pbauth.RefreshResponse'
+      summary: 刷新Jwt
+  /api/v1/auth/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求body参数
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/pbauth.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pbauth.RegisterResponse'
+      summary: 注册用户
 swagger: "2.0"

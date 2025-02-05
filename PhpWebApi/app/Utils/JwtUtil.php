@@ -24,7 +24,7 @@ class JwtUtil
 
     private function __construct()
     {
-        $this->secretKey = env('JWT_SECRET', '6Kbj0VFeXYMp60lEyiFoVq4UzqX8Z0GSSfnvTh2VuAQn0oHgQNYexU6yYVTk4xf9');
+        $this->secretKey = env('JWT_SECRET', '');
         $this->expireTime = env('JWT_EXPIRE_TIME', 604800);
 
         $config = Configuration::forSymmetricSigner(
