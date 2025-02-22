@@ -7,7 +7,7 @@
     "require": {
         "php": "^8.2",
         "godruoyi/php-snowflake": "^3.1",
-        "laravel/framework": "^11.39",
+        "laravel/framework": "^11.41",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10",
         "lcobucci/jwt": "^5.5"
@@ -15,11 +15,11 @@
     "require-dev": {
         "roave/security-advisories": "dev-latest",
         "fakerphp/faker": "^1.24",
-        "laravel/pint": "^1.20",
+        "laravel/pint": "^1.21",
         "laravel/sail": "^1.41",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
-        "spatie/laravel-ignition": "^2.8"
+        "spatie/laravel-ignition": "^2.9"
     },
     "autoload": {
         "psr-4": {
