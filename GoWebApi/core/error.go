@@ -17,13 +17,6 @@ func NewError(code ecode.ECode, err error) xerror.IError {
 	return xerror.New(int32(code), err)
 }
 
-func NewErrorStr(code ecode.ECode, errStr string) xerror.IError {
-	if errStr == "" {
-		errStr = code.String()
-	}
-	return xerror.NewStr(int32(code), errStr)
-}
-
 func ErrorService(err error) xerror.IError {
 	if err == nil {
 		err = errors.New(ecode.ECode_Service.String())
@@ -50,13 +43,6 @@ func ErrorParam(err error) xerror.IError {
 		err = errors.New(ecode.ECode_Param.String())
 	}
 	return xerror.New(int32(ecode.ECode_Param), err)
-}
-
-func ErrorParamStr(errStr string) xerror.IError {
-	if errStr == "" {
-		errStr = ecode.ECode_Param.String()
-	}
-	return xerror.NewStr(int32(ecode.ECode_Param), errStr)
 }
 
 func ErrorTip(err error) xerror.IError {
@@ -108,6 +94,20 @@ func ErrorUserExist(err error) xerror.IError {
 	return xerror.New(int32(ecode.ECode_UserExist), err)
 }
 
+func NewErrorStr(code ecode.ECode, errStr string) xerror.IError {
+	if errStr == "" {
+		errStr = code.String()
+	}
+	return xerror.NewStr(int32(code), errStr)
+}
+
+func ErrorParamStr(errStr string) xerror.IError {
+	if errStr == "" {
+		errStr = ecode.ECode_Param.String()
+	}
+	return xerror.NewStr(int32(ecode.ECode_Param), errStr)
+}
+
 func JSONError(c *gin.Context, err xerror.IError) {
 	xgin.ErrorJSON(c, err)
 }
@@ -126,10 +126,6 @@ func JSONErrorEncode(c *gin.Context, err error) {
 
 func JSONErrorParam(c *gin.Context, err error) {
 	xgin.ErrorJSON(c, ErrorParam(err))
-}
-
-func JSONErrorParamStr(c *gin.Context, errStr string) {
-	xgin.ErrorJSON(c, ErrorParamStr(errStr))
 }
 
 func JSONErrorTip(c *gin.Context, err error) {
@@ -158,4 +154,8 @@ func JSONErrorUserNotExist(c *gin.Context, err error) {
 
 func JSONErrorUserExist(c *gin.Context, err error) {
 	xgin.ErrorJSON(c, ErrorUserExist(err))
+}
+
+func JSONErrorParamStr(c *gin.Context, errStr string) {
+	xgin.ErrorJSON(c, ErrorParamStr(errStr))
 }

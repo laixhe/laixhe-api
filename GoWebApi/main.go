@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"runtime"
 
 	"webapi/core"
 	"webapi/router"
@@ -20,7 +21,7 @@ func main() {
 	// init flag
 	flag.StringVar(&FlagConfigFile, "config", "./config.yaml", "config path: --config config.yaml")
 	flag.Parse()
-	fmt.Println("main show", FlagConfigFile, GitVersion)
+	fmt.Printf("[go version: %s] [config file: %s] [git: %s] \n", runtime.Version(), FlagConfigFile, GitVersion)
 	// init config
 	core.Init(FlagConfigFile, GitVersion)
 	// init http

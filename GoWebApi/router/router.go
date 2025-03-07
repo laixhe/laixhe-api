@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/laixhe/gonet/protocol/gen/config/clog"
 	"github.com/laixhe/gonet/xgin"
-	"github.com/laixhe/gonet/xgin/xvalidator"
 	"github.com/laixhe/gonet/xlog"
 	swaggerFiles "github.com/swaggo/files"
 	swaggerGin "github.com/swaggo/gin-swagger"
@@ -20,7 +19,7 @@ func Router() *gin.Engine {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	// Validator(表单验证)多语言提示文本
-	if err := xvalidator.ValidatorTranslator(xvalidator.Zh); err != nil {
+	if err := xgin.ValidatorTranslator(xgin.Zh); err != nil {
 		xlog.Errorf("gin set translator error:%v", err)
 		return nil
 	}
