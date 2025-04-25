@@ -32,7 +32,7 @@ type RegisterRequest struct {
 	// 用户名
 	Uname string `protobuf:"bytes,3,opt,name=uname,proto3" json:"uname" binding:"required,min=2,max=30"` // @gotags: binding:"required,min=2,max=30"
 	// 用户年龄
-	Age           uint32 `protobuf:"varint,4,opt,name=age,proto3" json:"age" binding:"required,gte=0,lte=200"` // @gotags: binding:"required,gte=0,lte=200"
+	Age           int32 `protobuf:"varint,4,opt,name=age,proto3" json:"age" binding:"required,gte=0,lte=200"` // @gotags: binding:"required,gte=0,lte=200"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -88,7 +88,7 @@ func (x *RegisterRequest) GetUname() string {
 	return ""
 }
 
-func (x *RegisterRequest) GetAge() uint32 {
+func (x *RegisterRequest) GetAge() int32 {
 	if x != nil {
 		return x.Age
 	}
@@ -157,7 +157,7 @@ const file_pbauth_register_proto_rawDesc = "" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x14\n" +
 	"\x05uname\x18\x03 \x01(\tR\x05uname\x12\x10\n" +
-	"\x03age\x18\x04 \x01(\rR\x03age\"J\n" +
+	"\x03age\x18\x04 \x01(\x05R\x03age\"J\n" +
 	"\x10RegisterResponse\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\x12 \n" +
 	"\x04user\x18\x02 \x01(\v2\f.pbuser.UserR\x04userB#Z!webapi/protocol/gen/pbauth;pbauthb\x06proto3"

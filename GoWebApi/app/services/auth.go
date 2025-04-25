@@ -28,7 +28,7 @@ func (s *Service) AuthRegister(c *gin.Context, req *pbauth.RegisterRequest) (*pb
 			return nil, core.ErrorService(err)
 		}
 	}
-	if u.Uid > 0 {
+	if u.ID > 0 {
 		return nil, core.ErrorParam(nil)
 	}
 	//
@@ -52,7 +52,9 @@ func (s *Service) AuthRegister(c *gin.Context, req *pbauth.RegisterRequest) (*pb
 		return nil, core.ErrorService(err)
 	}
 	//
-	token, err := xjwt.GenToken(core.Config().Jwt, user.Uid, xid.New().String())
+	claims := &xjwt.CustomClaims{Uid: int(user.ID)}
+	claims.ID = xid.New().String()
+	token, err := xjwt.GenToken(core.Config().Jwt, claims)
 	if err != nil {
 		xlog.Error(err.Error(), xgin.ZapField(c)...)
 		return nil, core.ErrorService(err)
@@ -61,7 +63,7 @@ func (s *Service) AuthRegister(c *gin.Context, req *pbauth.RegisterRequest) (*pb
 	return &pbauth.RegisterResponse{
 		Token: token,
 		User: &pbuser.User{
-			Uid:       user.Uid,
+			Uid:       user.ID,
 			Uname:     user.Uname,
 			Email:     user.Email,
 			CreatedAt: user.CreatedAt.Format(time.DateTime),
@@ -83,7 +85,9 @@ func (s *Service) AuthLogin(c *gin.Context, req *pbauth.LoginRequest) (*pbauth.L
 	if !xutil.BcryptPasswordCheck(req.Password, user.Password) {
 		return nil, core.NewError(ecode.ECode_AuthUserError, nil)
 	}
-	token, err := xjwt.GenToken(core.Config().Jwt, user.Uid, xid.New().String())
+	claims := &xjwt.CustomClaims{Uid: int(user.ID)}
+	claims.ID = xid.New().String()
+	token, err := xjwt.GenToken(core.Config().Jwt, claims)
 	if err != nil {
 		xlog.Error(err.Error(), xgin.ZapField(c)...)
 		return nil, core.ErrorService(err)
@@ -92,7 +96,7 @@ func (s *Service) AuthLogin(c *gin.Context, req *pbauth.LoginRequest) (*pbauth.L
 	return &pbauth.LoginResponse{
 		Token: token,
 		User: &pbuser.User{
-			Uid:       user.Uid,
+			Uid:       user.ID,
 			Uname:     user.Uname,
 			Email:     user.Email,
 			CreatedAt: user.CreatedAt.Format(time.DateTime),
@@ -107,7 +111,9 @@ func (s *Service) AuthRefresh(c *gin.Context, req *pbauth.RefreshRequest) (*pbau
 		return nil, core.ErrorAuthInvalid(nil)
 	}
 	//
-	token, err := xjwt.GenToken(core.Config().Jwt, uid, xid.New().String())
+	claims := &xjwt.CustomClaims{Uid: uid}
+	claims.ID = xid.New().String()
+	token, err := xjwt.GenToken(core.Config().Jwt, claims)
 	if err != nil {
 		xlog.Error(err.Error(), xgin.ZapField(c)...)
 		return nil, core.ErrorService(err)

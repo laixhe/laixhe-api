@@ -16,7 +16,7 @@ import (
 )
 
 func (s *Service) UserInfo(c *gin.Context, req *pbuser.InfoRequest) (*pbuser.InfoResponse, xerror.IError) {
-	uid := xgin.ContextUid(c)
+	uid := xgin.ContextUid64(c)
 	if uid == 0 {
 		return nil, core.ErrorAuthInvalid(nil)
 	}
@@ -32,7 +32,7 @@ func (s *Service) UserInfo(c *gin.Context, req *pbuser.InfoRequest) (*pbuser.Inf
 	//
 	return &pbuser.InfoResponse{
 		User: &pbuser.User{
-			Uid:       user.Uid,
+			Uid:       user.ID,
 			Uname:     user.Uname,
 			Email:     user.Email,
 			CreatedAt: user.CreatedAt.Format(time.DateTime),
@@ -55,7 +55,7 @@ func (s *Service) UserList(c *gin.Context, req *pbuser.ListRequest) (*pbuser.Lis
 	}
 	for _, user := range users {
 		resp.List = append(resp.List, &pbuser.User{
-			Uid:       user.Uid,
+			Uid:       user.ID,
 			Uname:     user.Uname,
 			Email:     user.Email,
 			CreatedAt: user.CreatedAt.Format(time.DateTime),
@@ -66,7 +66,7 @@ func (s *Service) UserList(c *gin.Context, req *pbuser.ListRequest) (*pbuser.Lis
 }
 
 func (s *Service) UserUpdate(c *gin.Context, req *pbuser.UpdateRequest) (*pbuser.UpdateResponse, xerror.IError) {
-	uid := xgin.ContextUid(c)
+	uid := xgin.ContextUid64(c)
 	if uid == 0 {
 		return nil, core.ErrorAuthInvalid(nil)
 	}
@@ -77,14 +77,14 @@ func (s *Service) UserUpdate(c *gin.Context, req *pbuser.UpdateRequest) (*pbuser
 		return nil, core.ErrorService(err)
 	}
 	if err == nil {
-		if user.Uid == uid {
+		if user.ID == uid {
 			return &pbuser.UpdateResponse{}, nil
 		}
 		return nil, core.ErrorParamStr("用户名已存在！")
 	}
 	//
 	user = models.User{
-		Uid:     uid,
+		ID:      uid,
 		Uname:   req.Uname,
 		LoginAt: carbon.Parse(req.LoginAt).StdTime(),
 	}

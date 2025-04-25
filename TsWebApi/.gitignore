@@ -1,0 +1,7 @@
+/.fleet
+/.idea
+/.vscode
+
+/node_modules
+/build
+/dist

@@ -1,0 +1,25 @@
+{
+  "name": "ts-webapi",
+  "version": "0.0.1",
+  "module": "src/index.ts",
+  "scripts": {
+    "build": "bun build src/index.ts --target bun --outdir dist",
+    "dev": "bun run --watch src/index.ts",
+    "generate": "bun prisma generate"
+  },
+  "dependencies": {
+    "@elysiajs/cors": "^1.2.0",
+    "@elysiajs/jwt": "^1.2.0",
+    "@elysiajs/swagger": "^1.2.2",
+    "@prisma/client": "^6.6.0",
+    "dayjs": "^1.11.13",
+    "ioredis": "^5.6.1",
+    "xid-ts": "^1.1.4",
+    "elysia": "latest"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "prisma": "^6.6.0",
+    "proxy-agent": "^6.5.0"
+  }
+}

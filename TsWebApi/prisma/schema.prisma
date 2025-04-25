@@ -1,0 +1,33 @@
+generator client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    /// 用户ID
+    id         Int       @id @default(autoincrement()) @map("id")
+    /// 用户密码
+    password   String    @default("") @map("password") @db.VarChar(120)
+    /// 用户邮箱
+    email      String    @unique @default("") @map("email") @db.VarChar(100)
+    /// 用户名
+    uname      String    @default("") @map("uname") @db.VarChar(100)
+    /// 用户年龄
+    age        Int       @default(0) @map("age")
+    /// 用户分数
+    score      Decimal   @default(0.00) @map("score")
+    /// 创建时间 
+    created_at DateTime  @default(now()) @map("created_at")
+    /// 更新时间
+    updated_at DateTime  @default(now()) @updatedAt @map("updated_at")
+    /// 删除时间
+    deleted_at DateTime? @map("deleted_at")
+
+    @@index([email], map: "idx_email")
+    @@map("user")
+}

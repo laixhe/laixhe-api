@@ -1,0 +1,41 @@
+import { Elysia } from "elysia";
+import { swagger } from "@elysiajs/swagger";
+import { cors } from "@elysiajs/cors";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+import { routeV1 } from "@route/route";
+
+dayjs.extend(utc);
+const app = new Elysia()
+  .use(cors())
+  .use(
+    swagger({
+      documentation: {
+        info: {
+          title: "API",
+          description: "API接口文档",
+          version: "0.0.1",
+        },
+        components: {
+          securitySchemes: {
+            bearerAuth: {
+              type: "http",
+              scheme: "bearer",
+              bearerFormat: "JWT",
+            },
+          },
+        },
+        tags: [
+          { name: "Auth", description: "鉴权相关" },
+          { name: "User", description: "用户相关" },
+        ],
+      },
+    })
+  )
+  .group("api", (app) => app.use(routeV1))
+  .listen(process.env.PORT || 80);
+
+console.log(
+  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
+);

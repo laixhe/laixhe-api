@@ -24,7 +24,7 @@ const (
 type User struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 用户ID
-	Uid uint64 `protobuf:"varint,1,opt,name=uid,proto3" json:"uid"`
+	Uid int64 `protobuf:"varint,1,opt,name=uid,proto3" json:"uid"`
 	// 用户名
 	Uname string `protobuf:"bytes,2,opt,name=uname,proto3" json:"uname"`
 	// 用户邮箱
@@ -65,7 +65,7 @@ func (*User) Descriptor() ([]byte, []int) {
 	return file_pbuser_user_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *User) GetUid() uint64 {
+func (x *User) GetUid() int64 {
 	if x != nil {
 		return x.Uid
 	}
@@ -99,7 +99,7 @@ const file_pbuser_user_proto_rawDesc = "" +
 	"\n" +
 	"\x11pbuser/user.proto\x12\x06pbuser\"c\n" +
 	"\x04User\x12\x10\n" +
-	"\x03uid\x18\x01 \x01(\x04R\x03uid\x12\x14\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12\x14\n" +
 	"\x05uname\x18\x02 \x01(\tR\x05uname\x12\x14\n" +
 	"\x05email\x18\x03 \x01(\tR\x05email\x12\x1d\n" +
 	"\n" +
