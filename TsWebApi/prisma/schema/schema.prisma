@@ -1,0 +1,19 @@
+datasource db {
+    //provider = "postgresql"
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+// 生成注释
+generator comments {
+    // postgresql
+    // provider = "prisma-db-comments-generator"
+    
+    // mysql
+    provider = "prisma-db-comments-generator-mysql"
+    includeEnumInFieldComment = true
+}

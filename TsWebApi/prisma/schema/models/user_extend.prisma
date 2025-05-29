@@ -1,0 +1,12 @@
+/// 用户扩展
+model UserExtend {
+    /// 用户ID
+    uid            Int    @id @map("uid")
+    /// 微信unionid
+    wechat_unionid String @default("") @map("wechat_unionid") @db.VarChar(255)
+    /// 微信openid
+    wechat_openid  String @default("") @map("wechat_openid") @db.VarChar(255)
+
+    @@index([wechat_openid], map: "user_extend_wechat_openid_idx")
+    @@map("user_extend")
+}

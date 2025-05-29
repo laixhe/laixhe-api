@@ -1,0 +1,25 @@
+/// 用户
+model User {
+    /// 用户ID
+    id         Int      @id @default(autoincrement()) @map("id")
+    /// 用户类型
+    typeid     Int      @default(0) @map("typeid")
+    /// 手机号
+    phone      String   @default("") @map("phone") @db.VarChar(100)
+    /// 用户邮箱
+    email      String   @unique @default("") @map("email") @db.VarChar(100)
+    /// 用户密码
+    password   String   @default("") @map("password") @db.VarChar(120)
+    /// 昵称
+    nickname   String   @default("") @map("nickname") @db.VarChar(100)
+    /// 头像地址
+    avatar_url String   @default("") @map("avatar_url") @db.VarChar(255)
+    /// 状态 1正常 2封禁
+    states     Int      @default(0) @map("states")
+    /// 创建时间 
+    created_at DateTime @default(now()) @map("created_at")
+    /// 更新时间
+    updated_at DateTime @default(now()) @updatedAt @map("updated_at")
+
+    @@map("user")
+}

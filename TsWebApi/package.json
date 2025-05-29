@@ -20,6 +20,10 @@
   "devDependencies": {
     "bun-types": "latest",
     "prisma": "^6.8.2",
-    "proxy-agent": "^6.5.0"
+    "proxy-agent": "^6.5.0",
+    "@mokabana/prisma-db-comments-generator-mysql": "^1.1.6"
+  },
+  "prisma": {
+    "schema": "./prisma/schema"
   }
 }
