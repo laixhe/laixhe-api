@@ -13,7 +13,7 @@ export default async function Login(req: LoginRequest): Promise<LoginResponse> {
     token: "",
     user: {
       uid: user.id,
-      uname: user.uname,
+      nickname: user.nickname,
       email: user.email,
       created_at: dayjs(user.created_at).utc().format("YYYY-MM-DD HH:mm:ss"),
     },

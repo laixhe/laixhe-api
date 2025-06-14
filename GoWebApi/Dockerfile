@@ -6,6 +6,7 @@ ENV TZ=Asia/Shanghai
 WORKDIR /webapi
 COPY . /webapi
 
+RUN go mod tidy
 RUN go mod download
 
 RUN go build -o webapi

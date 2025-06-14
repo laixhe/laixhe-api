@@ -16,8 +16,8 @@ const LoginResponseSchema = t.Object({
   user: t.Object(
     {
       uid: t.Number({ description: "用户ID" }),
-      uname: t.String({ description: "用户名" }),
-      email: t.String({ description: "用户邮箱" }),
+      nickname: t.String({ description: "昵称" }),
+      email: t.String({ description: "邮箱" }),
       created_at: t.String({ description: "创建时间" }),
     },
     { title: "用户信息" }

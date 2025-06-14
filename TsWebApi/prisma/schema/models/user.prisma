@@ -2,13 +2,13 @@
 model User {
     /// 用户ID
     id         Int      @id @default(autoincrement()) @map("id")
-    /// 用户类型
+    /// 类型 1普通
     typeid     Int      @default(0) @map("typeid")
     /// 手机号
-    phone      String   @default("") @map("phone") @db.VarChar(100)
-    /// 用户邮箱
+    mobile     String   @default("") @map("mobile") @db.VarChar(100)
+    /// 邮箱
     email      String   @unique @default("") @map("email") @db.VarChar(100)
-    /// 用户密码
+    /// 密码
     password   String   @default("") @map("password") @db.VarChar(120)
     /// 昵称
     nickname   String   @default("") @map("nickname") @db.VarChar(100)
