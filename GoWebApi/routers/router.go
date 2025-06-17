@@ -9,37 +9,54 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 
+	"webapi/app/controllers"
 	"webapi/core"
 )
 
-// Router 路由
-func Router(server *core.Server) *fiber.App {
-	router := fiber.New()
+// Router 业务路由
+type Router struct {
+	server     *core.Server
+	controller *controllers.Controller
+}
+
+func NewRouter(server *core.Server) *Router {
+	router := &Router{
+		server:     server,
+		controller: controllers.NewController(server),
+	}
+	return router.init()
+}
+
+func (router *Router) init() *Router {
+	app := fiber.New()
 	// 中间件-日志相关
-	requestidKey := server.Config().RequestIdKey
-	router.Use(fiberzap.New(fiberzap.Config{
-		Logger: server.Log().Logger(),
-		Fields: []string{"ip", "latency", "status", requestidKey, "method", "url"},
+	requestIdKey := router.server.Config().RequestIdKey
+	app.Use(fiberzap.New(fiberzap.Config{
+		Logger: router.server.Log().Logger(),
+		Fields: []string{"ip", "latency", "status", requestIdKey, "method", "url"},
 	}))
-	router.Use(requestid.New())
-	router.Use(func(c *fiber.Ctx) error {
-		ctx := context.WithValue(c.UserContext(), requestidKey, c.GetRespHeader(fiber.HeaderXRequestID))
+	app.Use(requestid.New())
+	app.Use(func(c *fiber.Ctx) error {
+		ctx := context.WithValue(c.UserContext(), requestIdKey, c.GetRespHeader(fiber.HeaderXRequestID))
 		c.SetUserContext(ctx)
 		return c.Next()
 	})
 	// 中间件
-	router.Use(cors.New())
-	router.Use(recover.New())
+	app.Use(cors.New())
+	app.Use(recover.New())
 	// init Server
-	server.SetApp(router)
-	server.Init()
+	router.server.Init(app)
 	// 路由
-	api := router.Group("api")
+	groupApi := app.Group("api")
 	{
-		apiV1 := api.Group("v1")
+		groupApiV1 := groupApi.Group("v1")
 		{
-			AuthRouter(server, apiV1)
+			router.Auth(groupApiV1) // 鉴权相关
 		}
 	}
 	return router
+}
+
+func (router *Router) Listen() error {
+	return router.server.Listen()
 }

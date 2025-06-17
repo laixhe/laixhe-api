@@ -15,7 +15,7 @@ import (
 // DEFAULT 默认key
 const DEFAULT = "default"
 
-// Server 服务
+// Server 服务器
 type Server struct {
 	config *Config
 	app    *fiber.App
@@ -51,15 +51,11 @@ func (s *Server) Config() *Config {
 	return s.config
 }
 
-func (s *Server) SetApp(app *fiber.App) {
-	s.app = app
-}
-
 func (s *Server) Log() *fiberzap.LoggerConfig {
 	return s.log
 }
 
-func (s *Server) InitOrm(config *orm.Config, key ...string) error {
+func (s *Server) initOrm(config *orm.Config, key ...string) error {
 	logLevel := logger.Info
 	if config.LogLevel == logger.Silent ||
 		config.LogLevel == logger.Error ||
@@ -91,11 +87,17 @@ func (s *Server) Orm(key ...string) *orm.GormClient {
 	}
 }
 
-func (s *Server) Init() {
-	if err := s.InitOrm(s.config.Orm); err != nil {
+func (s *Server) Init(app *fiber.App) {
+	if err := s.initOrm(s.config.Orm); err != nil {
 		panic(err)
 	}
 	if err := jwt.CheckConfig(s.config.Jwt); err != nil {
 		panic(err)
 	}
+	s.app = app
+}
+
+// Listen 启动服务
+func (s *Server) Listen() error {
+	return s.app.Listen(s.config.Addr())
 }

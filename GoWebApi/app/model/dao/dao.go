@@ -1,0 +1,34 @@
+package dao
+
+import (
+	"context"
+
+	"github.com/laixhe/gonet/orm"
+	"gorm.io/gorm"
+
+	"webapi/app/model"
+	"webapi/core"
+)
+
+// Dao 业务数据操作
+type Dao struct {
+	server     *core.Server
+	User       *model.User
+	UserExtend *model.UserExtend
+}
+
+func NewDao(server *core.Server) *Dao {
+	return &Dao{
+		server:     server,
+		User:       &model.User{},
+		UserExtend: &model.UserExtend{},
+	}
+}
+
+func (d *Dao) Orm() *orm.GormClient {
+	return d.server.Orm()
+}
+
+func (d *Dao) WithContext(ctx context.Context) *gorm.DB {
+	return d.server.Orm().WithContext(ctx)
+}

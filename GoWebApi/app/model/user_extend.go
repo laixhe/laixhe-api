@@ -1,4 +1,4 @@
-package models
+package model
 
 const UserExtendTable = "user_extend"
 
@@ -9,6 +9,6 @@ type UserExtend struct {
 	WechatOpenid  string `gorm:"column:wechat_openid;type:string;size:255;not null;default:'';index;comment:微信openid"`
 }
 
-func (*UserExtend) TableName() string {
+func (m *UserExtend) TableName() string {
 	return UserExtendTable
 }

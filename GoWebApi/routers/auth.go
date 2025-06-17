@@ -2,16 +2,12 @@ package routers
 
 import (
 	"github.com/gofiber/fiber/v2"
-
-	"webapi/app/controllers"
-	"webapi/core"
 )
 
-// AuthRouter 鉴权相关
-func AuthRouter(server *core.Server, router fiber.Router) {
-	groupRouter := router.Group("auth")
-	cs := controllers.NewAuth(server)
+// Auth 鉴权相关
+func (router *Router) Auth(groupApiV1 fiber.Router) {
+	groupRouter := groupApiV1.Group("auth")
 	{
-		groupRouter.Post("login", cs.Login)
+		groupRouter.Post("login", router.controller.Auth.Login)
 	}
 }

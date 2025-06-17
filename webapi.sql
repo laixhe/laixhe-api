@@ -2,7 +2,7 @@ CREATE DATABASE `webapi` CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';
 
 CREATE TABLE `user` (
   `id` int NOT NULL AUTO_INCREMENT COMMENT '用户UID',
-  `typeid` int NOT NULL DEFAULT 0 COMMENT '类型 1普通',
+  `type_id` int NOT NULL DEFAULT 0 COMMENT '类型 1普通',
   `mobile` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '手机号',
   `email` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '邮箱',
   `password` varchar(120) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '密码',

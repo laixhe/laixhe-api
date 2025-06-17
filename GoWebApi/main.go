@@ -16,7 +16,7 @@ func main() {
 	flag.StringVar(&ConfigFile, "config", "./config.yaml", "config path: --config config.yaml")
 	flag.Parse()
 	server := core.NewServer(ConfigFile)
-	if err := routers.Router(server).Listen(server.Config().Addr()); err != nil {
+	if err := routers.NewRouter(server).Listen(); err != nil {
 		panic(err)
 	}
 }

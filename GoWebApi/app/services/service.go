@@ -1,0 +1,19 @@
+package services
+
+import (
+	"webapi/app/model/dao"
+	"webapi/core"
+)
+
+// Service 业务服务逻辑
+type Service struct {
+	Auth *Auth
+}
+
+func NewService(server *core.Server) *Service {
+	modelDao := dao.NewDao(server)
+	service := &Service{
+		Auth: NewAuth(server, modelDao),
+	}
+	return service
+}
