@@ -1,11 +1,12 @@
 package controllers
 
 import (
+	"github.com/duke-git/lancet/v2/validator"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/log"
 
 	"webapi/app/entity"
 	"webapi/app/services"
+	"webapi/app/utils"
 	"webapi/core"
 )
 
@@ -22,16 +23,65 @@ func newAuth(server *core.Server, service *services.Service) *Auth {
 	}
 }
 
-// Login 登录
-func (a *Auth) Login(c *fiber.Ctx) error {
-	req := &entity.AuthLoginRequest{}
-	if err := c.BodyParser(req); err != nil {
+// Register 注册
+func (c *Auth) Register(ctx *fiber.Ctx) error {
+	req := &entity.AuthRegisterRequest{}
+	if err := ctx.BodyParser(req); err != nil {
 		return err
 	}
-	resp, err := a.service.Auth.Login(c, req)
-	if err != nil {
-		return c.SendString(err.Error())
+	// 验证昵称格式
+	if len(req.Nickname) < 2 {
+		return fiber.NewError(fiber.StatusUnprocessableEntity, "昵称长度不能小于2位")
 	}
-	log.WithContext(c.UserContext()).Warnw("T------- api v1 auth login -------", "resp", resp)
-	return c.JSON(resp)
+	// 验证邮箱格式
+	if !validator.IsEmail(req.Email) {
+		return fiber.NewError(fiber.StatusUnprocessableEntity, "邮箱格式错误")
+	}
+	if len(req.Password) < 6 {
+		return fiber.NewError(fiber.StatusUnprocessableEntity, "密码长度不能小于6位")
+	}
+	// 验证密码格式
+	if !utils.IsPassword(req.Password) {
+		return fiber.NewError(fiber.StatusUnprocessableEntity, "密码格式错误，只能包含字母 数字 _ @ $")
+	}
+	resp, err := c.service.Auth.Register(ctx, req)
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(resp)
+}
+
+// Login 登录
+func (c *Auth) Login(ctx *fiber.Ctx) error {
+	req := &entity.AuthLoginRequest{}
+	if err := ctx.BodyParser(req); err != nil {
+		return err
+	}
+	// 验证邮箱格式
+	if !validator.IsEmail(req.Email) {
+		return fiber.NewError(fiber.StatusUnprocessableEntity, "邮箱格式错误")
+	}
+	if len(req.Password) < 6 {
+		return fiber.NewError(fiber.StatusUnprocessableEntity, "密码长度不能小于6位")
+	}
+	// 验证密码格式
+	if !utils.IsPassword(req.Password) {
+		return fiber.NewError(fiber.StatusUnprocessableEntity, "密码格式错误，只能包含字母 数字 _ @ $")
+	}
+	resp, err := c.service.Auth.Login(ctx, req)
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(resp)
+}
+
+// 刷新Jwt
+func (c *Auth) Refresh(ctx *fiber.Ctx) error {
+	uid := ctx.UserContext().Value("uid").(int)
+	req := &entity.AuthRefreshRequest{Uid: uid}
+	resp, err := c.service.Auth.Refresh(ctx, req)
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(resp)
 }

@@ -32,4 +32,4 @@ jwt:
   # 密钥
   secret_key: 6Kbj0VFeXYMp60lEyiFoVq4UzqX8Z0GSSfnvTh2VuAQn0oHgQNYexU6yYVTk4xf9
   # 过期时长(单位秒)
-  expire_time: 604800
+  expire_time: 2592000

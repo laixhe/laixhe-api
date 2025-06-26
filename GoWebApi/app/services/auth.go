@@ -1,11 +1,19 @@
 package services
 
 import (
+	"errors"
+	"time"
+
 	"github.com/gofiber/fiber/v2"
+	"github.com/laixhe/gonet/jwt"
+	"github.com/laixhe/gonet/xcrypto"
+	"gorm.io/gorm"
 
 	"webapi/app/entity"
+	"webapi/app/model"
 	"webapi/app/model/dao"
 	"webapi/core"
+	"webapi/core/middlewares"
 )
 
 // Auth 鉴权相关
@@ -21,13 +29,103 @@ func NewAuth(server *core.Server, modelDao *dao.Dao) *Auth {
 	}
 }
 
+// Register 注册
+func (s *Auth) Register(ctx *fiber.Ctx, req *entity.AuthRegisterRequest) (*entity.AuthRegisterResponse, error) {
+	password, err := xcrypto.BcryptPasswordHash(req.Password)
+	if err != nil {
+		return nil, err
+	}
+	_, err = s.dao.GetUserByEmail(ctx.UserContext(), req.Email)
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, err
+		}
+	} else {
+		return nil, fiber.NewError(fiber.StatusUnprocessableEntity, "邮箱已存在")
+	}
+	user := &model.User{
+		TypeId:    model.UserTypeIdOrdinary,
+		Mobile:    "",
+		Nickname:  req.Nickname,
+		Email:     req.Email,
+		Password:  password,
+		AvatarUrl: "",
+		States:    model.StateNormal,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+	err = s.dao.CreateUser(ctx.UserContext(), user)
+	if err != nil {
+		return nil, err
+	}
+	claims := middlewares.NewJwtClaims(user.ID, s.server.Config().Jwt.ExpireTime)
+	token, err := jwt.GenToken(s.server.Config().Jwt, claims)
+	if err != nil {
+		return nil, err
+	}
+	return &entity.AuthRegisterResponse{
+		Token: token,
+		User: &entity.User{
+			Uid:       user.ID,
+			TypeId:    user.TypeId,
+			Nickname:  user.Nickname,
+			AvatarUrl: user.AvatarUrl,
+			States:    user.States,
+		},
+	}, nil
+}
+
 // Login 登录
-func (a *Auth) Login(c *fiber.Ctx, req *entity.AuthLoginRequest) (*entity.AuthLoginResponse, error) {
-	user, err := a.dao.GetUserByNickname(c.UserContext(), "laixhe")
+func (s *Auth) Login(ctx *fiber.Ctx, req *entity.AuthLoginRequest) (*entity.AuthLoginResponse, error) {
+	user, err := s.dao.GetUserByEmail(ctx.UserContext(), req.Email)
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, err
+		}
+		return nil, fiber.NewError(fiber.StatusUnauthorized, "邮箱或密码错误")
+	}
+	if !xcrypto.BcryptPasswordCheck(req.Password, user.Password) {
+		return nil, fiber.NewError(fiber.StatusUnauthorized, "邮箱或密码错误")
+	}
+	claims := middlewares.NewJwtClaims(user.ID, s.server.Config().Jwt.ExpireTime)
+	token, err := jwt.GenToken(s.server.Config().Jwt, claims)
 	if err != nil {
 		return nil, err
 	}
 	return &entity.AuthLoginResponse{
-		Token: user.Nickname,
+		Token: token,
+		User: &entity.User{
+			Uid:       user.ID,
+			TypeId:    user.TypeId,
+			Nickname:  user.Nickname,
+			AvatarUrl: user.AvatarUrl,
+			States:    user.States,
+		},
+	}, nil
+}
+
+// 刷新Jwt
+func (s *Auth) Refresh(ctx *fiber.Ctx, req *entity.AuthRefreshRequest) (*entity.AuthRefreshResponse, error) {
+	user, err := s.dao.GetUserByID(ctx.UserContext(), req.Uid)
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, err
+		}
+		return nil, fiber.NewError(fiber.StatusUnauthorized, "用户不存在")
+	}
+	claims := middlewares.NewJwtClaims(user.ID, s.server.Config().Jwt.ExpireTime)
+	token, err := jwt.GenToken(s.server.Config().Jwt, claims)
+	if err != nil {
+		return nil, err
+	}
+	return &entity.AuthRefreshResponse{
+		Token: token,
+		User: &entity.User{
+			Uid:       user.ID,
+			TypeId:    user.TypeId,
+			Nickname:  user.Nickname,
+			AvatarUrl: user.AvatarUrl,
+			States:    user.States,
+		},
 	}, nil
 }
