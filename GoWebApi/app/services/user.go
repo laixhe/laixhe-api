@@ -65,8 +65,12 @@ func (s *User) Info(ctx *fiber.Ctx, req *entity.UserInfoRequest) (*entity.User, 
 	return &entity.User{
 		Uid:       user.ID,
 		TypeId:    user.TypeId,
+		Account:   user.Account,
+		Mobile:    user.Mobile,
+		Email:     user.Email,
 		Nickname:  user.Nickname,
 		AvatarUrl: user.AvatarUrl,
+		Sex:       user.Sex,
 		States:    user.States,
 	}, nil
 }
@@ -83,8 +87,12 @@ func (s *User) List(ctx *fiber.Ctx, req *entity.UserListRequest) (*entity.UserLi
 		list = append(list, entity.User{
 			Uid:       users[k].ID,
 			TypeId:    users[k].TypeId,
+			Account:   users[k].Account,
+			Mobile:    users[k].Mobile,
+			Email:     users[k].Email,
 			Nickname:  users[k].Nickname,
 			AvatarUrl: users[k].AvatarUrl,
+			Sex:       users[k].Sex,
 			States:    users[k].States,
 		})
 	}

@@ -7,9 +7,9 @@ import (
 )
 
 // UseLog 日志中间件
-func (m *Middleware) UseLog(app *fiber.App, zapLogger *zap.Logger) {
+func UseLog(app *fiber.App, zapLogger *zap.Logger, requestIdKey string) {
 	app.Use(fiberzap.New(fiberzap.Config{
 		Logger: zapLogger,
-		Fields: []string{"ip", "latency", "status", m.RequestIdKey, "method", "url"},
+		Fields: []string{"ip", "latency", "status", requestIdKey, "method", "url"},
 	}))
 }

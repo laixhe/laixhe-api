@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/laixhe/gonet/jwt"
 	"github.com/laixhe/gonet/xcrypto"
+	"github.com/rs/xid"
 	"gorm.io/gorm"
 
 	"webapi/app/entity"
@@ -44,12 +45,14 @@ func (s *Auth) Register(ctx *fiber.Ctx, req *entity.AuthRegisterRequest) (*entit
 		return nil, fiber.NewError(fiber.StatusUnprocessableEntity, "邮箱已存在")
 	}
 	user := &model.User{
-		TypeId:    model.UserTypeIdOrdinary,
+		TypeId:    model.UserTypeOrdinary,
+		Account:   xid.New().String(),
 		Mobile:    "",
 		Nickname:  req.Nickname,
 		Email:     req.Email,
 		Password:  password,
 		AvatarUrl: "",
+		Sex:       model.SexUnknown,
 		States:    model.StateNormal,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -68,8 +71,12 @@ func (s *Auth) Register(ctx *fiber.Ctx, req *entity.AuthRegisterRequest) (*entit
 		User: &entity.User{
 			Uid:       user.ID,
 			TypeId:    user.TypeId,
+			Account:   user.Account,
+			Mobile:    user.Mobile,
+			Email:     user.Email,
 			Nickname:  user.Nickname,
 			AvatarUrl: user.AvatarUrl,
+			Sex:       user.Sex,
 			States:    user.States,
 		},
 	}, nil
@@ -97,8 +104,12 @@ func (s *Auth) Login(ctx *fiber.Ctx, req *entity.AuthLoginRequest) (*entity.Auth
 		User: &entity.User{
 			Uid:       user.ID,
 			TypeId:    user.TypeId,
+			Account:   user.Account,
+			Mobile:    user.Mobile,
+			Email:     user.Email,
 			Nickname:  user.Nickname,
 			AvatarUrl: user.AvatarUrl,
+			Sex:       user.Sex,
 			States:    user.States,
 		},
 	}, nil
@@ -123,8 +134,12 @@ func (s *Auth) Refresh(ctx *fiber.Ctx, req *entity.AuthRefreshRequest) (*entity.
 		User: &entity.User{
 			Uid:       user.ID,
 			TypeId:    user.TypeId,
+			Account:   user.Account,
+			Mobile:    user.Mobile,
+			Email:     user.Email,
 			Nickname:  user.Nickname,
 			AvatarUrl: user.AvatarUrl,
+			Sex:       user.Sex,
 			States:    user.States,
 		},
 	}, nil

@@ -35,17 +35,17 @@ func (claims *JwtClaims) GetUid() int {
 }
 
 // UseJwt JWT中间件
-func (m *Middleware) UseJwt() fiber.Handler {
+func UseJwt(secretKey string) fiber.Handler {
 	return jwtware.New(jwtware.Config{
-		SigningKey:   jwtware.SigningKey{Key: []byte(m.JwtSecretKey)},
+		SigningKey:   jwtware.SigningKey{Key: []byte(secretKey)},
 		ContextKey:   JwtContextKey,
 		Claims:       &JwtClaims{},
-		ErrorHandler: m.useJwtErrorHandler,
+		ErrorHandler: UseJwtErrorHandler,
 	})
 }
 
-// useJwtErrorHandler 自定义JWT错误响应
-func (m *Middleware) useJwtErrorHandler(ctx *fiber.Ctx, err error) error {
+// UseJwtErrorHandler 自定义JWT错误响应
+func UseJwtErrorHandler(ctx *fiber.Ctx, err error) error {
 	authorization := ctx.Get(fiber.HeaderAuthorization)
 	log.WithContext(ctx.UserContext()).Errorf("jwt: %s error: %s", authorization, err.Error())
 	if errors.Is(err, jwtware.ErrJWTMissingOrMalformed) {
@@ -55,9 +55,9 @@ func (m *Middleware) useJwtErrorHandler(ctx *fiber.Ctx, err error) error {
 }
 
 // UseJwtClaims 获取JWT中的claims
-func (m *Middleware) UseJwtClaims() fiber.Handler {
+func UseJwtClaims() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		claims, err := m.GetJwtClaims(ctx)
+		claims, err := GetJwtClaims(ctx)
 		if err != nil {
 			return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.NewError(fiber.StatusUnauthorized, err.Error()))
 		}
@@ -67,7 +67,7 @@ func (m *Middleware) UseJwtClaims() fiber.Handler {
 }
 
 // GetJwtClaims 获取JWT中的claims
-func (m *Middleware) GetJwtClaims(ctx *fiber.Ctx) (*JwtClaims, error) {
+func GetJwtClaims(ctx *fiber.Ctx) (*JwtClaims, error) {
 	token, isToken := ctx.Locals(JwtContextKey).(*jwtv5.Token)
 	if isToken {
 		claims, isClaims := token.Claims.(*JwtClaims)

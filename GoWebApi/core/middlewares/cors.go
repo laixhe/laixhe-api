@@ -6,6 +6,6 @@ import (
 )
 
 // UseCors 跨域中间件
-func (m *Middleware) UseCors(app *fiber.App) {
+func UseCors(app *fiber.App) {
 	app.Use(cors.New())
 }

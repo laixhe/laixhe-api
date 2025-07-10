@@ -8,11 +8,11 @@ import (
 )
 
 // UseRequestId 请求ID中间件
-func (m *Middleware) UseRequestId(app *fiber.App) {
+func UseRequestId(app *fiber.App, requestIdKey string) {
 	app.Use(requestid.New())
 	app.Use(func(ctx *fiber.Ctx) error {
 		newCtx := context.WithValue(ctx.UserContext(),
-			m.RequestIdKey,
+			requestIdKey,
 			ctx.GetRespHeader(fiber.HeaderXRequestID))
 		ctx.SetUserContext(newCtx)
 		return ctx.Next()

@@ -6,6 +6,6 @@ import (
 )
 
 // UseRecover 恢复中间件
-func (m *Middleware) UseRecover(app *fiber.App) {
+func UseRecover(app *fiber.App) {
 	app.Use(recover.New())
 }

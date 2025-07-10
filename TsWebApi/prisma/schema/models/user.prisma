@@ -4,16 +4,20 @@ model User {
     id         Int      @id @default(autoincrement()) @map("id")
     /// 类型 1普通
     type_id    Int      @default(0) @map("type_id")
+    /// 账号
+    account    String   @default("") @map("account") @db.VarChar(120)
     /// 手机号
-    mobile     String   @default("") @map("mobile") @db.VarChar(100)
+    mobile     String   @default("") @map("mobile") @db.VarChar(120)
     /// 邮箱
-    email      String   @unique @default("") @map("email") @db.VarChar(100)
+    email      String   @unique @default("") @map("email") @db.VarChar(120)
     /// 密码
     password   String   @default("") @map("password") @db.VarChar(120)
     /// 昵称
-    nickname   String   @default("") @map("nickname") @db.VarChar(100)
+    nickname   String   @default("") @map("nickname") @db.VarChar(120)
     /// 头像地址
     avatar_url String   @default("") @map("avatar_url") @db.VarChar(255)
+    /// 性别 1男 2女
+    sex        Int      @default(0) @map("sex")
     /// 状态 1正常 2封禁
     states     Int      @default(0) @map("states")
     /// 创建时间 

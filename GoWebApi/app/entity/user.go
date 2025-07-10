@@ -4,11 +4,15 @@ import "webapi/app/model"
 
 // User 用户信息
 type User struct {
-	Uid       int              `json:"uid"`        // 用户id
-	TypeId    model.UserTypeId `json:"type_id"`    // 类型id
-	Nickname  string           `json:"nickname"`   // 昵称
-	AvatarUrl string           `json:"avatar_url"` // 头像地址
-	States    model.State      `json:"states"`     // 状态
+	Uid       int            `json:"uid"`        // 用户id
+	TypeId    model.UserType `json:"type_id"`    // 类型id
+	Account   string         `json:"account"`    // 账号
+	Mobile    string         `json:"mobile"`     // 手机号
+	Email     string         `json:"email"`      // 邮箱
+	Nickname  string         `json:"nickname"`   // 昵称
+	AvatarUrl string         `json:"avatar_url"` // 头像地址
+	Sex       model.Sex      `json:"sex"`        // 性别
+	States    model.State    `json:"states"`     // 状态
 }
 
 // UserUpdateRequest 请求-更新用户信息

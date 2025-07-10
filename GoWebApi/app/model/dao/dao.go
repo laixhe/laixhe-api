@@ -3,7 +3,7 @@ package dao
 import (
 	"context"
 
-	"github.com/laixhe/gonet/orm"
+	"github.com/laixhe/gonet/orm/orm"
 	"gorm.io/gorm"
 
 	"webapi/app/model"
@@ -25,7 +25,7 @@ func NewDao(server *core.Server) *Dao {
 	}
 }
 
-func (d *Dao) Orm() *orm.GormClient {
+func (d *Dao) Orm() orm.Client {
 	return d.server.Orm()
 }
 
