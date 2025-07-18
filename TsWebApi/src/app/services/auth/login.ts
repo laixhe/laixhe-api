@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 
 import { ParamError } from "@core/error";
-import { UserModel } from "@model/user";
+import { UserModel } from "@model/user/index";
 import { LoginRequest, LoginResponse } from "@entity/auth/login";
 
 export default async function Login(req: LoginRequest): Promise<LoginResponse> {

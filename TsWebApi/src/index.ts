@@ -4,10 +4,12 @@ import { cors } from "@elysiajs/cors";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 
+import log from "@core/log";
 import { routeV1 } from "@route/route";
 
 dayjs.extend(utc);
 const app = new Elysia()
+  .use(log)
   .use(cors())
   .use(
     swagger({

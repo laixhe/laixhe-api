@@ -16,9 +16,9 @@ model User {
     nickname   String   @default("") @map("nickname") @db.VarChar(120)
     /// 头像地址
     avatar_url String   @default("") @map("avatar_url") @db.VarChar(255)
-    /// 性别 1男 2女
+    /// 性别 0未填写 1男 2女
     sex        Int      @default(0) @map("sex")
-    /// 状态 1正常 2封禁
+    /// 状态 0封禁 1正常 
     states     Int      @default(0) @map("states")
     /// 创建时间 
     created_at DateTime @default(now()) @map("created_at")

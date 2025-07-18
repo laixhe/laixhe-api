@@ -7,11 +7,11 @@ require (
 	github.com/gofiber/contrib/fiberzap/v2 v2.1.6
 	github.com/gofiber/contrib/jwt v1.1.2
 	github.com/gofiber/fiber/v2 v2.52.8
-	github.com/golang-jwt/jwt/v5 v5.2.2
-	github.com/laixhe/gonet/config v0.0.0-20250711065736-2528384c8455
-	github.com/laixhe/gonet/jwt v0.0.0-20250711065736-2528384c8455
-	github.com/laixhe/gonet/orm/mysql v0.0.0-20250711065736-2528384c8455
-	github.com/laixhe/gonet/orm/orm v0.0.0-20250711065736-2528384c8455
+	github.com/golang-jwt/jwt/v5 v5.2.3
+	github.com/laixhe/gonet/config v0.0.0-20250714090136-43522c1dbf17
+	github.com/laixhe/gonet/jwt v0.0.0-20250714090136-43522c1dbf17
+	github.com/laixhe/gonet/orm/mysql v0.0.0-20250714090136-43522c1dbf17
+	github.com/laixhe/gonet/orm/orm v0.0.0-20250714090136-43522c1dbf17
 	github.com/laixhe/gonet/xcrypto v0.0.0-20250711065736-2528384c8455
 	github.com/laixhe/gonet/xlog v0.0.0-20250711065736-2528384c8455
 	github.com/rs/xid v1.6.0

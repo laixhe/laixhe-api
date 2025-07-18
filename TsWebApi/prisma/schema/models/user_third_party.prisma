@@ -1,0 +1,14 @@
+/// 用户第三方
+model UserThirdParty {
+    id             Int    @id @default(autoincrement()) @map("id")
+    /// 用户ID
+    uid            Int    @default(0) @map("uid")
+    /// 微信unionid
+    wechat_unionid String @default("") @map("wechat_unionid") @db.VarChar(200)
+    /// 微信openid
+    wechat_openid  String @default("") @map("wechat_openid") @db.VarChar(200)
+
+    @@index([uid], map: "user_third_party_uid_idx")
+    @@index([wechat_openid], map: "user_third_party_wechat_openid_idx")
+    @@map("user_third_party")
+}

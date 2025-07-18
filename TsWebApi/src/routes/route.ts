@@ -5,17 +5,20 @@ import { auth } from "./auth";
 
 export const routeV1 = new Elysia()
   .group("v1", (app) => app.use(auth))
-  .onError(({ code, error, set }) => {
+  .onError(({ error, set }) => {
     let message = "";
     let data: any = null;
     if (set.status == 422) {
       message = "参数错误";
       try {
         if (error instanceof ValidationError) {
-          data =
-            error.validator.Errors(error.value).First().path +
-            " : " +
-            error.validator.Errors(error.value).First().message;
+          let errorValue = error.validator.Errors(error.value);
+          let errorValueFirst = errorValue?.First();
+          let msg = errorValueFirst?.schema?.description;
+          if (!msg) {
+            msg = errorValueFirst?.message;
+          }
+          data = `${errorValueFirst?.path} : ${msg}`;
         }
         if (!data) {
           if (error instanceof Error) {
@@ -37,7 +40,6 @@ export const routeV1 = new Elysia()
     } else {
       message = error.toString();
     }
-    console.log("route v1 onError", set.status, code, message);
     return {
       code: set.status,
       msg: message,

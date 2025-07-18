@@ -1,14 +1,15 @@
 /// 用户扩展
 model UserExtend {
-    id             Int    @id @default(autoincrement()) @map("id")
+    id       Int @id @default(autoincrement()) @map("id")
     /// 用户ID
-    uid            Int    @default(0) @map("uid")
-    /// 微信unionid
-    wechat_unionid String @default("") @map("wechat_unionid") @db.VarChar(255)
-    /// 微信openid
-    wechat_openid  String @default("") @map("wechat_openid") @db.VarChar(255)
+    uid      Int @default(0) @map("uid")
+    /// 生日(年月日)
+    birthday Int @default(0) @map("birthday")
+    /// 身高(cm)
+    height   Int @default(0) @map("height")
+    /// 体重(kg)
+    weight   Int @default(0) @map("weight")
 
     @@index([uid], map: "user_extend_uid_idx")
-    @@index([wechat_openid], map: "user_extend_wechat_openid_idx")
     @@map("user_extend")
 }

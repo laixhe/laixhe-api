@@ -1,15 +1,17 @@
 import { Elysia, t } from "elysia";
 
+import log from "@core/log";
 import { jwtConfig, jwtAuth } from "@middleware/jwt";
 
-export const authRefresh = new Elysia()
+const Refresh = new Elysia()
+  .use(log)
   .use(jwtConfig)
   .use(jwtAuth)
   .post(
     "refresh",
-    async ({ JwtConfig, uid }) => {
-      const token = await JwtConfig.sign({
-        uid: uid,
+    async (context) => {
+      const token = await context.JwtConfig.sign({
+        uid: context.uid,
       });
       let resp: {
         token: string;
@@ -22,7 +24,7 @@ export const authRefresh = new Elysia()
       } = {
         token: token,
         user: {
-          uid: uid,
+          uid: context.uid,
           uname: "refresh.password",
           email: "refresh.email",
           created_at: "2025-05-02",
@@ -47,3 +49,5 @@ export const authRefresh = new Elysia()
       },
     }
   );
+
+export default Refresh;
