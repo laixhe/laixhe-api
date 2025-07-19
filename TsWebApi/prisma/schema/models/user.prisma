@@ -9,7 +9,7 @@ model User {
     /// 手机号
     mobile     String   @default("") @map("mobile") @db.VarChar(120)
     /// 邮箱
-    email      String   @unique @default("") @map("email") @db.VarChar(120)
+    email      String   @default("") @map("email") @db.VarChar(120)
     /// 密码
     password   String   @default("") @map("password") @db.VarChar(120)
     /// 昵称
@@ -25,5 +25,8 @@ model User {
     /// 更新时间
     updated_at DateTime @default(now()) @updatedAt @map("updated_at")
 
+    @@index([account], map: "user_account_idx")
+    @@index([mobile], map: "user_mobile_idx")
+    @@index([email], map: "user_email_idx")
     @@map("user")
 }
