@@ -6,8 +6,8 @@ import (
 
 	"github.com/laixhe/gonet/config"
 	"github.com/laixhe/gonet/jwt"
+	golog "github.com/laixhe/gonet/log"
 	"github.com/laixhe/gonet/orm/orm"
-	"github.com/laixhe/gonet/xlog"
 )
 
 type Addr struct {
@@ -22,10 +22,10 @@ func (a *Addr) Addr() string {
 
 // Config 配置
 type Config struct {
-	Http *Addr        `mapstructure:"http"`
-	Log  *xlog.Config `mapstructure:"log"`
-	Orm  *orm.Config  `mapstructure:"orm"`
-	Jwt  *jwt.Config  `mapstructure:"jwt"`
+	Http *Addr         `mapstructure:"http"`
+	Log  *golog.Config `mapstructure:"log"`
+	Orm  *orm.Config   `mapstructure:"orm"`
+	Jwt  *jwt.Config   `mapstructure:"jwt"`
 }
 
 func (c *Config) Check() error {
@@ -36,8 +36,8 @@ func (c *Config) Check() error {
 		return errors.New("http port is invalid")
 	}
 	if c.Log == nil {
-		c.Log = &xlog.Config{
-			Run: xlog.RunTypeConsole,
+		c.Log = &golog.Config{
+			Run: golog.RunTypeConsole,
 		}
 	}
 	if err := c.Orm.Check(); err != nil {

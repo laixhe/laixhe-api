@@ -4,9 +4,9 @@ import (
 	"github.com/gofiber/contrib/fiberzap/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
+	golog "github.com/laixhe/gonet/log"
 	"github.com/laixhe/gonet/orm/mysql"
 	"github.com/laixhe/gonet/orm/orm"
-	"github.com/laixhe/gonet/xlog"
 
 	"webapi/core/middlewares"
 )
@@ -30,7 +30,7 @@ func NewServer(configFile string) *Server {
 	config := NewConfig(configFile)
 	// 初始化日志
 	config.Log.CallerSkip = 2
-	zapClient, err := xlog.Init(config.Log)
+	zapClient, err := golog.Init(config.Log)
 	if err != nil {
 		panic(err)
 	}

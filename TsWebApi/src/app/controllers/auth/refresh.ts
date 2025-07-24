@@ -1,9 +1,9 @@
 import { Elysia, t } from "elysia";
 
-import log from "@core/log";
+import log  from "@core/log";
 import { jwtConfig, jwtAuth } from "@middleware/jwt";
 
-const Refresh = new Elysia()
+const refresh = new Elysia()
   .use(log)
   .use(jwtConfig)
   .use(jwtAuth)
@@ -50,4 +50,4 @@ const Refresh = new Elysia()
     }
   );
 
-export default Refresh;
+export default refresh;

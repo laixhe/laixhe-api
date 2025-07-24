@@ -5,7 +5,7 @@ const IdentityNumberRegex =
   /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/;
 
 // 验证手机号格式
-function validateMobile(mobile: string): boolean {
+export function validateMobile(mobile: string): boolean {
   if (mobile.length != 11) {
     return false;
   }
@@ -13,7 +13,7 @@ function validateMobile(mobile: string): boolean {
 }
 
 // 验证身份证格式
-function validateIdentityNumber(identityNumber: string): boolean {
+export function validateIdentityNumber(identityNumber: string): boolean {
   if (identityNumber.length != 18) {
     return false;
   }
@@ -21,15 +21,9 @@ function validateIdentityNumber(identityNumber: string): boolean {
 }
 
 // 从身份证号码中提取生日
-function extractBirthdayFromIdentityNumber(identityNumber: string): string {
+export function extractBirthdayFromIdentityNumber(identityNumber: string): string {
   if (!validateIdentityNumber(identityNumber)) {
     return "";
   }
   return identityNumber.substring(6, 14);
 }
-
-export {
-  validateMobile,
-  validateIdentityNumber,
-  extractBirthdayFromIdentityNumber,
-};

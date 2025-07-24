@@ -4,8 +4,8 @@ import { ParamError } from "@core/error";
 import { UserModel } from "@model/user/index";
 import { LoginRequest, LoginResponse } from "@entity/auth/login";
 
-export default async function Login(req: LoginRequest): Promise<LoginResponse> {
-  const user = await UserModel.GetByEmail(req.email);
+export default async function login(req: LoginRequest): Promise<LoginResponse> {
+  const user = await UserModel.getByEmail(req.email);
   if (!user) {
     throw new ParamError("邮箱或密码不正确");
   }

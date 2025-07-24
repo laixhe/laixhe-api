@@ -1,6 +1,5 @@
 /// 用户
 model User {
-    /// 用户ID
     id         Int      @id @default(autoincrement()) @map("id")
     /// 类型 1普通
     type_id    Int      @default(0) @map("type_id")
@@ -21,9 +20,9 @@ model User {
     /// 状态 0封禁 1正常 
     states     Int      @default(0) @map("states")
     /// 创建时间 
-    created_at DateTime @default(now()) @map("created_at")
+    created_at DateTime @default(now()) @map("created_at") @db.Timestamp(6)
     /// 更新时间
-    updated_at DateTime @default(now()) @updatedAt @map("updated_at")
+    updated_at DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
 
     @@index([account], map: "user_account_idx")
     @@index([mobile], map: "user_mobile_idx")

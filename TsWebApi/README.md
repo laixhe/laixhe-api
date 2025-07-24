@@ -5,4 +5,5 @@ bun prisma migrate dev --name init
 
 ```
 http://localhost/swagger
+http://localhost/swagger/json
 ```

@@ -13,5 +13,5 @@ export const auth = new Elysia({
     ],
   },
 })
-  .use(AuthController.Login)
-  .use(AuthController.Refresh);
+  .use(AuthController.login)
+  .use(AuthController.refresh);

@@ -1,7 +1,7 @@
-import Login from "./login";
-import Refresh from "./refresh";
+import login from "./login";
+import refresh from "./refresh";
 
 export const AuthController = {
-  Login,
-  Refresh,
+  login,
+  refresh,
 };

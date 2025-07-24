@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/laixhe/gonet/crypto"
 	"github.com/laixhe/gonet/jwt"
-	"github.com/laixhe/gonet/xcrypto"
 	"github.com/rs/xid"
 	"gorm.io/gorm"
 
@@ -32,7 +32,7 @@ func NewAuth(server *core.Server, modelDao *dao.Dao) *Auth {
 
 // Register 注册
 func (s *Auth) Register(ctx *fiber.Ctx, req *entity.AuthRegisterRequest) (*entity.AuthRegisterResponse, error) {
-	password, err := xcrypto.BcryptPasswordHash(req.Password)
+	password, err := crypto.BcryptPasswordHash(req.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -52,8 +52,8 @@ func (s *Auth) Register(ctx *fiber.Ctx, req *entity.AuthRegisterRequest) (*entit
 		Email:     req.Email,
 		Password:  password,
 		AvatarUrl: "",
-		Sex:       model.SexUnknown,
-		States:    model.StateNormal,
+		Sex:       model.UserSexUnknown,
+		States:    model.UserStateNormal,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
@@ -91,7 +91,7 @@ func (s *Auth) Login(ctx *fiber.Ctx, req *entity.AuthLoginRequest) (*entity.Auth
 		}
 		return nil, fiber.NewError(fiber.StatusUnauthorized, "邮箱或密码错误")
 	}
-	if !xcrypto.BcryptPasswordCheck(req.Password, user.Password) {
+	if !crypto.BcryptPasswordCheck(req.Password, user.Password) {
 		return nil, fiber.NewError(fiber.StatusUnauthorized, "邮箱或密码错误")
 	}
 	claims := middlewares.NewJwtClaims(user.ID, s.server.Config().Jwt.ExpireTime)

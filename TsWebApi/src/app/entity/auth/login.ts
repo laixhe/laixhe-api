@@ -1,6 +1,6 @@
 import { t, type Static } from "elysia";
 
-const LoginRequestSchema = t.Object({
+export const LoginRequestSchema = t.Object({
   email: t.String({ format: "email", description: "用户邮箱" }),
   password: t.String({
     minLength: 6,
@@ -9,9 +9,9 @@ const LoginRequestSchema = t.Object({
   }),
 });
 
-type LoginRequest = Static<typeof LoginRequestSchema>;
+export type LoginRequest = Static<typeof LoginRequestSchema>;
 
-const LoginResponseSchema = t.Object({
+export const LoginResponseSchema = t.Object({
   token: t.String({ description: "Token: Bearer xxx" }),
   user: t.Object(
     {
@@ -24,6 +24,4 @@ const LoginResponseSchema = t.Object({
   ),
 });
 
-type LoginResponse = Static<typeof LoginResponseSchema>;
-
-export { LoginRequestSchema, LoginRequest, LoginResponseSchema, LoginResponse };
+export type LoginResponse = Static<typeof LoginResponseSchema>;

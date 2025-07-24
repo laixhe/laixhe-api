@@ -3,11 +3,14 @@ import { swagger } from "@elysiajs/swagger";
 import { cors } from "@elysiajs/cors";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 
 import log from "@core/log";
 import { routeV1 } from "@route/route";
 
 dayjs.extend(utc);
+dayjs.extend(customParseFormat);
+
 const app = new Elysia()
   .use(log)
   .use(cors())

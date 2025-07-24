@@ -8,8 +8,8 @@
     "require": {
         "php": "^8.2",
         "godruoyi/php-snowflake": "^3.2",
-        "laravel/framework": "^12.20",
-        "laravel/sanctum": "^4.1",
+        "laravel/framework": "^12.21",
+        "laravel/sanctum": "^4.2",
         "laravel/tinker": "^2.10",
         "lcobucci/jwt": "^5.5"
     },
@@ -17,7 +17,7 @@
         "roave/security-advisories": "dev-latest",
         "fakerphp/faker": "^1.24",
         "laravel/pint": "^1.22",
-        "laravel/sail": "^1.43",
+        "laravel/sail": "^1.44",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.8",
         "spatie/laravel-ignition": "^2.9",
