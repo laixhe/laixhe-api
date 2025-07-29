@@ -23,7 +23,13 @@ func newAuth(server *core.Server, service *services.Service) *Auth {
 	}
 }
 
-// Register 注册
+// @Summary	注册
+// @Tags     Auth
+// @Accept   json
+// @Produce  json
+// @Param    req       body     entity.AuthRegisterRequest  true  "请求参数"
+// @Success  200       {object}  entity.AuthRegisterResponse
+// @Router   /api/v1/auth/register [post]
 func (c *Auth) Register(ctx *fiber.Ctx) error {
 	req := &entity.AuthRegisterRequest{}
 	if err := ctx.BodyParser(req); err != nil {
@@ -51,7 +57,13 @@ func (c *Auth) Register(ctx *fiber.Ctx) error {
 	return ctx.JSON(resp)
 }
 
-// Login 登录
+// @Summary	登录
+// @Tags     Auth
+// @Accept   json
+// @Produce  json
+// @Param    req       body     entity.AuthLoginRequest  true  "请求参数"
+// @Success  200       {object}  entity.AuthLoginResponse
+// @Router   /api/v1/auth/login [post]
 func (c *Auth) Login(ctx *fiber.Ctx) error {
 	req := &entity.AuthLoginRequest{}
 	if err := ctx.BodyParser(req); err != nil {
@@ -75,7 +87,13 @@ func (c *Auth) Login(ctx *fiber.Ctx) error {
 	return ctx.JSON(resp)
 }
 
-// 刷新Jwt
+// @Summary	刷新Jwt
+// @Tags     Auth
+// @Accept   json
+// @Produce  json
+// @Param Authorization header string true "Bearer token令牌"
+// @Success  200       {object}  entity.AuthRefreshResponse
+// @Router   /api/v1/auth/refresh [post]
 func (c *Auth) Refresh(ctx *fiber.Ctx) error {
 	uid := ctx.UserContext().Value("uid").(int)
 	req := &entity.AuthRefreshRequest{Uid: uid}

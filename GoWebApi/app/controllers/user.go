@@ -23,7 +23,14 @@ func newUser(server *core.Server, service *services.Service) *User {
 	}
 }
 
-// Update 更新用户信息
+// @Summary	更新用户信息
+// @Tags     User
+// @Accept   json
+// @Produce  json
+// @Param Authorization header    string true "Bearer token令牌"
+// @Param    req        body      entity.UserUpdateRequest  true  "请求参数"
+// @Success  200        {object}  entity.User
+// @Router   /api/v1/user/update [post]
 func (c *User) Update(ctx *fiber.Ctx) error {
 	req := &entity.UserUpdateRequest{}
 	if err := ctx.BodyParser(req); err != nil {
@@ -47,7 +54,13 @@ func (c *User) Update(ctx *fiber.Ctx) error {
 	return ctx.JSON(resp)
 }
 
-// Info 获取用户信息
+// @Summary	获取用户信息
+// @Tags     User
+// @Accept   json
+// @Produce  json
+// @Param    req        body      entity.UserInfoRequest  true  "请求参数"
+// @Success  200        {object}  entity.User
+// @Router   /api/v1/user/info [get]
 func (c *User) Info(ctx *fiber.Ctx) error {
 	req := &entity.UserInfoRequest{}
 	if err := ctx.QueryParser(req); err != nil {
@@ -63,7 +76,13 @@ func (c *User) Info(ctx *fiber.Ctx) error {
 	return ctx.JSON(resp)
 }
 
-// List 获取用户列表
+// @Summary	获取用户列表
+// @Tags     User
+// @Accept   json
+// @Produce  json
+// @Param    req        body      entity.UserListRequest  true  "请求参数"
+// @Success  200        {object}  entity.UserListResponse
+// @Router   /api/v1/user/list [get]
 func (c *User) List(ctx *fiber.Ctx) error {
 	req := &entity.UserListRequest{}
 	if err := ctx.QueryParser(req); err != nil {

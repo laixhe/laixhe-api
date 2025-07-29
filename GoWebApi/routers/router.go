@@ -6,6 +6,7 @@ import (
 	"webapi/app/controllers"
 	"webapi/core"
 	"webapi/core/middlewares"
+	"webapi/docs"
 )
 
 // Router 业务路由
@@ -34,6 +35,12 @@ func (router *Router) init() *Router {
 	{
 		groupApiV1 := groupApi.Group("v1")
 		{
+			groupApiV1.Get("swagger.json", func(c *fiber.Ctx) error {
+				return c.SendString(docs.JsonSwagger)
+			})
+			groupApiV1.Get("swagger.yaml", func(c *fiber.Ctx) error {
+				return c.SendString(docs.YamlSwagger)
+			})
 			router.Auth(groupApiV1, router.server.Config().Jwt.SecretKey) // 鉴权相关
 			router.User(groupApiV1, router.server.Config().Jwt.SecretKey) // 用户相关
 		}

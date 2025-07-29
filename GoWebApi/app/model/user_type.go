@@ -1,6 +1,6 @@
 package model
 
-// UserTypeId 用户类型
+// UserType 用户类型
 type UserType = int
 
 const (

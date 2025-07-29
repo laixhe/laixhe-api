@@ -38,7 +38,7 @@ const app = new Elysia()
       },
     })
   )
-  .group("api", (app) => app.use(routeV1))
+  .use(routeV1)
   .listen(process.env.PORT || 6600);
 
 console.log(
