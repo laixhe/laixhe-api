@@ -11,7 +11,9 @@ import (
 	jwtv5 "github.com/golang-jwt/jwt/v5"
 )
 
-const JwtContextKey = "jwt"
+const JwtKey = "jwt"
+
+type JwtContextUidKey struct{}
 
 // JwtClaims 可根据业务自行添加字段
 type JwtClaims struct {
@@ -19,7 +21,7 @@ type JwtClaims struct {
 	jwtv5.RegisteredClaims
 }
 
-func NewJwtClaims(uid, expireTime int) *JwtClaims {
+func NewJwtClaims(uid int, expireTime int64) *JwtClaims {
 	custom := &JwtClaims{
 		Uid: uid,
 	}
@@ -38,7 +40,7 @@ func (claims *JwtClaims) GetUid() int {
 func UseJwt(secretKey string) fiber.Handler {
 	return jwtware.New(jwtware.Config{
 		SigningKey:   jwtware.SigningKey{Key: []byte(secretKey)},
-		ContextKey:   JwtContextKey,
+		ContextKey:   JwtKey,
 		Claims:       &JwtClaims{},
 		ErrorHandler: UseJwtErrorHandler,
 	})
@@ -61,14 +63,14 @@ func UseJwtClaims() fiber.Handler {
 		if err != nil {
 			return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.NewError(fiber.StatusUnauthorized, err.Error()))
 		}
-		ctx.SetUserContext(context.WithValue(ctx.UserContext(), "uid", claims.Uid))
+		ctx.SetUserContext(context.WithValue(ctx.UserContext(), JwtContextUidKey{}, claims.Uid))
 		return ctx.Next()
 	}
 }
 
 // GetJwtClaims 获取JWT中的claims
 func GetJwtClaims(ctx *fiber.Ctx) (*JwtClaims, error) {
-	token, isToken := ctx.Locals(JwtContextKey).(*jwtv5.Token)
+	token, isToken := ctx.Locals(JwtKey).(*jwtv5.Token)
 	if isToken {
 		claims, isClaims := token.Claims.(*JwtClaims)
 		if isClaims {
@@ -78,4 +80,13 @@ func GetJwtClaims(ctx *fiber.Ctx) (*JwtClaims, error) {
 		}
 	}
 	return nil, errors.New("尚未登录")
+}
+
+// GetUid 获取当前请求的用户ID
+func GetUid(ctx *fiber.Ctx) (int, error) {
+	uid, is := ctx.UserContext().Value(JwtContextUidKey{}).(int)
+	if is && uid > 0 {
+		return uid, nil
+	}
+	return 0, fiber.NewError(fiber.StatusUnauthorized, "尚未登录")
 }
