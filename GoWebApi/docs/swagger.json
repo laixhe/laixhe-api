@@ -151,13 +151,18 @@
                 "summary": "获取用户列表",
                 "parameters": [
                     {
-                        "description": "请求参数",
-                        "name": "req",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entity.UserListRequest"
-                        }
+                        "type": "integer",
+                        "description": "偏移id（分页）",
+                        "name": "offsetId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量（分页）",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -386,23 +391,6 @@
             "properties": {
                 "uid": {
                     "description": "用户id",
-                    "type": "integer"
-                }
-            }
-        },
-        "entity.UserListRequest": {
-            "type": "object",
-            "required": [
-                "offsetId",
-                "pageSize"
-            ],
-            "properties": {
-                "offsetId": {
-                    "description": "偏移id（分页）",
-                    "type": "integer"
-                },
-                "pageSize": {
-                    "description": "每页数量（分页）",
                     "type": "integer"
                 }
             }

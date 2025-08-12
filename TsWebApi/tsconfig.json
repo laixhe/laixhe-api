@@ -16,7 +16,6 @@
       "@entity/*": ["app/entity/*"],
       "@model/*": ["app/models/*"],
       "@service/*": ["app/services/*"],
-      "@controller/*": ["app/controllers/*"],
     }
   }
 }

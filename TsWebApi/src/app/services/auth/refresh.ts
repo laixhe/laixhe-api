@@ -1,6 +1,6 @@
 import { Elysia, t } from "elysia";
 
-import log  from "@core/log";
+import { log } from "@core/log";
 import { jwtConfig, jwtAuth } from "@middleware/jwt";
 
 const refresh = new Elysia()
