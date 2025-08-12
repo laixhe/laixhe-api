@@ -126,18 +126,6 @@ definitions:
     required:
     - uid
     type: object
-  entity.UserListRequest:
-    properties:
-      offsetId:
-        description: 偏移id（分页）
-        type: integer
-      pageSize:
-        description: 每页数量（分页）
-        type: integer
-    required:
-    - offsetId
-    - pageSize
-    type: object
   entity.UserListResponse:
     properties:
       list:
@@ -300,12 +288,16 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: 请求参数
-        in: body
-        name: req
+      - description: 偏移id（分页）
+        in: query
+        name: offsetId
         required: true
-        schema:
-          $ref: '#/definitions/entity.UserListRequest'
+        type: integer
+      - description: 每页数量（分页）
+        in: query
+        name: pageSize
+        required: true
+        type: integer
       produces:
       - application/json
       responses:

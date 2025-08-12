@@ -1,6 +1,6 @@
 import { Elysia } from "elysia";
 
-import { AuthController } from "@controller/auth/index";
+import { AuthService } from "@service/auth/index";
 
 export const auth = new Elysia({
   prefix: "auth",
@@ -13,5 +13,5 @@ export const auth = new Elysia({
     ],
   },
 })
-  .use(AuthController.login)
-  .use(AuthController.refresh);
+  .use(AuthService.login)
+  .use(AuthService.refresh);
