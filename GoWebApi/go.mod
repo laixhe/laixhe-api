@@ -1,6 +1,6 @@
 module webapi
 
-go 1.24
+go 1.25
 
 require (
 	github.com/duke-git/lancet/v2 v2.3.7
@@ -8,15 +8,15 @@ require (
 	github.com/gofiber/contrib/jwt v1.1.2
 	github.com/gofiber/fiber/v2 v2.52.9
 	github.com/golang-jwt/jwt/v5 v5.3.0
-	github.com/laixhe/gonet/config v0.0.0-20250802090629-78afa3e2a1c6
-	github.com/laixhe/gonet/crypto v0.0.0-20250802090629-78afa3e2a1c6
-	github.com/laixhe/gonet/jwt v0.0.0-20250802090629-78afa3e2a1c6
-	github.com/laixhe/gonet/log v0.0.0-20250802090629-78afa3e2a1c6
-	github.com/laixhe/gonet/orm/mysql v0.0.0-20250802090629-78afa3e2a1c6
-	github.com/laixhe/gonet/orm/orm v0.0.0-20250802090629-78afa3e2a1c6
+	github.com/laixhe/gonet/config v0.2.2
+	github.com/laixhe/gonet/crypto v0.2.2
+	github.com/laixhe/gonet/jwt v0.2.2
+	github.com/laixhe/gonet/log v0.2.2
+	github.com/laixhe/gonet/orm/mysql v0.2.2
+	github.com/laixhe/gonet/orm/orm v0.2.2
 	github.com/rs/xid v1.6.0
 	go.uber.org/zap v1.27.0
-	gorm.io/gorm v1.30.1
+	gorm.io/gorm v1.30.2
 )
 
 require (
@@ -46,9 +46,9 @@ require (
 	github.com/valyala/fasthttp v1.56.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
-	golang.org/x/crypto v0.40.0 // indirect
-	golang.org/x/sys v0.34.0 // indirect
-	golang.org/x/text v0.27.0 // indirect
+	golang.org/x/crypto v0.41.0 // indirect
+	golang.org/x/sys v0.35.0 // indirect
+	golang.org/x/text v0.28.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.6.0 // indirect
