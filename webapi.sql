@@ -39,3 +39,12 @@ CREATE TABLE `user_third_party` (
   KEY `user_third_party_wechat_openid_idx` (`wechat_openid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户第三方';
 
+CREATE TABLE `config_common` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `value` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `text` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `describe` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '描述',
+  PRIMARY KEY (`id`),
+  KEY `config_common_key_idx` (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='通用配置';
