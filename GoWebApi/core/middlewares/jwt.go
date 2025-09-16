@@ -49,18 +49,22 @@ func UseJwt(secretKey string) fiber.Handler {
 // UseJwtErrorHandler 自定义JWT错误响应
 func UseJwtErrorHandler(ctx *fiber.Ctx, err error) error {
 	authorization := ctx.Get(fiber.HeaderAuthorization)
-	log.WithContext(ctx.UserContext()).Errorf("jwt: %s error: %s", authorization, err.Error())
-	if errors.Is(err, jwtware.ErrJWTMissingOrMalformed) {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.NewError(fiber.StatusBadRequest, err.Error()))
-	}
-	return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.NewError(fiber.StatusUnauthorized, err.Error()))
+	log.WithContext(ctx.UserContext()).Errorf("jwt: %s error: %v", authorization, err)
+	return ctx.Next()
+	// if errors.Is(err, jwtware.ErrJWTMissingOrMalformed) {
+	// 	return ctx.Status(fiber.StatusBadRequest).JSON(fiber.NewError(fiber.StatusBadRequest, err.Error()))
+	// }
+	// return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.NewError(fiber.StatusUnauthorized, err.Error()))
 }
 
 // UseJwtClaims 获取JWT中的claims
-func UseJwtClaims() fiber.Handler {
+func UseJwtClaims(isSkipError ...bool) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		claims, err := GetJwtClaims(ctx)
 		if err != nil {
+			if len(isSkipError) > 0 && isSkipError[0] {
+				return ctx.Next()
+			}
 			return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.NewError(fiber.StatusUnauthorized, err.Error()))
 		}
 		ctx.SetUserContext(context.WithValue(ctx.UserContext(), JwtContextUidKey{}, claims.Uid))
