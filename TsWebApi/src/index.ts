@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 
-import log from "@core/log";
+import { log } from "@core/log";
 import { routeV1 } from "@route/route";
 
 dayjs.extend(utc);
