@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+    provider = "mysql"
+}
+
+// 生成注释
+generator comments {
+    provider                  = "prisma-db-comments-generator-mysql"
+    includeEnumInFieldComment = true
+}
+
+/// 通用配置
+model ConfigCommon {
+    id       Int    @id @default(autoincrement()) @map("id")
+    key      String @default("") @map("key") @db.VarChar(50)
+    value    String @default("") @map("value") @db.VarChar(500)
+    text     String @default("") @map("text") @db.VarChar(500)
+    /// 描述
+    describe String @default("") @map("describe") @db.VarChar(500)
+
+    @@index([key], map: "config_common_key_idx")
+    @@map("config_common")
+}
+
+/// 用户
+model User {
+    id         Int      @id @default(autoincrement()) @map("id")
+    /// 类型 1普通
+    type_id    Int      @default(0) @map("type_id")
+    /// 账号
+    account    String   @default("") @map("account") @db.VarChar(120)
+    /// 手机号
+    mobile     String   @default("") @map("mobile") @db.VarChar(120)
+    /// 邮箱
+    email      String   @default("") @map("email") @db.VarChar(120)
+    /// 密码
+    password   String   @default("") @map("password") @db.VarChar(120)
+    /// 昵称
+    nickname   String   @default("") @map("nickname") @db.VarChar(120)
+    /// 头像地址
+    avatar_url String   @default("") @map("avatar_url") @db.VarChar(255)
+    /// 性别 0未填写 1男 2女
+    sex        Int      @default(0) @map("sex")
+    /// 状态 0封禁 1正常 
+    states     Int      @default(0) @map("states")
+    /// 创建时间 
+    created_at DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+    /// 更新时间
+    updated_at DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+
+    @@index([account], map: "user_account_idx")
+    @@index([mobile], map: "user_mobile_idx")
+    @@index([email], map: "user_email_idx")
+    @@map("user")
+}
+
+/// 用户扩展
+model UserExtend {
+    id       Int @id @default(autoincrement()) @map("id")
+    /// 用户ID
+    uid      Int @default(0) @map("uid")
+    /// 生日(年月日)
+    birthday Int @default(0) @map("birthday")
+    /// 身高(cm)
+    height   Int @default(0) @map("height")
+    /// 体重(kg)
+    weight   Int @default(0) @map("weight")
+
+    @@index([uid], map: "user_extend_uid_idx")
+    @@map("user_extend")
+}
+
+/// 用户第三方
+model UserThirdParty {
+    id             Int    @id @default(autoincrement()) @map("id")
+    /// 用户ID
+    uid            Int    @default(0) @map("uid")
+    /// 微信unionid
+    wechat_unionid String @default("") @map("wechat_unionid") @db.VarChar(200)
+    /// 微信openid
+    wechat_openid  String @default("") @map("wechat_openid") @db.VarChar(200)
+
+    @@index([uid], map: "user_third_party_uid_idx")
+    @@index([wechat_openid], map: "user_third_party_wechat_openid_idx")
+    @@map("user_third_party")
+}

@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "types": ["bun-types"],
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,                            
+    "skipLibCheck": true,
+    "strict": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@generated/*": ["generated/*"],
+      "@core/*": ["core/*"],
+      "@route/*": ["routes/*"],
+      "@middleware/*": ["middlewares/*"],
+      "@entity/*": ["app/entity/*"],
+      "@model/*": ["app/models/*"],
+      "@service/*": ["app/services/*"],
+    }
+  }
+}

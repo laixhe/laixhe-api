@@ -1,0 +1,407 @@
+definitions:
+  core.Error:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    required:
+    - code
+    - message
+    type: object
+  entity.AuthLoginRequest:
+    properties:
+      email:
+        description: 邮箱
+        type: string
+      password:
+        description: 密码
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  entity.AuthLoginResponse:
+    properties:
+      token:
+        description: jwt token
+        type: string
+      user:
+        allOf:
+        - $ref: '#/definitions/entity.User'
+        description: 用户信息
+    required:
+    - token
+    - user
+    type: object
+  entity.AuthRefreshResponse:
+    properties:
+      token:
+        description: jwt token
+        type: string
+      user:
+        allOf:
+        - $ref: '#/definitions/entity.User'
+        description: 用户信息
+    required:
+    - token
+    - user
+    type: object
+  entity.AuthRegisterRequest:
+    properties:
+      email:
+        description: 邮箱
+        type: string
+      nickname:
+        description: 昵称
+        type: string
+      password:
+        description: 密码
+        type: string
+    required:
+    - email
+    - nickname
+    - password
+    type: object
+  entity.AuthRegisterResponse:
+    properties:
+      token:
+        description: jwt token
+        type: string
+      user:
+        allOf:
+        - $ref: '#/definitions/entity.User'
+        description: 用户信息
+    required:
+    - token
+    - user
+    type: object
+  entity.User:
+    properties:
+      account:
+        description: 账号
+        type: string
+      avatar_url:
+        description: 头像地址
+        type: string
+      created_at:
+        description: 创建时间
+        type: string
+      email:
+        description: 邮箱
+        type: string
+      mobile:
+        description: 手机号
+        type: string
+      nickname:
+        description: 昵称
+        type: string
+      sex:
+        allOf:
+        - $ref: '#/definitions/models.UserSex'
+        description: |-
+          UserSex:
+          * 0 - 未填写
+          * 1 - 男
+          * 2 - 女
+      states:
+        allOf:
+        - $ref: '#/definitions/models.UserState'
+        description: |-
+          UserState:
+          * 0 - 禁用
+          * 1 - 正常
+      type_id:
+        allOf:
+        - $ref: '#/definitions/models.UserType'
+        description: |-
+          UserType:
+          * 1 - 普通用户
+      uid:
+        description: 用户id
+        type: integer
+    required:
+    - account
+    - avatar_url
+    - created_at
+    - email
+    - mobile
+    - nickname
+    - sex
+    - states
+    - type_id
+    - uid
+    type: object
+  entity.UserInfoRequest:
+    properties:
+      uid:
+        description: 用户id
+        type: integer
+    required:
+    - uid
+    type: object
+  entity.UserListResponse:
+    properties:
+      list:
+        description: 列表
+        items:
+          $ref: '#/definitions/entity.User'
+        type: array
+      page:
+        description: 分页-当前页
+        type: integer
+      page_size:
+        description: 分页-每页数量
+        type: integer
+      total:
+        description: 总数
+        type: integer
+    required:
+    - list
+    - page
+    - page_size
+    - total
+    type: object
+  entity.UserUpdateRequest:
+    properties:
+      avatar_url:
+        description: 头像地址
+        type: string
+      nickname:
+        description: 昵称
+        type: string
+    required:
+    - avatar_url
+    - nickname
+    type: object
+  models.UserSex:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-comments:
+      UserSexFemale: 女
+      UserSexMale: 男
+      UserSexUnknown: 未填写
+    x-enum-descriptions:
+    - 未填写
+    - 男
+    - 女
+    x-enum-varnames:
+    - UserSexUnknown
+    - UserSexMale
+    - UserSexFemale
+  models.UserState:
+    enum:
+    - 0
+    - 1
+    type: integer
+    x-enum-comments:
+      UserStateBanned: 禁用
+      UserStateNormal: 正常
+    x-enum-descriptions:
+    - 禁用
+    - 正常
+    x-enum-varnames:
+    - UserStateBanned
+    - UserStateNormal
+  models.UserType:
+    enum:
+    - 1
+    type: integer
+    x-enum-comments:
+      UserTypeOrdinary: 普通用户
+    x-enum-descriptions:
+    - 普通用户
+    x-enum-varnames:
+    - UserTypeOrdinary
+info:
+  contact: {}
+  description: API接口文档
+  title: API接口
+  version: "1.0"
+paths:
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/entity.AuthLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.AuthLoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.Error'
+      summary: 登录
+      tags:
+      - Auth
+  /api/v1/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer XXX令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.AuthRefreshResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.Error'
+      summary: 刷新Jwt
+      tags:
+      - Auth
+  /api/v1/auth/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/entity.AuthRegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.AuthRegisterResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.Error'
+      summary: 注册
+      tags:
+      - Auth
+  /api/v1/user/info:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UserInfoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.Error'
+      summary: 获取用户信息
+      tags:
+      - User
+  /api/v1/user/list:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分页-当前页(默认 1)
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: 分页-每页数量(默认 12)
+        in: query
+        name: page_size
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.UserListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.Error'
+      summary: 获取用户列表
+      tags:
+      - User
+  /api/v1/user/update:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer XXX令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 请求参数
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UserUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.Error'
+      summary: 更新用户信息
+      tags:
+      - User
+swagger: "2.0"
