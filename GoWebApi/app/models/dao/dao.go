@@ -43,6 +43,14 @@ func (d *Dao) GetById(ctx context.Context, id int, data any) error {
 	return d.WithContext(ctx).Where("id", id).Take(data).Error
 }
 
+// GetByKeyValue 以 id 获取数据
+// key   要查询的字段名
+// value 要查询的字段名的值
+// data 指针传递的结构(表结构)
+func (d *Dao) GetByKeyValue(ctx context.Context, key string, value, data any) error {
+	return d.WithContext(ctx).Where(key, value).Take(data).Error
+}
+
 // GetByUid 以 uid 获取数据
 // data 指针传递的结构(表结构)
 func (d *Dao) GetByUid(ctx context.Context, uid int, data any) error {

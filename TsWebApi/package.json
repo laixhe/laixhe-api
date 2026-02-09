@@ -9,19 +9,19 @@
     "generate": "bun prisma generate"
   },
   "dependencies": {
-    "@bogeychan/elysia-logger": "^0.1.10",
-    "@elysiajs/cors": "^1.4.1",
-    "@elysiajs/jwt": "^1.4.0",
-    "@elysiajs/swagger": "^1.3.1",
-    "@prisma/adapter-mariadb": "^7.2.0",
-    "@prisma/client": "^7.2.0",
-    "dayjs": "^1.11.19",
+    "@bogeychan/elysia-logger": "latest",
+    "@elysiajs/cors": "latest",
+    "@elysiajs/jwt": "latest",
+    "@elysiajs/swagger": "latest",
+    "@prisma/adapter-mariadb": "latest",
+    "@prisma/client": "latest",
+    "dayjs": "latest",
     "elysia": "latest",
-    "xid-ts": "^1.2.1"
+    "xid-ts": "latest"
   },
   "devDependencies": {
     "bun-types": "latest",
-    "prisma": "^7.2.0",
-    "@mokabana/prisma-db-comments-generator-mysql": "^1.1.9"
+    "prisma": "latest",
+    "@mokabana/prisma-db-comments-generator-mysql": "latest"
   }
 }
