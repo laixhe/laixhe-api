@@ -16,5 +16,5 @@ func NewOrmWriter(logger *contribZap.LoggerConfig) *OrmWriter {
 
 // Printf 格式化打印日志
 func (writer *OrmWriter) Printf(message string, data ...interface{}) {
-	writer.logger.Infof(message, data...)
+	writer.logger.Debugf(message, data...)
 }

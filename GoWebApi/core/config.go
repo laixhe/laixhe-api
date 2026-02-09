@@ -6,7 +6,7 @@ import (
 
 	"github.com/laixhe/gonet/config"
 	"github.com/laixhe/gonet/jwt"
-	"github.com/laixhe/gonet/orm/orm"
+	"github.com/laixhe/gonet/db/gorm/orm"
 	"github.com/laixhe/gonet/xlog"
 )
 
@@ -55,7 +55,9 @@ func (c *Config) Check() error {
 }
 
 func NewConfig(configFile string) *Config {
-	c := &Config{}
+	c := &Config{
+		Common: &Common{},
+	}
 	config.Init(configFile, c)
 	if err := c.Check(); err != nil {
 		panic(err)

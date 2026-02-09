@@ -5,36 +5,34 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/laixhe/gonet/orm/orm"
+	"github.com/laixhe/gonet/db/gorm/orm"
+	"github.com/laixhe/gonet/xfiber"
 	"gorm.io/gorm"
 
 	"webapi/app/entity"
 	"webapi/app/models"
-	"webapi/app/models/dao"
 	"webapi/core"
 )
 
 // User 用户相关
 type User struct {
 	server *core.Server
-	dao    *dao.Dao
 }
 
-func NewUser(server *core.Server, modelDao *dao.Dao) *User {
+func NewUser(server *core.Server) *User {
 	return &User{
 		server: server,
-		dao:    modelDao,
 	}
 }
 
 // Update 更新用户信息
 func (s *User) Update(ctx fiber.Ctx, req *entity.UserUpdateRequest) (*entity.User, error) {
-	user, err := s.dao.GetUserByID(ctx.Context(), req.Uid)
-	if err != nil {
+	user := &models.User{}
+	if err := s.server.Orm().GetById(ctx.Context(), user, req.Uid); err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, err
 		}
-		return nil, fiber.NewError(fiber.StatusUnauthorized, "用户不存在")
+		return nil, xfiber.AuthorizedError()
 	}
 	resp := &entity.User{
 		Uid:       user.ID,
@@ -48,14 +46,12 @@ func (s *User) Update(ctx fiber.Ctx, req *entity.UserUpdateRequest) (*entity.Use
 		States:    user.States,
 		CreatedAt: user.CreatedAt.Format(time.DateTime),
 	}
-
 	user = &models.User{
 		ID:        user.ID,
 		Nickname:  req.Nickname,
 		AvatarUrl: req.AvatarUrl,
 	}
-	err = s.dao.UpdateUser(ctx.Context(), user)
-	if err != nil {
+	if err := user.Update(s.server.Gorm(ctx.Context())); err != nil {
 		return nil, err
 	}
 	return resp, nil
@@ -63,12 +59,12 @@ func (s *User) Update(ctx fiber.Ctx, req *entity.UserUpdateRequest) (*entity.Use
 
 // Info 获取用户信息
 func (s *User) Info(ctx fiber.Ctx, req *entity.UserInfoRequest) (*entity.User, error) {
-	user, err := s.dao.GetUserByID(ctx.Context(), req.Uid)
-	if err != nil {
+	user := &models.User{}
+	if err := s.server.Orm().GetById(ctx.Context(), user, req.Uid); err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, err
 		}
-		return nil, fiber.NewError(fiber.StatusUnprocessableEntity, "用户不存在")
+		return nil, xfiber.ParamError("用户不存在")
 	}
 	return &entity.User{
 		Uid:       user.ID,
@@ -86,8 +82,8 @@ func (s *User) Info(ctx fiber.Ctx, req *entity.UserInfoRequest) (*entity.User, e
 
 // List 获取用户列表
 func (s *User) List(ctx fiber.Ctx, req *entity.UserListRequest) (*entity.UserListResponse, error) {
-	limit, offset := orm.PageLimitOffset(req.Page, req.PageSize)
-	users, total, err := s.dao.ListUser(ctx.Context(), limit, offset)
+	limit, offset := orm.PageOffsetCalculation(req.Page, req.PageSize)
+	users, total, err := new(models.User).List(s.server.Gorm(ctx.Context()), limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +103,7 @@ func (s *User) List(ctx fiber.Ctx, req *entity.UserListRequest) (*entity.UserLis
 		})
 	}
 	resp := &entity.UserListResponse{
-		Total:    int(total),
+		Total:    total,
 		Page:     req.Page,
 		PageSize: req.PageSize,
 		List:     list,

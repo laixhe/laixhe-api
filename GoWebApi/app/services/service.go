@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"webapi/app/models"
-	"webapi/app/models/dao"
 	"webapi/core"
 )
 
@@ -16,17 +15,18 @@ type Service struct {
 	User   *User
 }
 
-func NewService(server *core.Server, modelDao *dao.Dao) *Service {
+func NewService(server *core.Server) *Service {
 	service := &Service{
 		server: server,
-		Auth:   NewAuth(server, modelDao),
-		User:   NewUser(server, modelDao),
+		Auth:   NewAuth(server),
+		User:   NewUser(server),
 	}
+	service.initConfigCommon()
 	return service
 }
 
-func (s *Service) initConfigCommon(modelDao *dao.Dao) {
-	configs, err := modelDao.ListConfigCommon(context.Background())
+func (s *Service) initConfigCommon() {
+	configs, err := new(models.ConfigCommon).List(s.server.Gorm(context.Background()))
 	if err != nil {
 		panic(err)
 	}

@@ -1,10 +1,13 @@
 package core
 
 import (
-	"github.com/laixhe/gonet/orm/mysql"
-	"github.com/laixhe/gonet/orm/orm"
+	"context"
+
+	"github.com/laixhe/gonet/db/gorm/mysql"
+	"github.com/laixhe/gonet/db/gorm/orm"
 	"github.com/laixhe/gonet/xfiber"
 	"github.com/laixhe/gonet/xlog"
+	"gorm.io/gorm"
 )
 
 // DEFAULT 默认key
@@ -13,7 +16,7 @@ const DEFAULT = "default"
 // Server 服务
 type Server struct {
 	config *Config
-	log    *xlog.LogClient
+	log    *xlog.ZClient
 	server *xfiber.Server
 	orm    map[string]orm.Client
 }
@@ -23,7 +26,7 @@ func NewServer(configFile string) *Server {
 	config := NewConfig(configFile)
 	// 初始化日志
 	config.Log.CallerSkip = 1
-	logClient, err := xlog.Init(config.Log)
+	logClient, err := xlog.InitZap(config.Log)
 	if err != nil {
 		panic(err)
 	}
@@ -47,7 +50,7 @@ func (s *Server) Config() *Config {
 	return s.config
 }
 
-func (s *Server) Log() *xlog.LogClient {
+func (s *Server) Log() *xlog.ZClient {
 	return s.log
 }
 
@@ -69,6 +72,10 @@ func (s *Server) Orm(key ...string) orm.Client {
 		return s.orm[key[0]]
 	}
 	return s.orm[DEFAULT]
+}
+
+func (s *Server) Gorm(ctx context.Context, key ...string) *gorm.DB {
+	return s.Orm(key...).WithContext(ctx)
 }
 
 func (s *Server) init() *Server {
