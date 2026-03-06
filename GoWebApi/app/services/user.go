@@ -86,7 +86,7 @@ func (s *User) Info(ctx fiber.Ctx, req *entity.UserInfoRequest) (*entity.User, e
 
 // List 获取用户列表
 func (s *User) List(ctx fiber.Ctx, req *entity.UserListRequest) (*entity.UserListResponse, error) {
-	limit, offset := orm.PageLimitOffset(req.Page, req.PageSize)
+	limit, offset := orm.PageOffsetCalculation(req.Page, req.PageSize)
 	users, total, err := s.dao.ListUser(ctx.Context(), limit, offset)
 	if err != nil {
 		return nil, err

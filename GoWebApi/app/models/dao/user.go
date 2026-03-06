@@ -58,7 +58,7 @@ func (d *Dao) UpdateUser(ctx context.Context, user *models.User) error {
 		updates["states"] = user.States
 	}
 	// UPDATE `user` SET `type_id`=?,`mobile`=?,`email`=?,`password`=?,`nickname`=?,`avatar_url`=?,`states`=?,`updated_at`=? WHERE `id` = ?
-	return d.UpdatesById(ctx, user.ID, d.User, updates)
+	return d.Orm().UpdatesById(ctx, user.ID, d.User, updates)
 }
 
 func (d *Dao) GetUser(ctx context.Context, uid int, email, mobile, nickname string) (*models.User, error) {
