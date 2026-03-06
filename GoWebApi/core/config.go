@@ -55,7 +55,9 @@ func (c *Config) Check() error {
 }
 
 func NewConfig(configFile string) *Config {
-	c := &Config{}
+	c := &Config{
+		Common: &Common{},
+	}
 	config.Init(configFile, c)
 	if err := c.Check(); err != nil {
 		panic(err)

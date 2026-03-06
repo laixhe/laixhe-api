@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/log"
+	"github.com/laixhe/gonet/xfiber"
 
 	"webapi/app/entity"
 	"webapi/app/services"
@@ -47,12 +48,12 @@ func (c *User) Update(ctx fiber.Ctx) error {
 	}
 	// 验证昵称格式
 	if len(req.Nickname) < 2 {
-		return fiber.NewError(fiber.StatusUnprocessableEntity, "昵称长度不能小于2位")
+		return xfiber.ParamError("昵称长度不能小于2位")
 	}
 	// 验证头像地址格式
 	if len(req.AvatarUrl) > 0 {
 		if !strings.HasPrefix(req.AvatarUrl, "http") {
-			return fiber.NewError(fiber.StatusUnprocessableEntity, "头像地址必须以http或https开头")
+			return xfiber.ParamError("头像地址必须以http或https开头")
 		}
 	}
 	req.Uid = jwtClaims.Uid
@@ -78,9 +79,9 @@ func (c *User) Info(ctx fiber.Ctx) error {
 	if err := ctx.Bind().Query(req); err != nil {
 		return err
 	}
-	log.WithContext(ctx.Context()).Debug(req)
+	log.WithContext(ctx.Context()).Debugf("%#v", req)
 	if req.Uid <= 0 {
-		return fiber.NewError(fiber.StatusUnprocessableEntity, "参数错误")
+		return xfiber.ParamError()
 	}
 	resp, err := c.service.User.Info(ctx, req)
 	if err != nil {

@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/duke-git/lancet/v2/validator"
 	"github.com/gofiber/fiber/v3"
+	"github.com/laixhe/gonet/xfiber"
 
 	"webapi/app/entity"
 	"webapi/app/services"
@@ -41,18 +42,18 @@ func (c *Auth) Register(ctx fiber.Ctx) error {
 	}
 	// 验证昵称格式
 	if len(req.Nickname) < 2 {
-		return fiber.NewError(fiber.StatusUnprocessableEntity, "昵称长度不能小于2位")
+		return xfiber.ParamError("昵称长度不能小于2位")
 	}
 	// 验证邮箱格式
 	if !validator.IsEmail(req.Email) {
-		return fiber.NewError(fiber.StatusUnprocessableEntity, "邮箱格式错误")
+		return xfiber.ParamError("邮箱格式错误")
 	}
 	if len(req.Password) < 6 {
-		return fiber.NewError(fiber.StatusUnprocessableEntity, "密码长度不能小于6位")
+		return xfiber.ParamError("密码长度不能小于6位")
 	}
 	// 验证密码格式
 	if !utils.IsPassword(req.Password) {
-		return fiber.NewError(fiber.StatusUnprocessableEntity, "密码格式错误，只能包含字母 数字 _ @ $")
+		return xfiber.ParamError("密码格式错误，只能包含字母 数字 _ @ $")
 	}
 	resp, err := c.service.Auth.Register(ctx, req)
 	if err != nil {
@@ -78,14 +79,14 @@ func (c *Auth) Login(ctx fiber.Ctx) error {
 	}
 	// 验证邮箱格式
 	if !validator.IsEmail(req.Email) {
-		return fiber.NewError(fiber.StatusUnprocessableEntity, "邮箱格式错误")
+		return xfiber.ParamError("邮箱格式错误")
 	}
 	if len(req.Password) < 6 {
-		return fiber.NewError(fiber.StatusUnprocessableEntity, "密码长度不能小于6位")
+		return xfiber.ParamError("密码长度不能小于6位")
 	}
 	// 验证密码格式
 	if !utils.IsPassword(req.Password) {
-		return fiber.NewError(fiber.StatusUnprocessableEntity, "密码格式错误，只能包含字母 数字 _ @ $")
+		return xfiber.ParamError("密码格式错误，只能包含字母 数字 _ @ $")
 	}
 	resp, err := c.service.Auth.Login(ctx, req)
 	if err != nil {

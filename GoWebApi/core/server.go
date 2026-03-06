@@ -1,10 +1,13 @@
 package core
 
 import (
+	"context"
+
 	"github.com/laixhe/gonet/orm/mysql"
 	"github.com/laixhe/gonet/orm/orm"
 	"github.com/laixhe/gonet/xfiber"
 	"github.com/laixhe/gonet/xlog"
+	"gorm.io/gorm"
 )
 
 // DEFAULT 默认key
@@ -69,6 +72,10 @@ func (s *Server) Orm(key ...string) orm.Client {
 		return s.orm[key[0]]
 	}
 	return s.orm[DEFAULT]
+}
+
+func (s *Server) Gorm(ctx context.Context, key ...string) *gorm.DB {
+	return s.Orm(key...).WithContext(ctx)
 }
 
 func (s *Server) init() *Server {
