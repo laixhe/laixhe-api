@@ -11,7 +11,7 @@
     "require": {
         "php": "^8.4",
         "godruoyi/php-snowflake": "^3.2",
-        "laravel/framework": "^12.53",
+        "laravel/framework": "^12.56",
         "laravel/sanctum": "^4.3",
         "laravel/tinker": "^2.11",
         "lcobucci/jwt": "^5.6"
