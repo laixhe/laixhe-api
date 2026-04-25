@@ -2,6 +2,7 @@ use axum::{
     routing::{get, post},
     Router,
 };
+use tower_http::trace::TraceLayer;
 
 use crate::{controllers::auth, controllers::user};
 
@@ -17,8 +18,9 @@ pub async fn init() -> Router {
         .route("/list", get(user::list))
         .route("/update", post(user::update));
     //
-    return Router::new()
-        .route("/", get(|| async { "☺ webapi to Rust" }))
+    Router::new()
+        .route("/", get(|| async { "☺ WebApi to Rust" }))
         .nest("/api/auth", auth_router)
-        .nest("/api/user", user_router);
+        .nest("/api/user", user_router)
+        .layer(TraceLayer::new_for_http())
 }
