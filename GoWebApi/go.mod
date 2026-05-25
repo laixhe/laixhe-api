@@ -3,18 +3,18 @@ module webapi
 go 1.26
 
 require (
-	github.com/duke-git/lancet/v2 v2.3.9
-	github.com/gofiber/contrib/v3/jwt v1.1.4
-	github.com/gofiber/contrib/v3/zap v1.0.5
-	github.com/gofiber/fiber/v3 v3.2.0
+	github.com/gofiber/contrib/v3/jwt v1.1.5
+	github.com/gofiber/contrib/v3/zap v1.0.7
+	github.com/gofiber/fiber/v3 v3.3.0
 	github.com/golang-jwt/jwt/v5 v5.3.1
-	github.com/laixhe/gonet/config v0.8.3
-	github.com/laixhe/gonet/crypto v0.8.3
-	github.com/laixhe/gonet/jwt v0.8.3
-	github.com/laixhe/gonet/orm/mysql v0.8.3
-	github.com/laixhe/gonet/orm/orm v0.8.3
-	github.com/laixhe/gonet/xfiber v0.8.3
-	github.com/laixhe/gonet/xlog v0.8.3
+	github.com/laixhe/gonet/config v0.8.4-0.20260525030248-c21329ebfa0d
+	github.com/laixhe/gonet/crypto v0.8.4-0.20260525030248-c21329ebfa0d
+	github.com/laixhe/gonet/jwt v0.8.4-0.20260525030248-c21329ebfa0d
+	github.com/laixhe/gonet/orm/mysql v0.8.4-0.20260525030248-c21329ebfa0d
+	github.com/laixhe/gonet/orm/orm v0.8.4-0.20260525030248-c21329ebfa0d
+	github.com/laixhe/gonet/utils v0.8.4-0.20260525030248-c21329ebfa0d
+	github.com/laixhe/gonet/xfiber v0.8.4-0.20260525030248-c21329ebfa0d
+	github.com/laixhe/gonet/xlog v0.8.4-0.20260525030248-c21329ebfa0d
 	github.com/rs/xid v1.6.0
 	gorm.io/gorm v1.31.1
 )
@@ -27,7 +27,7 @@ require (
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/gofiber/schema v1.7.1 // indirect
-	github.com/gofiber/utils/v2 v2.0.4 // indirect
+	github.com/gofiber/utils/v2 v2.0.6 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
@@ -49,10 +49,10 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.28.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/crypto v0.50.0 // indirect
-	golang.org/x/net v0.53.0 // indirect
-	golang.org/x/sys v0.43.0 // indirect
-	golang.org/x/text v0.36.0 // indirect
+	golang.org/x/crypto v0.52.0 // indirect
+	golang.org/x/net v0.55.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gorm.io/driver/mysql v1.6.0 // indirect
 )

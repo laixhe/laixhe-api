@@ -36,7 +36,7 @@ func (s *Auth) Register(ctx fiber.Ctx, req *entity.AuthRegisterRequest) (*entity
 	}
 	{
 		user := &models.User{}
-		err = s.server.Orm().GetByField(ctx.Context(), "email", req.Email, user)
+		err = s.server.Orm().GetByField(ctx.Context(), user, "email", req.Email)
 		if err != nil {
 			if !errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, err
@@ -86,7 +86,7 @@ func (s *Auth) Register(ctx fiber.Ctx, req *entity.AuthRegisterRequest) (*entity
 // Login 登录
 func (s *Auth) Login(ctx fiber.Ctx, req *entity.AuthLoginRequest) (*entity.AuthLoginResponse, error) {
 	user := &models.User{}
-	if err := s.server.Orm().GetByField(ctx.Context(), "email", req.Email, user); err != nil {
+	if err := s.server.Orm().GetByField(ctx.Context(), user, "email", req.Email); err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, err
 		}
@@ -120,7 +120,7 @@ func (s *Auth) Login(ctx fiber.Ctx, req *entity.AuthLoginRequest) (*entity.AuthL
 // Refresh 刷新Jwt
 func (s *Auth) Refresh(ctx fiber.Ctx, req *entity.AuthRefreshRequest) (*entity.AuthRefreshResponse, error) {
 	user := &models.User{}
-	if err := s.server.Orm().GetById(ctx.Context(), req.Uid, user); err != nil {
+	if err := s.server.Orm().GetById(ctx.Context(), user, req.Uid); err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, err
 		}

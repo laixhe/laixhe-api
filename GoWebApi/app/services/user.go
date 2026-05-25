@@ -28,7 +28,7 @@ func NewUser(server *core.Server) *User {
 // Update 更新用户信息
 func (s *User) Update(ctx fiber.Ctx, req *entity.UserUpdateRequest) (*entity.User, error) {
 	user := &models.User{}
-	if err := s.server.Orm().GetById(ctx.Context(), req.Uid, user); err != nil {
+	if err := s.server.Orm().GetById(ctx.Context(), user, req.Uid); err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, err
 		}
@@ -60,7 +60,7 @@ func (s *User) Update(ctx fiber.Ctx, req *entity.UserUpdateRequest) (*entity.Use
 // Info 获取用户信息
 func (s *User) Info(ctx fiber.Ctx, req *entity.UserInfoRequest) (*entity.User, error) {
 	user := &models.User{}
-	if err := s.server.Orm().GetById(ctx.Context(), req.Uid, user); err != nil {
+	if err := s.server.Orm().GetById(ctx.Context(), user, req.Uid); err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, err
 		}
@@ -103,7 +103,7 @@ func (s *User) List(ctx fiber.Ctx, req *entity.UserListRequest) (*entity.UserLis
 		})
 	}
 	resp := &entity.UserListResponse{
-		Total:    int(total),
+		Total:    total,
 		Page:     req.Page,
 		PageSize: req.PageSize,
 		List:     list,
