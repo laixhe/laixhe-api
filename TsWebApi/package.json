@@ -1,0 +1,27 @@
+{
+  "name": "tswebapi",
+  "version": "0.0.1",
+  "type": "module",
+  "module": "src/index.ts",
+  "scripts": {
+    "build": "bun build src/index.ts --target bun --outdir dist",
+    "dev": "bun run --watch src/index.ts",
+    "generate": "bun prisma generate"
+  },
+  "dependencies": {
+    "@bogeychan/elysia-logger": "latest",
+    "@elysiajs/cors": "latest",
+    "@elysiajs/jwt": "latest",
+    "@elysiajs/swagger": "latest",
+    "@prisma/adapter-mariadb": "latest",
+    "@prisma/client": "latest",
+    "dayjs": "latest",
+    "elysia": "latest",
+    "xid-ts": "latest"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "prisma": "latest",
+    "@mokabana/prisma-db-comments-generator-mysql": "latest"
+  }
+}
