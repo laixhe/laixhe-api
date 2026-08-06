@@ -30,86 +30,67 @@ func (m *User) TableName() string {
 	return UserTable
 }
 
-func (m *User) Get(db *gorm.DB, user User) error {
-	wheres := make(map[string]any)
-	if user.ID > 0 {
-		wheres["id"] = user.ID
-	}
-	if user.Email != "" {
-		wheres["email"] = user.Email
-	}
-	if user.Mobile != "" {
-		wheres["mobile"] = user.Mobile
-	}
-	if user.Nickname != "" {
-		wheres["nickname"] = user.Nickname
-	}
-	if len(wheres) == 0 {
-		return gorm.ErrRecordNotFound
-	}
-	// SELECT * FROM `user` WHERE `id` = ? ORDER BY id LIMIT 1
-	// SELECT * FROM `user` WHERE `email` = ? ORDER BY id LIMIT 1
-	// SELECT * FROM `user` WHERE `mobile` = ? ORDER BY id LIMIT 1
-	// SELECT * FROM `user` WHERE `nickname` = ? ORDER BY id LIMIT 1
-	return db.Where(wheres).First(m).Error
-}
-
-func (m *User) Create(db *gorm.DB) error {
+// CreateUser 在事务中创建用户，同时创建关联的扩展信息和第三方记录
+func CreateUser(db *gorm.DB, user *User) error {
 	// 事务（返回任何错误都会回滚事务）
 	return db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Create(m).Error; err != nil {
+		if err := tx.Create(user).Error; err != nil {
 			return err
 		}
 		userExtend := &UserExtend{
-			Uid: m.ID,
+			Uid: user.ID,
 		}
 		if err := tx.Create(userExtend).Error; err != nil {
 			return err
 		}
 		userThirdParty := &UserThirdParty{
-			Uid: m.ID,
+			Uid: user.ID,
 		}
 		if err := tx.Create(userThirdParty).Error; err != nil {
 			return err
 		}
-		// INSERT INTO `user` (`type_id`,`mobile`,`email`,`password`,`nickname`,`avatar_url`,`states`,`created_at`,`updated_at`) VALUES (?,?,?,?,?,?,?,?,?)
-		// INSERT INTO `user_extend` (`uid`,`birthday`,`height`,`weight`) VALUES (?,?,?)
-		// INSERT INTO `user_third_party` (`uid`,`wechat_unionid`,`wechat_openid`) VALUES (?,?,?)
+		// 在同一事务中创建用户、扩展信息、第三方关联
+		// INSERT INTO `user` (...)
+		// INSERT INTO `user_extend` (...)
+		// INSERT INTO `user_third_party` (...)
 		return nil
 	})
 }
 
-func (m *User) Update(db *gorm.DB) error {
-	if m.ID <= 0 {
+// UpdateUser 根据非零字段动态更新用户信息，同时更新 updated_at
+func UpdateUser(db *gorm.DB, user *User) error {
+	if user.ID <= 0 {
 		return gorm.ErrPrimaryKeyRequired
 	}
 	updates := make(map[string]any)
-	if m.TypeId > 0 {
-		updates["type_id"] = m.TypeId
+	if user.TypeId > 0 {
+		updates["type_id"] = user.TypeId
 	}
-	if m.Mobile != "" {
-		updates["mobile"] = m.Mobile
+	if user.Mobile != "" {
+		updates["mobile"] = user.Mobile
 	}
-	if m.Email != "" {
-		updates["email"] = m.Email
+	if user.Email != "" {
+		updates["email"] = user.Email
 	}
-	if m.Password != "" {
-		updates["password"] = m.Password
+	if user.Password != "" {
+		updates["password"] = user.Password
 	}
-	if m.Nickname != "" {
-		updates["nickname"] = m.Nickname
+	if user.Nickname != "" {
+		updates["nickname"] = user.Nickname
 	}
-	if m.AvatarUrl != "" {
-		updates["avatar_url"] = m.AvatarUrl
+	if user.AvatarUrl != "" {
+		updates["avatar_url"] = user.AvatarUrl
 	}
-	if m.States > 0 {
-		updates["states"] = m.States
+	if user.States > 0 {
+		updates["states"] = user.States
 	}
-	// UPDATE `user` SET `nickname`=?,`updated_at`=? WHERE `id` = ?
-	return db.Model(m).Updates(updates).Error
+	updates["updated_at"] = time.Now()
+	// 根据非零字段动态构建 UPDATE 语句
+	return db.Model(&User{}).Where("id", user.ID).Updates(updates).Error
 }
 
-func (m *User) List(db *gorm.DB, limit, offset int) ([]User, int, error) {
+// ListUser 分页查询用户列表，按 ID 降序
+func ListUser(db *gorm.DB, limit, offset int) ([]User, int, error) {
 	var total int64
 	var list []User
 

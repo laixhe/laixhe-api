@@ -25,6 +25,20 @@ func newAuth(server *core.Server, service *services.Service) *Auth {
 	}
 }
 
+// validateEmailAndPassword 验证邮箱和密码格式
+func validateEmailAndPassword(email, password string) error {
+	if !utils.IsEmail(email) {
+		return xfiber.ParamError("邮箱格式错误")
+	}
+	if len(password) < 6 {
+		return xfiber.ParamError("密码长度不能小于6位")
+	}
+	if !util.IsPassword(password) {
+		return xfiber.ParamError("密码格式错误，只能包含字母 数字 _ @ $")
+	}
+	return nil
+}
+
 // Register
 // @Summary	注册
 // @Tags     Auth
@@ -44,16 +58,11 @@ func (c *Auth) Register(ctx fiber.Ctx) error {
 	if len(req.Nickname) < 2 {
 		return xfiber.ParamError("昵称长度不能小于2位")
 	}
-	// 验证邮箱格式
-	if !utils.IsEmail(req.Email) {
-		return xfiber.ParamError("邮箱格式错误")
+	if len(req.Nickname) > 20 {
+		return xfiber.ParamError("昵称长度不能超过20位")
 	}
-	if len(req.Password) < 6 {
-		return xfiber.ParamError("密码长度不能小于6位")
-	}
-	// 验证密码格式
-	if !util.IsPassword(req.Password) {
-		return xfiber.ParamError("密码格式错误，只能包含字母 数字 _ @ $")
+	if err := validateEmailAndPassword(req.Email, req.Password); err != nil {
+		return err
 	}
 	resp, err := c.service.Auth.Register(ctx, req)
 	if err != nil {
@@ -77,16 +86,8 @@ func (c *Auth) Login(ctx fiber.Ctx) error {
 	if err := ctx.Bind().JSON(req); err != nil {
 		return err
 	}
-	// 验证邮箱格式
-	if !utils.IsEmail(req.Email) {
-		return xfiber.ParamError("邮箱格式错误")
-	}
-	if len(req.Password) < 6 {
-		return xfiber.ParamError("密码长度不能小于6位")
-	}
-	// 验证密码格式
-	if !util.IsPassword(req.Password) {
-		return xfiber.ParamError("密码格式错误，只能包含字母 数字 _ @ $")
+	if err := validateEmailAndPassword(req.Email, req.Password); err != nil {
+		return err
 	}
 	resp, err := c.service.Auth.Login(ctx, req)
 	if err != nil {

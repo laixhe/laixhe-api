@@ -22,6 +22,7 @@ type Auth struct {
 	server *core.Server
 }
 
+// NewAuth 创建 Auth 业务实例
 func NewAuth(server *core.Server) *Auth {
 	return &Auth{
 		server: server,
@@ -30,13 +31,10 @@ func NewAuth(server *core.Server) *Auth {
 
 // Register 注册
 func (s *Auth) Register(ctx fiber.Ctx, req *entity.AuthRegisterRequest) (*entity.AuthRegisterResponse, error) {
-	password, err := crypto.BcryptPasswordHash(req.Password)
-	if err != nil {
-		return nil, err
-	}
+	// 先检查邮箱是否已注册，避免无效的 bcrypt 计算
 	{
 		user := &models.User{}
-		err = s.server.Orm().GetByField(ctx.Context(), user, "email", req.Email)
+		err := s.server.Gorm(ctx.Context()).Select("id").First(user, "email = ?", req.Email).Error
 		if err != nil {
 			if !errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, err
@@ -45,6 +43,7 @@ func (s *Auth) Register(ctx fiber.Ctx, req *entity.AuthRegisterRequest) (*entity
 			return nil, xfiber.ParamError("邮箱已存在")
 		}
 	}
+	password, err := crypto.BcryptPasswordHash(req.Password)
 	user := &models.User{
 		TypeId:    models.UserTypeOrdinary,
 		Account:   xid.New().String(),
@@ -58,7 +57,7 @@ func (s *Auth) Register(ctx fiber.Ctx, req *entity.AuthRegisterRequest) (*entity
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	if err = user.Create(s.server.Gorm(ctx.Context())); err != nil {
+	if err = models.CreateUser(s.server.Gorm(ctx.Context()), user); err != nil {
 		return nil, err
 	}
 	claims := middlewares.NewJwtClaims(user.ID, s.server.Config().Jwt.ExpireTime)
@@ -68,32 +67,24 @@ func (s *Auth) Register(ctx fiber.Ctx, req *entity.AuthRegisterRequest) (*entity
 	}
 	return &entity.AuthRegisterResponse{
 		Token: token,
-		User: &entity.User{
-			Uid:       user.ID,
-			TypeId:    user.TypeId,
-			Account:   user.Account,
-			Mobile:    user.Mobile,
-			Email:     user.Email,
-			Nickname:  user.Nickname,
-			AvatarUrl: user.AvatarUrl,
-			Sex:       user.Sex,
-			States:    user.States,
-			CreatedAt: user.CreatedAt.Format(time.DateTime),
-		},
+		User:  entity.NewUserFromModel(user, "", ""),
 	}, nil
 }
 
 // Login 登录
 func (s *Auth) Login(ctx fiber.Ctx, req *entity.AuthLoginRequest) (*entity.AuthLoginResponse, error) {
 	user := &models.User{}
-	if err := s.server.Orm().GetByField(ctx.Context(), user, "email", req.Email); err != nil {
+	if err := s.server.Orm().FirstByField(ctx.Context(), user, "email", req.Email); err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, err
 		}
 		return nil, xfiber.ParamError("邮箱或密码错误")
 	}
+	if user.States != models.UserStateNormal {
+		return nil, xfiber.AuthorizedError()
+	}
 	if !crypto.BcryptPasswordCheck(req.Password, user.Password) {
-		return nil, xfiber.ParamError("邮箱或密码错误.")
+		return nil, xfiber.ParamError("邮箱或密码错误")
 	}
 	claims := middlewares.NewJwtClaims(user.ID, s.server.Config().Jwt.ExpireTime)
 	token, err := jwt.GenToken(s.server.Config().Jwt, claims)
@@ -102,18 +93,7 @@ func (s *Auth) Login(ctx fiber.Ctx, req *entity.AuthLoginRequest) (*entity.AuthL
 	}
 	return &entity.AuthLoginResponse{
 		Token: token,
-		User: &entity.User{
-			Uid:       user.ID,
-			TypeId:    user.TypeId,
-			Account:   user.Account,
-			Mobile:    user.Mobile,
-			Email:     user.Email,
-			Nickname:  user.Nickname,
-			AvatarUrl: user.AvatarUrl,
-			Sex:       user.Sex,
-			States:    user.States,
-			CreatedAt: user.CreatedAt.Format(time.DateTime),
-		},
+		User:  entity.NewUserFromModel(user, "", ""),
 	}, nil
 }
 
@@ -126,6 +106,9 @@ func (s *Auth) Refresh(ctx fiber.Ctx, req *entity.AuthRefreshRequest) (*entity.A
 		}
 		return nil, xfiber.AuthorizedError()
 	}
+	if user.States != models.UserStateNormal {
+		return nil, xfiber.AuthorizedError()
+	}
 	claims := middlewares.NewJwtClaims(user.ID, s.server.Config().Jwt.ExpireTime)
 	token, err := jwt.GenToken(s.server.Config().Jwt, claims)
 	if err != nil {
@@ -133,17 +116,6 @@ func (s *Auth) Refresh(ctx fiber.Ctx, req *entity.AuthRefreshRequest) (*entity.A
 	}
 	return &entity.AuthRefreshResponse{
 		Token: token,
-		User: &entity.User{
-			Uid:       user.ID,
-			TypeId:    user.TypeId,
-			Account:   user.Account,
-			Mobile:    user.Mobile,
-			Email:     user.Email,
-			Nickname:  user.Nickname,
-			AvatarUrl: user.AvatarUrl,
-			Sex:       user.Sex,
-			States:    user.States,
-			CreatedAt: user.CreatedAt.Format(time.DateTime),
-		},
+		User:  entity.NewUserFromModel(user, "", ""),
 	}, nil
 }

@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"fmt"
 
 	"webapi/app/models"
 	"webapi/core"
@@ -15,6 +14,7 @@ type Service struct {
 	User   *User
 }
 
+// NewService 创建业务服务实例，初始化子模块并加载运行时配置
 func NewService(server *core.Server) *Service {
 	service := &Service{
 		server: server,
@@ -25,10 +25,12 @@ func NewService(server *core.Server) *Service {
 	return service
 }
 
+// initConfigCommon 从数据库 config_common 表加载运行时配置（如环境标识 env）
 func (s *Service) initConfigCommon() {
 	configs, err := new(models.ConfigCommon).List(s.server.Gorm(context.Background()))
 	if err != nil {
-		panic(err)
+		s.server.Log().Errorf("initConfigCommon failed: %v", err)
+		return
 	}
 	for _, v := range configs {
 		if v.Key == models.ConfigCommonEnv {
@@ -36,9 +38,6 @@ func (s *Service) initConfigCommon() {
 		}
 	}
 
-	fmt.Printf("config http=%#v\n", s.server.Config().Http)
-	fmt.Printf("config log=%#v\n", s.server.Config().Log)
-	fmt.Printf("config orm=%#v\n", s.server.Config().Orm)
-	fmt.Printf("config jwt=%#v\n", s.server.Config().Jwt)
-	fmt.Printf("config common=%#v\n", s.server.Config().Common)
+	s.server.Log().Debugf("config http=%#v", s.server.Config().Http)
+	s.server.Log().Debugf("config common=%#v", s.server.Config().Common)
 }

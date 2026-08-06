@@ -1,5 +1,6 @@
 package models
 
+// UserThirdPartyTable 用户第三方表名
 const UserThirdPartyTable = "user_third_party"
 
 // UserThirdParty 用户第三方

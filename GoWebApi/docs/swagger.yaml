@@ -132,14 +132,6 @@ definitions:
     - type_id
     - uid
     type: object
-  entity.UserInfoRequest:
-    properties:
-      uid:
-        description: 用户id
-        type: integer
-    required:
-    - uid
-    type: object
   entity.UserListResponse:
     properties:
       list:
@@ -218,7 +210,7 @@ definitions:
     - UserTypeOrdinary
 info:
   contact: {}
-  description: API接口文档
+  description: 用户认证与用户管理 API 服务
   title: API接口
   version: "1.0"
 paths:
@@ -313,12 +305,11 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: 请求参数
-        in: body
-        name: req
+      - description: 用户id
+        in: query
+        name: uid
         required: true
-        schema:
-          $ref: '#/definitions/entity.UserInfoRequest'
+        type: integer
       produces:
       - application/json
       responses:
@@ -380,7 +371,7 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: 请求参数
+      - description: 请求参数（Uid 由 JWT 提供）
         in: body
         name: req
         required: true

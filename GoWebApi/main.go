@@ -21,7 +21,7 @@ var (
 
 // @title	API接口
 // @version	1.0
-// @description	API接口文档
+// @description	用户认证与用户管理 API 服务
 func main() {
 	flag.StringVar(&ConfigFile, "config", "./config.yaml", "config path: --config config.yaml")
 	flag.Parse()

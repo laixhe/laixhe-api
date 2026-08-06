@@ -8,12 +8,14 @@ ARG GIT_VERSION
 ENV GIT_VERSION=${GIT_VERSION}
 
 WORKDIR /webapi
-COPY . /webapi
 
-RUN go mod tidy
+# 先复制依赖文件，利用 Docker 层缓存加速构建
+COPY go.mod go.sum ./
 RUN go mod download
 
-RUN go build -ldflags "-X main.CiVersion=$(date +%Y-%m-%dT%H:%M:%S)-${GIT_VERSION}" -o webapi
+COPY . /webapi
+
+RUN CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -X main.GitVersion=$(date +%Y-%m-%dT%H:%M:%S)-${GIT_VERSION}" -o webapi
 
 FROM alpine
 

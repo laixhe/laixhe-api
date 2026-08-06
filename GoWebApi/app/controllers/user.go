@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/gofiber/fiber/v3/log"
 	"github.com/laixhe/gonet/xfiber"
 
 	"webapi/app/entity"
@@ -32,7 +31,7 @@ func newUser(server *core.Server, service *services.Service) *User {
 // @Accept   json
 // @Produce  json
 // @Param    Authorization header    string  true  "Bearer XXX令牌"
-// @Param    req    body      entity.UserUpdateRequest  true  "请求参数"
+// @Param    req    body      entity.UserUpdateRequest  true  "请求参数（Uid 由 JWT 提供）"
 // @Success  200    {object}  entity.User
 // @Failure  400    {object}  core.Error
 // @Failure  500    {object}  core.Error
@@ -50,7 +49,13 @@ func (c *User) Update(ctx fiber.Ctx) error {
 	if len(req.Nickname) < 2 {
 		return xfiber.ParamError("昵称长度不能小于2位")
 	}
+	if len(req.Nickname) > 20 {
+		return xfiber.ParamError("昵称长度不能超过20位")
+	}
 	// 验证头像地址格式
+	if len(req.AvatarUrl) > 255 {
+		return xfiber.ParamError("头像地址长度不能超过255位")
+	}
 	if len(req.AvatarUrl) > 0 {
 		if !strings.HasPrefix(req.AvatarUrl, "http") {
 			return xfiber.ParamError("头像地址必须以http或https开头")
@@ -69,7 +74,7 @@ func (c *User) Update(ctx fiber.Ctx) error {
 // @Tags     User
 // @Accept   json
 // @Produce  json
-// @Param    req    body      entity.UserInfoRequest  true  "请求参数"
+// @Param    req    query     entity.UserInfoRequest  true  "请求参数"
 // @Success  200    {object}  entity.User
 // @Failure  400    {object}  core.Error
 // @Failure  500    {object}  core.Error
@@ -79,9 +84,8 @@ func (c *User) Info(ctx fiber.Ctx) error {
 	if err := ctx.Bind().Query(req); err != nil {
 		return err
 	}
-	log.WithContext(ctx.Context()).Debugf("%#v", req)
 	if req.Uid <= 0 {
-		return xfiber.ParamError()
+		return xfiber.ParamError("无效的用户ID")
 	}
 	resp, err := c.service.User.Info(ctx, req)
 	if err != nil {
@@ -105,7 +109,6 @@ func (c *User) List(ctx fiber.Ctx) error {
 	if err := ctx.Bind().Query(req); err != nil {
 		return err
 	}
-	log.WithContext(ctx.Context()).Debugf("%#v", req)
 	if req.Page <= 0 {
 		req.Page = 1
 	}

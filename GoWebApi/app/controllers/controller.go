@@ -11,6 +11,7 @@ type Controller struct {
 	User *User
 }
 
+// NewController 创建控制器实例，初始化 Auth 和 User 子控制器
 func NewController(server *core.Server, service *services.Service) *Controller {
 	return &Controller{
 		Auth: newAuth(server, service),

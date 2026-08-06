@@ -4,6 +4,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// ConfigCommonTable 通用配置表名
 const ConfigCommonTable = "config_common"
 
 // ConfigCommon 通用配置
@@ -18,6 +19,7 @@ func (m *ConfigCommon) TableName() string {
 	return ConfigCommonTable
 }
 
+// List 查询通用配置列表，可选按 key 过滤
 func (m *ConfigCommon) List(db *gorm.DB, keys ...string) ([]ConfigCommon, error) {
 	var list []ConfigCommon
 	if len(keys) > 0 {

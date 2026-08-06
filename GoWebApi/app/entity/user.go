@@ -1,6 +1,8 @@
 package entity
 
 import (
+	"time"
+
 	"webapi/app/models"
 )
 
@@ -51,4 +53,27 @@ type UserListResponse struct {
 	Page     int    `json:"page" validate:"required"`      // 分页-当前页
 	PageSize int    `json:"page_size" validate:"required"` // 分页-每页数量
 	List     []User `json:"list" validate:"required"`      // 列表
+}
+
+// NewUserFromModel 从 DB 模型转换为响应实体，overrideNickname/overrideAvatarUrl 不为空时覆盖对应字段
+func NewUserFromModel(m *models.User, overrideNickname, overrideAvatarUrl string) *User {
+	nick, avatar := m.Nickname, m.AvatarUrl
+	if overrideNickname != "" {
+		nick = overrideNickname
+	}
+	if overrideAvatarUrl != "" {
+		avatar = overrideAvatarUrl
+	}
+	return &User{
+		Uid:       m.ID,
+		TypeId:    m.TypeId,
+		Account:   m.Account,
+		Mobile:    m.Mobile,
+		Email:     m.Email,
+		Nickname:  nick,
+		AvatarUrl: avatar,
+		Sex:       m.Sex,
+		States:    m.States,
+		CreatedAt: m.CreatedAt.Format(time.DateTime),
+	}
 }

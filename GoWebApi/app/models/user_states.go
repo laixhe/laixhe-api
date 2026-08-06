@@ -1,6 +1,6 @@
 package models
 
-// UserState 状态
+// UserState 用户账号状态（0=封禁 1=正常）
 type UserState = int
 
 const (
@@ -8,6 +8,7 @@ const (
 	UserStateNormal UserState = 1 // 正常
 )
 
+// IsUserStateValid 判断用户状态值是否有效
 func IsUserStateValid(s UserState) bool {
 	switch s {
 	case UserStateBanned, UserStateNormal:
@@ -16,6 +17,7 @@ func IsUserStateValid(s UserState) bool {
 	return false
 }
 
+// GetUserStateText 获取用户状态中文描述
 func GetUserStateText(s UserState) string {
 	switch s {
 	case UserStateBanned:

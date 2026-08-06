@@ -16,6 +16,7 @@ type Router struct {
 	middleware *middlewares.Middleware
 }
 
+// NewRouter 创建路由实例并初始化所有路由
 func NewRouter(server *core.Server) *Router {
 	r := &Router{
 		server:     server,
@@ -25,6 +26,7 @@ func NewRouter(server *core.Server) *Router {
 	return r.init()
 }
 
+// init 注册 API 路由组及 Swagger 文档端点
 func (r *Router) init() *Router {
 	// 路由
 	groupApi := r.server.Server().App().Group("api")

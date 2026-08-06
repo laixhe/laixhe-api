@@ -9,6 +9,7 @@ const (
 	UserSexFemale  UserSex = 2 // 女
 )
 
+// IsUserSexValid 判断性别值是否有效（仅男/女为有效值）
 func IsUserSexValid(s UserSex) bool {
 	switch s {
 	case UserSexMale, UserSexFemale:
@@ -17,6 +18,7 @@ func IsUserSexValid(s UserSex) bool {
 	return false
 }
 
+// GetUserSexText 获取性别中文描述
 func GetUserSexText(s UserSex) string {
 	switch s {
 	case UserSexMale:

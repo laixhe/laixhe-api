@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "API接口文档",
+        "description": "用户认证与用户管理 API 服务",
         "title": "API接口",
         "contact": {},
         "version": "1.0"
@@ -154,13 +154,11 @@
                 "summary": "获取用户信息",
                 "parameters": [
                     {
-                        "description": "请求参数",
-                        "name": "req",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entity.UserInfoRequest"
-                        }
+                        "type": "integer",
+                        "description": "用户id",
+                        "name": "uid",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -256,7 +254,7 @@
                         "required": true
                     },
                     {
-                        "description": "请求参数",
+                        "description": "请求参数（Uid 由 JWT 提供）",
                         "name": "req",
                         "in": "body",
                         "required": true,
@@ -469,18 +467,6 @@
                         }
                     ]
                 },
-                "uid": {
-                    "description": "用户id",
-                    "type": "integer"
-                }
-            }
-        },
-        "entity.UserInfoRequest": {
-            "type": "object",
-            "required": [
-                "uid"
-            ],
-            "properties": {
                 "uid": {
                     "description": "用户id",
                     "type": "integer"
