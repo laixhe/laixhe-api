@@ -13,27 +13,27 @@
  * 🟢 You can import this file directly.
  */
 
-import * as Prisma from './internal/prismaNamespaceBrowser.js'
+import * as Prisma from './internal/prismaNamespaceBrowser'
 export { Prisma }
-export * as $Enums from './enums.js'
-export * from './enums.js';
-/**
- * Model ConfigCommon
- * 通用配置
- */
-export type ConfigCommon = Prisma.ConfigCommonModel
+export * as $Enums from './enums'
+export * from './enums';
 /**
  * Model User
- * 用户
+ * 
  */
 export type User = Prisma.UserModel
 /**
  * Model UserExtend
- * 用户扩展
+ * 
  */
 export type UserExtend = Prisma.UserExtendModel
 /**
  * Model UserThirdParty
- * 用户第三方
+ * 
  */
 export type UserThirdParty = Prisma.UserThirdPartyModel
+/**
+ * Model ConfigCommon
+ * 
+ */
+export type ConfigCommon = Prisma.ConfigCommonModel

@@ -1,4 +1,3 @@
-/.fleet
 /.idea
 /.vscode
 
@@ -6,6 +5,3 @@
 /build
 /dist
 
-/migrations
-/prisma/migrations
-/prisma/schema/migrations

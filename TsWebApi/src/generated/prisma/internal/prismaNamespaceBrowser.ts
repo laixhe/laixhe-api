@@ -17,8 +17,8 @@
 
 import * as runtime from "@prisma/client/runtime/index-browser"
 
-export type * from '../models.js'
-export type * from './prismaNamespace.js'
+export type * from '../models'
+export type * from './prismaNamespace'
 
 export const Decimal = runtime.Decimal
 
@@ -51,10 +51,10 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  ConfigCommon: 'ConfigCommon',
   User: 'User',
   UserExtend: 'UserExtend',
-  UserThirdParty: 'UserThirdParty'
+  UserThirdParty: 'UserThirdParty',
+  ConfigCommon: 'ConfigCommon'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -63,40 +63,29 @@ export type ModelName = (typeof ModelName)[keyof typeof ModelName]
  * Enums
  */
 
-export const TransactionIsolationLevel = {
+export const TransactionIsolationLevel = runtime.makeStrictEnum({
   ReadUncommitted: 'ReadUncommitted',
   ReadCommitted: 'ReadCommitted',
   RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
-} as const
+} as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-export const ConfigCommonScalarFieldEnum = {
-  id: 'id',
-  key: 'key',
-  value: 'value',
-  text: 'text',
-  describe: 'describe'
-} as const
-
-export type ConfigCommonScalarFieldEnum = (typeof ConfigCommonScalarFieldEnum)[keyof typeof ConfigCommonScalarFieldEnum]
-
-
 export const UserScalarFieldEnum = {
   id: 'id',
-  type_id: 'type_id',
+  typeId: 'typeId',
   account: 'account',
   mobile: 'mobile',
   email: 'email',
   password: 'password',
   nickname: 'nickname',
-  avatar_url: 'avatar_url',
+  avatarUrl: 'avatarUrl',
   sex: 'sex',
   states: 'states',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -116,11 +105,21 @@ export type UserExtendScalarFieldEnum = (typeof UserExtendScalarFieldEnum)[keyof
 export const UserThirdPartyScalarFieldEnum = {
   id: 'id',
   uid: 'uid',
-  wechat_unionid: 'wechat_unionid',
-  wechat_openid: 'wechat_openid'
+  wechatUnionid: 'wechatUnionid',
+  wechatOpenid: 'wechatOpenid'
 } as const
 
 export type UserThirdPartyScalarFieldEnum = (typeof UserThirdPartyScalarFieldEnum)[keyof typeof UserThirdPartyScalarFieldEnum]
+
+
+export const ConfigCommonScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  value: 'value',
+  describe: 'describe'
+} as const
+
+export type ConfigCommonScalarFieldEnum = (typeof ConfigCommonScalarFieldEnum)[keyof typeof ConfigCommonScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -131,14 +130,12 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-export const ConfigCommonOrderByRelevanceFieldEnum = {
-  key: 'key',
-  value: 'value',
-  text: 'text',
-  describe: 'describe'
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
 } as const
 
-export type ConfigCommonOrderByRelevanceFieldEnum = (typeof ConfigCommonOrderByRelevanceFieldEnum)[keyof typeof ConfigCommonOrderByRelevanceFieldEnum]
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
 export const UserOrderByRelevanceFieldEnum = {
@@ -147,16 +144,25 @@ export const UserOrderByRelevanceFieldEnum = {
   email: 'email',
   password: 'password',
   nickname: 'nickname',
-  avatar_url: 'avatar_url'
+  avatarUrl: 'avatarUrl'
 } as const
 
 export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
 
 
 export const UserThirdPartyOrderByRelevanceFieldEnum = {
-  wechat_unionid: 'wechat_unionid',
-  wechat_openid: 'wechat_openid'
+  wechatUnionid: 'wechatUnionid',
+  wechatOpenid: 'wechatOpenid'
 } as const
 
 export type UserThirdPartyOrderByRelevanceFieldEnum = (typeof UserThirdPartyOrderByRelevanceFieldEnum)[keyof typeof UserThirdPartyOrderByRelevanceFieldEnum]
+
+
+export const ConfigCommonOrderByRelevanceFieldEnum = {
+  key: 'key',
+  value: 'value',
+  describe: 'describe'
+} as const
+
+export type ConfigCommonOrderByRelevanceFieldEnum = (typeof ConfigCommonOrderByRelevanceFieldEnum)[keyof typeof ConfigCommonOrderByRelevanceFieldEnum]
 

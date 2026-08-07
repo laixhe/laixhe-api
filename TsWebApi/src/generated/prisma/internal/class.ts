@@ -12,23 +12,31 @@
  */
 
 import * as runtime from "@prisma/client/runtime/client"
-import type * as Prisma from "./prismaNamespace.js"
+import type * as Prisma from "./prismaNamespace"
 
 
 const config: runtime.GetPrismaClientConfig = {
   "previewFeatures": [],
-  "clientVersion": "7.2.0",
-  "engineVersion": "0c8ef2ce45c83248ab3df073180d5eda9e8be7a3",
+  "clientVersion": "7.9.1",
+  "engineVersion": "e922089b7d7502aff4249d5da3420f6fa55fc6ad",
   "activeProvider": "mysql",
-  "inlineSchema": "datasource db {\n  provider = \"mysql\"\n}\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"../src/generated/prisma\"\n}\n\n// 生成注释\ngenerator comments {\n  provider                  = \"prisma-db-comments-generator-mysql\"\n  includeEnumInFieldComment = true\n}\n\n/// 通用配置\nmodel ConfigCommon {\n  id       Int    @id @default(autoincrement()) @map(\"id\")\n  key      String @default(\"\") @map(\"key\") @db.VarChar(50)\n  value    String @default(\"\") @map(\"value\") @db.VarChar(500)\n  text     String @default(\"\") @map(\"text\") @db.VarChar(500)\n  /// 描述\n  describe String @default(\"\") @map(\"describe\") @db.VarChar(500)\n\n  @@index([key], map: \"config_common_key_idx\")\n  @@map(\"config_common\")\n}\n\n/// 用户\nmodel User {\n  id         Int      @id @default(autoincrement()) @map(\"id\")\n  /// 类型 1普通\n  type_id    Int      @default(0) @map(\"type_id\")\n  /// 账号\n  account    String   @default(\"\") @map(\"account\") @db.VarChar(120)\n  /// 手机号\n  mobile     String   @default(\"\") @map(\"mobile\") @db.VarChar(120)\n  /// 邮箱\n  email      String   @default(\"\") @map(\"email\") @db.VarChar(120)\n  /// 密码\n  password   String   @default(\"\") @map(\"password\") @db.VarChar(120)\n  /// 昵称\n  nickname   String   @default(\"\") @map(\"nickname\") @db.VarChar(120)\n  /// 头像地址\n  avatar_url String   @default(\"\") @map(\"avatar_url\") @db.VarChar(255)\n  /// 性别 0未填写 1男 2女\n  sex        Int      @default(0) @map(\"sex\")\n  /// 状态 0封禁 1正常 \n  states     Int      @default(0) @map(\"states\")\n  /// 创建时间 \n  created_at DateTime @default(now()) @map(\"created_at\") @db.Timestamp(6)\n  /// 更新时间\n  updated_at DateTime @default(now()) @updatedAt @map(\"updated_at\") @db.Timestamp(6)\n\n  @@index([account], map: \"user_account_idx\")\n  @@index([mobile], map: \"user_mobile_idx\")\n  @@index([email], map: \"user_email_idx\")\n  @@map(\"user\")\n}\n\n/// 用户扩展\nmodel UserExtend {\n  id       Int @id @default(autoincrement()) @map(\"id\")\n  /// 用户ID\n  uid      Int @default(0) @map(\"uid\")\n  /// 生日(年月日)\n  birthday Int @default(0) @map(\"birthday\")\n  /// 身高(cm)\n  height   Int @default(0) @map(\"height\")\n  /// 体重(kg)\n  weight   Int @default(0) @map(\"weight\")\n\n  @@index([uid], map: \"user_extend_uid_idx\")\n  @@map(\"user_extend\")\n}\n\n/// 用户第三方\nmodel UserThirdParty {\n  id             Int    @id @default(autoincrement()) @map(\"id\")\n  /// 用户ID\n  uid            Int    @default(0) @map(\"uid\")\n  /// 微信unionid\n  wechat_unionid String @default(\"\") @map(\"wechat_unionid\") @db.VarChar(200)\n  /// 微信openid\n  wechat_openid  String @default(\"\") @map(\"wechat_openid\") @db.VarChar(200)\n\n  @@index([uid], map: \"user_third_party_uid_idx\")\n  @@index([wechat_openid], map: \"user_third_party_wechat_openid_idx\")\n  @@map(\"user_third_party\")\n}\n",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"mysql\"\n}\n\n// 用户主表\nmodel User {\n  id        Int      @id @default(autoincrement())\n  typeId    Int      @default(0) @map(\"type_id\") // 用户类型: 1-普通用户\n  account   String   @db.VarChar(120) // 账号(全局唯一)\n  mobile    String?  @db.VarChar(120) // 手机号\n  email     String?  @db.VarChar(120) // 邮箱\n  password  String   @db.VarChar(120) // 密码(bcrypt加密)\n  nickname  String   @db.VarChar(120) // 昵称\n  avatarUrl String?  @default(\"\") @map(\"avatar_url\") @db.VarChar(255) // 头像地址\n  sex       Int      @default(0) // 性别: 0-未填写 1-男 2-女\n  states    Int      @default(0) // 状态: 0-禁用 1-正常\n  createdAt DateTime @default(now()) @map(\"created_at\")\n  updatedAt DateTime @updatedAt @map(\"updated_at\")\n\n  userExtend     UserExtend?\n  userThirdParty UserThirdParty?\n\n  @@index([account])\n  @@index([mobile])\n  @@index([email])\n  @@map(\"user\")\n}\n\nmodel UserExtend {\n  id       Int @id @default(autoincrement())\n  uid      Int @unique\n  birthday Int @default(0)\n  height   Int @default(0)\n  weight   Int @default(0)\n\n  user User @relation(fields: [uid], references: [id], onDelete: Cascade)\n\n  @@index([uid])\n  @@map(\"user_extend\")\n}\n\nmodel UserThirdParty {\n  id            Int     @id @default(autoincrement())\n  uid           Int     @unique\n  wechatUnionid String? @default(\"\") @map(\"wechat_unionid\") @db.VarChar(200)\n  wechatOpenid  String? @default(\"\") @map(\"wechat_openid\") @db.VarChar(200)\n\n  user User @relation(fields: [uid], references: [id], onDelete: Cascade)\n\n  @@index([uid])\n  @@index([wechatOpenid])\n  @@map(\"user_third_party\")\n}\n\nmodel ConfigCommon {\n  id       Int    @id @default(autoincrement())\n  key      String @db.VarChar(50)\n  value    String @db.VarChar(500)\n  describe String @db.VarChar(500)\n\n  @@map(\"config_common\")\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
     "types": {}
+  },
+  "parameterizationSchema": {
+    "strings": [],
+    "graph": ""
   }
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"ConfigCommon\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"id\"},{\"name\":\"key\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"key\"},{\"name\":\"value\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"value\"},{\"name\":\"text\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"text\"},{\"name\":\"describe\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"describe\"}],\"dbName\":\"config_common\"},\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"id\"},{\"name\":\"type_id\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"type_id\"},{\"name\":\"account\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"account\"},{\"name\":\"mobile\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"mobile\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"email\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"password\"},{\"name\":\"nickname\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"nickname\"},{\"name\":\"avatar_url\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"avatar_url\"},{\"name\":\"sex\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"sex\"},{\"name\":\"states\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"states\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"}],\"dbName\":\"user\"},\"UserExtend\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"id\"},{\"name\":\"uid\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"uid\"},{\"name\":\"birthday\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"birthday\"},{\"name\":\"height\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"height\"},{\"name\":\"weight\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"weight\"}],\"dbName\":\"user_extend\"},\"UserThirdParty\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"id\"},{\"name\":\"uid\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"uid\"},{\"name\":\"wechat_unionid\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"wechat_unionid\"},{\"name\":\"wechat_openid\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"wechat_openid\"}],\"dbName\":\"user_third_party\"}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"typeId\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"type_id\"},{\"name\":\"account\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"mobile\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nickname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"avatarUrl\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"avatar_url\"},{\"name\":\"sex\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"states\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"},{\"name\":\"userExtend\",\"kind\":\"object\",\"type\":\"UserExtend\",\"relationName\":\"UserToUserExtend\"},{\"name\":\"userThirdParty\",\"kind\":\"object\",\"type\":\"UserThirdParty\",\"relationName\":\"UserToUserThirdParty\"}],\"dbName\":\"user\"},\"UserExtend\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"uid\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"birthday\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"height\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"weight\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"UserToUserExtend\"}],\"dbName\":\"user_extend\"},\"UserThirdParty\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"uid\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"wechatUnionid\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"wechat_unionid\"},{\"name\":\"wechatOpenid\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"wechat_openid\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"UserToUserThirdParty\"}],\"dbName\":\"user_third_party\"},\"ConfigCommon\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"key\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"value\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"describe\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":\"config_common\"}},\"enums\":{},\"types\":{}}")
+config.parameterizationSchema = {
+  strings: JSON.parse("[\"where\",\"user\",\"userExtend\",\"userThirdParty\",\"User.findUnique\",\"User.findUniqueOrThrow\",\"orderBy\",\"cursor\",\"User.findFirst\",\"User.findFirstOrThrow\",\"User.findMany\",\"data\",\"User.createOne\",\"User.createMany\",\"User.updateOne\",\"User.updateMany\",\"create\",\"update\",\"User.upsertOne\",\"User.deleteOne\",\"User.deleteMany\",\"having\",\"_count\",\"_avg\",\"_sum\",\"_min\",\"_max\",\"User.groupBy\",\"User.aggregate\",\"UserExtend.findUnique\",\"UserExtend.findUniqueOrThrow\",\"UserExtend.findFirst\",\"UserExtend.findFirstOrThrow\",\"UserExtend.findMany\",\"UserExtend.createOne\",\"UserExtend.createMany\",\"UserExtend.updateOne\",\"UserExtend.updateMany\",\"UserExtend.upsertOne\",\"UserExtend.deleteOne\",\"UserExtend.deleteMany\",\"UserExtend.groupBy\",\"UserExtend.aggregate\",\"UserThirdParty.findUnique\",\"UserThirdParty.findUniqueOrThrow\",\"UserThirdParty.findFirst\",\"UserThirdParty.findFirstOrThrow\",\"UserThirdParty.findMany\",\"UserThirdParty.createOne\",\"UserThirdParty.createMany\",\"UserThirdParty.updateOne\",\"UserThirdParty.updateMany\",\"UserThirdParty.upsertOne\",\"UserThirdParty.deleteOne\",\"UserThirdParty.deleteMany\",\"UserThirdParty.groupBy\",\"UserThirdParty.aggregate\",\"ConfigCommon.findUnique\",\"ConfigCommon.findUniqueOrThrow\",\"ConfigCommon.findFirst\",\"ConfigCommon.findFirstOrThrow\",\"ConfigCommon.findMany\",\"ConfigCommon.createOne\",\"ConfigCommon.createMany\",\"ConfigCommon.updateOne\",\"ConfigCommon.updateMany\",\"ConfigCommon.upsertOne\",\"ConfigCommon.deleteOne\",\"ConfigCommon.deleteMany\",\"ConfigCommon.groupBy\",\"ConfigCommon.aggregate\",\"AND\",\"OR\",\"NOT\",\"id\",\"key\",\"value\",\"describe\",\"equals\",\"in\",\"notIn\",\"lt\",\"lte\",\"gt\",\"gte\",\"contains\",\"startsWith\",\"endsWith\",\"search\",\"not\",\"uid\",\"wechatUnionid\",\"wechatOpenid\",\"birthday\",\"height\",\"weight\",\"typeId\",\"account\",\"mobile\",\"email\",\"password\",\"nickname\",\"avatarUrl\",\"sex\",\"states\",\"createdAt\",\"updatedAt\",\"is\",\"isNot\",\"_relevance\",\"connectOrCreate\",\"upsert\",\"disconnect\",\"delete\",\"connect\",\"set\",\"increment\",\"decrement\",\"multiply\",\"divide\"]"),
+  graph: "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"
+}
 
 async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
   const { Buffer } = await import('node:buffer')
@@ -37,12 +45,14 @@ async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Modul
 }
 
 config.compilerWasm = {
-  getRuntime: async () => await import("@prisma/client/runtime/query_compiler_bg.mysql.mjs"),
+  getRuntime: async () => await import("@prisma/client/runtime/query_compiler_fast_bg.mysql.mjs"),
 
   getQueryCompilerWasmModule: async () => {
-    const { wasm } = await import("@prisma/client/runtime/query_compiler_bg.mysql.wasm-base64.mjs")
+    const { wasm } = await import("@prisma/client/runtime/query_compiler_fast_bg.mysql.wasm-base64.mjs")
     return await decodeBase64AsWasm(wasm)
-  }
+  },
+
+  importName: "./query_compiler_fast_bg.js"
 }
 
 
@@ -57,9 +67,11 @@ export interface PrismaClientConstructor {
    * Type-safe database client for TypeScript
    * @example
    * ```
-   * const prisma = new PrismaClient()
-   * // Fetch zero or more ConfigCommons
-   * const configCommons = await prisma.configCommon.findMany()
+   * const prisma = new PrismaClient({
+   *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+   * })
+   * // Fetch zero or more Users
+   * const users = await prisma.user.findMany()
    * ```
    * 
    * Read more in our [docs](https://pris.ly/d/client).
@@ -70,7 +82,7 @@ export interface PrismaClientConstructor {
     LogOpts extends LogOptions<Options> = LogOptions<Options>,
     OmitOpts extends Prisma.PrismaClientOptions['omit'] = Options extends { omit: infer U } ? U : Prisma.PrismaClientOptions['omit'],
     ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs
-  >(options: Prisma.Subset<Options, Prisma.PrismaClientOptions> ): PrismaClient<LogOpts, OmitOpts, ExtArgs>
+  >(options: Prisma.PrismaClientConstructorArgs<Options>): PrismaClient<LogOpts, OmitOpts, ExtArgs>
 }
 
 /**
@@ -79,9 +91,11 @@ export interface PrismaClientConstructor {
  * Type-safe database client for TypeScript
  * @example
  * ```
- * const prisma = new PrismaClient()
- * // Fetch zero or more ConfigCommons
- * const configCommons = await prisma.configCommon.findMany()
+ * const prisma = new PrismaClient({
+ *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+ * })
+ * // Fetch zero or more Users
+ * const users = await prisma.user.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -89,7 +103,7 @@ export interface PrismaClientConstructor {
 
 export interface PrismaClient<
   in LogOpts extends Prisma.LogLevel = never,
-  in out OmitOpts extends Prisma.PrismaClientOptions['omit'] = undefined,
+  in out OmitOpts extends Prisma.PrismaClientOptions['omit'] = Prisma.PrismaClientOptions['omit'],
   in out ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs
 > {
   [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['other'] }
@@ -164,9 +178,9 @@ export interface PrismaClient<
    * ])
    * ```
    * 
-   * Read more in our [docs](https://www.prisma.io/docs/concepts/components/prisma-client/transactions).
+   * Read more in our [docs](https://www.prisma.io/docs/orm/prisma-client/queries/transactions).
    */
-  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { isolationLevel?: Prisma.TransactionIsolationLevel }): runtime.Types.Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
+  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): runtime.Types.Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
 
   $transaction<R>(fn: (prisma: Omit<PrismaClient, runtime.ITXClientDenyList>) => runtime.Types.Utils.JsPromise<R>, options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): runtime.Types.Utils.JsPromise<R>
 
@@ -175,16 +189,6 @@ export interface PrismaClient<
   }>>
 
       /**
-   * `prisma.configCommon`: Exposes CRUD operations for the **ConfigCommon** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more ConfigCommons
-    * const configCommons = await prisma.configCommon.findMany()
-    * ```
-    */
-  get configCommon(): Prisma.ConfigCommonDelegate<ExtArgs, { omit: OmitOpts }>;
-
-  /**
    * `prisma.user`: Exposes CRUD operations for the **User** model.
     * Example usage:
     * ```ts
@@ -213,6 +217,16 @@ export interface PrismaClient<
     * ```
     */
   get userThirdParty(): Prisma.UserThirdPartyDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.configCommon`: Exposes CRUD operations for the **ConfigCommon** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ConfigCommons
+    * const configCommons = await prisma.configCommon.findMany()
+    * ```
+    */
+  get configCommon(): Prisma.ConfigCommonDelegate<ExtArgs, { omit: OmitOpts }>;
 }
 
 export function getPrismaClientClass(): PrismaClientConstructor {

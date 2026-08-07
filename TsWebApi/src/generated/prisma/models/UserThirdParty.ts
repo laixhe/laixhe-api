@@ -9,12 +9,12 @@
  * 🟢 You can import this file directly.
  */
 import type * as runtime from "@prisma/client/runtime/client"
-import type * as $Enums from "../enums.js"
-import type * as Prisma from "../internal/prismaNamespace.js"
+import type * as $Enums from "../enums"
+import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model UserThirdParty
- * 用户第三方
+ * 
  */
 export type UserThirdPartyModel = runtime.Types.Result.DefaultSelection<Prisma.$UserThirdPartyPayload>
 
@@ -39,22 +39,22 @@ export type UserThirdPartySumAggregateOutputType = {
 export type UserThirdPartyMinAggregateOutputType = {
   id: number | null
   uid: number | null
-  wechat_unionid: string | null
-  wechat_openid: string | null
+  wechatUnionid: string | null
+  wechatOpenid: string | null
 }
 
 export type UserThirdPartyMaxAggregateOutputType = {
   id: number | null
   uid: number | null
-  wechat_unionid: string | null
-  wechat_openid: string | null
+  wechatUnionid: string | null
+  wechatOpenid: string | null
 }
 
 export type UserThirdPartyCountAggregateOutputType = {
   id: number
   uid: number
-  wechat_unionid: number
-  wechat_openid: number
+  wechatUnionid: number
+  wechatOpenid: number
   _all: number
 }
 
@@ -72,22 +72,22 @@ export type UserThirdPartySumAggregateInputType = {
 export type UserThirdPartyMinAggregateInputType = {
   id?: true
   uid?: true
-  wechat_unionid?: true
-  wechat_openid?: true
+  wechatUnionid?: true
+  wechatOpenid?: true
 }
 
 export type UserThirdPartyMaxAggregateInputType = {
   id?: true
   uid?: true
-  wechat_unionid?: true
-  wechat_openid?: true
+  wechatUnionid?: true
+  wechatOpenid?: true
 }
 
 export type UserThirdPartyCountAggregateInputType = {
   id?: true
   uid?: true
-  wechat_unionid?: true
-  wechat_openid?: true
+  wechatUnionid?: true
+  wechatOpenid?: true
   _all?: true
 }
 
@@ -180,8 +180,8 @@ export type UserThirdPartyGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
 export type UserThirdPartyGroupByOutputType = {
   id: number
   uid: number
-  wechat_unionid: string
-  wechat_openid: string
+  wechatUnionid: string | null
+  wechatOpenid: string | null
   _count: UserThirdPartyCountAggregateOutputType | null
   _avg: UserThirdPartyAvgAggregateOutputType | null
   _sum: UserThirdPartySumAggregateOutputType | null
@@ -189,7 +189,7 @@ export type UserThirdPartyGroupByOutputType = {
   _max: UserThirdPartyMaxAggregateOutputType | null
 }
 
-type GetUserThirdPartyGroupByPayload<T extends UserThirdPartyGroupByArgs> = Prisma.PrismaPromise<
+export type GetUserThirdPartyGroupByPayload<T extends UserThirdPartyGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<UserThirdPartyGroupByOutputType, T['by']> &
       {
@@ -210,33 +210,36 @@ export type UserThirdPartyWhereInput = {
   NOT?: Prisma.UserThirdPartyWhereInput | Prisma.UserThirdPartyWhereInput[]
   id?: Prisma.IntFilter<"UserThirdParty"> | number
   uid?: Prisma.IntFilter<"UserThirdParty"> | number
-  wechat_unionid?: Prisma.StringFilter<"UserThirdParty"> | string
-  wechat_openid?: Prisma.StringFilter<"UserThirdParty"> | string
+  wechatUnionid?: Prisma.StringNullableFilter<"UserThirdParty"> | string | null
+  wechatOpenid?: Prisma.StringNullableFilter<"UserThirdParty"> | string | null
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type UserThirdPartyOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   uid?: Prisma.SortOrder
-  wechat_unionid?: Prisma.SortOrder
-  wechat_openid?: Prisma.SortOrder
+  wechatUnionid?: Prisma.SortOrderInput | Prisma.SortOrder
+  wechatOpenid?: Prisma.SortOrderInput | Prisma.SortOrder
+  user?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.UserThirdPartyOrderByRelevanceInput
 }
 
 export type UserThirdPartyWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  uid?: number
   AND?: Prisma.UserThirdPartyWhereInput | Prisma.UserThirdPartyWhereInput[]
   OR?: Prisma.UserThirdPartyWhereInput[]
   NOT?: Prisma.UserThirdPartyWhereInput | Prisma.UserThirdPartyWhereInput[]
-  uid?: Prisma.IntFilter<"UserThirdParty"> | number
-  wechat_unionid?: Prisma.StringFilter<"UserThirdParty"> | string
-  wechat_openid?: Prisma.StringFilter<"UserThirdParty"> | string
-}, "id">
+  wechatUnionid?: Prisma.StringNullableFilter<"UserThirdParty"> | string | null
+  wechatOpenid?: Prisma.StringNullableFilter<"UserThirdParty"> | string | null
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+}, "id" | "uid">
 
 export type UserThirdPartyOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   uid?: Prisma.SortOrder
-  wechat_unionid?: Prisma.SortOrder
-  wechat_openid?: Prisma.SortOrder
+  wechatUnionid?: Prisma.SortOrderInput | Prisma.SortOrder
+  wechatOpenid?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.UserThirdPartyCountOrderByAggregateInput
   _avg?: Prisma.UserThirdPartyAvgOrderByAggregateInput
   _max?: Prisma.UserThirdPartyMaxOrderByAggregateInput
@@ -250,54 +253,58 @@ export type UserThirdPartyScalarWhereWithAggregatesInput = {
   NOT?: Prisma.UserThirdPartyScalarWhereWithAggregatesInput | Prisma.UserThirdPartyScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"UserThirdParty"> | number
   uid?: Prisma.IntWithAggregatesFilter<"UserThirdParty"> | number
-  wechat_unionid?: Prisma.StringWithAggregatesFilter<"UserThirdParty"> | string
-  wechat_openid?: Prisma.StringWithAggregatesFilter<"UserThirdParty"> | string
+  wechatUnionid?: Prisma.StringNullableWithAggregatesFilter<"UserThirdParty"> | string | null
+  wechatOpenid?: Prisma.StringNullableWithAggregatesFilter<"UserThirdParty"> | string | null
 }
 
 export type UserThirdPartyCreateInput = {
-  uid?: number
-  wechat_unionid?: string
-  wechat_openid?: string
+  wechatUnionid?: string | null
+  wechatOpenid?: string | null
+  user: Prisma.UserCreateNestedOneWithoutUserThirdPartyInput
 }
 
 export type UserThirdPartyUncheckedCreateInput = {
   id?: number
-  uid?: number
-  wechat_unionid?: string
-  wechat_openid?: string
+  uid: number
+  wechatUnionid?: string | null
+  wechatOpenid?: string | null
 }
 
 export type UserThirdPartyUpdateInput = {
-  uid?: Prisma.IntFieldUpdateOperationsInput | number
-  wechat_unionid?: Prisma.StringFieldUpdateOperationsInput | string
-  wechat_openid?: Prisma.StringFieldUpdateOperationsInput | string
+  wechatUnionid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wechatOpenid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  user?: Prisma.UserUpdateOneRequiredWithoutUserThirdPartyNestedInput
 }
 
 export type UserThirdPartyUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   uid?: Prisma.IntFieldUpdateOperationsInput | number
-  wechat_unionid?: Prisma.StringFieldUpdateOperationsInput | string
-  wechat_openid?: Prisma.StringFieldUpdateOperationsInput | string
+  wechatUnionid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wechatOpenid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type UserThirdPartyCreateManyInput = {
   id?: number
-  uid?: number
-  wechat_unionid?: string
-  wechat_openid?: string
+  uid: number
+  wechatUnionid?: string | null
+  wechatOpenid?: string | null
 }
 
 export type UserThirdPartyUpdateManyMutationInput = {
-  uid?: Prisma.IntFieldUpdateOperationsInput | number
-  wechat_unionid?: Prisma.StringFieldUpdateOperationsInput | string
-  wechat_openid?: Prisma.StringFieldUpdateOperationsInput | string
+  wechatUnionid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wechatOpenid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type UserThirdPartyUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   uid?: Prisma.IntFieldUpdateOperationsInput | number
-  wechat_unionid?: Prisma.StringFieldUpdateOperationsInput | string
-  wechat_openid?: Prisma.StringFieldUpdateOperationsInput | string
+  wechatUnionid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wechatOpenid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type UserThirdPartyNullableScalarRelationFilter = {
+  is?: Prisma.UserThirdPartyWhereInput | null
+  isNot?: Prisma.UserThirdPartyWhereInput | null
 }
 
 export type UserThirdPartyOrderByRelevanceInput = {
@@ -309,8 +316,8 @@ export type UserThirdPartyOrderByRelevanceInput = {
 export type UserThirdPartyCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   uid?: Prisma.SortOrder
-  wechat_unionid?: Prisma.SortOrder
-  wechat_openid?: Prisma.SortOrder
+  wechatUnionid?: Prisma.SortOrder
+  wechatOpenid?: Prisma.SortOrder
 }
 
 export type UserThirdPartyAvgOrderByAggregateInput = {
@@ -321,15 +328,15 @@ export type UserThirdPartyAvgOrderByAggregateInput = {
 export type UserThirdPartyMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   uid?: Prisma.SortOrder
-  wechat_unionid?: Prisma.SortOrder
-  wechat_openid?: Prisma.SortOrder
+  wechatUnionid?: Prisma.SortOrder
+  wechatOpenid?: Prisma.SortOrder
 }
 
 export type UserThirdPartyMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   uid?: Prisma.SortOrder
-  wechat_unionid?: Prisma.SortOrder
-  wechat_openid?: Prisma.SortOrder
+  wechatUnionid?: Prisma.SortOrder
+  wechatOpenid?: Prisma.SortOrder
 }
 
 export type UserThirdPartySumOrderByAggregateInput = {
@@ -337,13 +344,84 @@ export type UserThirdPartySumOrderByAggregateInput = {
   uid?: Prisma.SortOrder
 }
 
+export type UserThirdPartyCreateNestedOneWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.UserThirdPartyCreateWithoutUserInput, Prisma.UserThirdPartyUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.UserThirdPartyCreateOrConnectWithoutUserInput
+  connect?: Prisma.UserThirdPartyWhereUniqueInput
+}
+
+export type UserThirdPartyUncheckedCreateNestedOneWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.UserThirdPartyCreateWithoutUserInput, Prisma.UserThirdPartyUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.UserThirdPartyCreateOrConnectWithoutUserInput
+  connect?: Prisma.UserThirdPartyWhereUniqueInput
+}
+
+export type UserThirdPartyUpdateOneWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.UserThirdPartyCreateWithoutUserInput, Prisma.UserThirdPartyUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.UserThirdPartyCreateOrConnectWithoutUserInput
+  upsert?: Prisma.UserThirdPartyUpsertWithoutUserInput
+  disconnect?: Prisma.UserThirdPartyWhereInput | boolean
+  delete?: Prisma.UserThirdPartyWhereInput | boolean
+  connect?: Prisma.UserThirdPartyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserThirdPartyUpdateToOneWithWhereWithoutUserInput, Prisma.UserThirdPartyUpdateWithoutUserInput>, Prisma.UserThirdPartyUncheckedUpdateWithoutUserInput>
+}
+
+export type UserThirdPartyUncheckedUpdateOneWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.UserThirdPartyCreateWithoutUserInput, Prisma.UserThirdPartyUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.UserThirdPartyCreateOrConnectWithoutUserInput
+  upsert?: Prisma.UserThirdPartyUpsertWithoutUserInput
+  disconnect?: Prisma.UserThirdPartyWhereInput | boolean
+  delete?: Prisma.UserThirdPartyWhereInput | boolean
+  connect?: Prisma.UserThirdPartyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserThirdPartyUpdateToOneWithWhereWithoutUserInput, Prisma.UserThirdPartyUpdateWithoutUserInput>, Prisma.UserThirdPartyUncheckedUpdateWithoutUserInput>
+}
+
+export type UserThirdPartyCreateWithoutUserInput = {
+  wechatUnionid?: string | null
+  wechatOpenid?: string | null
+}
+
+export type UserThirdPartyUncheckedCreateWithoutUserInput = {
+  id?: number
+  wechatUnionid?: string | null
+  wechatOpenid?: string | null
+}
+
+export type UserThirdPartyCreateOrConnectWithoutUserInput = {
+  where: Prisma.UserThirdPartyWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserThirdPartyCreateWithoutUserInput, Prisma.UserThirdPartyUncheckedCreateWithoutUserInput>
+}
+
+export type UserThirdPartyUpsertWithoutUserInput = {
+  update: Prisma.XOR<Prisma.UserThirdPartyUpdateWithoutUserInput, Prisma.UserThirdPartyUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.UserThirdPartyCreateWithoutUserInput, Prisma.UserThirdPartyUncheckedCreateWithoutUserInput>
+  where?: Prisma.UserThirdPartyWhereInput
+}
+
+export type UserThirdPartyUpdateToOneWithWhereWithoutUserInput = {
+  where?: Prisma.UserThirdPartyWhereInput
+  data: Prisma.XOR<Prisma.UserThirdPartyUpdateWithoutUserInput, Prisma.UserThirdPartyUncheckedUpdateWithoutUserInput>
+}
+
+export type UserThirdPartyUpdateWithoutUserInput = {
+  wechatUnionid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wechatOpenid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type UserThirdPartyUncheckedUpdateWithoutUserInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  wechatUnionid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wechatOpenid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
 
 
 export type UserThirdPartySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   uid?: boolean
-  wechat_unionid?: boolean
-  wechat_openid?: boolean
+  wechatUnionid?: boolean
+  wechatOpenid?: boolean
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["userThirdParty"]>
 
 
@@ -351,29 +429,25 @@ export type UserThirdPartySelect<ExtArgs extends runtime.Types.Extensions.Intern
 export type UserThirdPartySelectScalar = {
   id?: boolean
   uid?: boolean
-  wechat_unionid?: boolean
-  wechat_openid?: boolean
+  wechatUnionid?: boolean
+  wechatOpenid?: boolean
 }
 
-export type UserThirdPartyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uid" | "wechat_unionid" | "wechat_openid", ExtArgs["result"]["userThirdParty"]>
+export type UserThirdPartyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uid" | "wechatUnionid" | "wechatOpenid", ExtArgs["result"]["userThirdParty"]>
+export type UserThirdPartyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}
 
 export type $UserThirdPartyPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "UserThirdParty"
-  objects: {}
+  objects: {
+    user: Prisma.$UserPayload<ExtArgs>
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
-    /**
-     * 用户ID
-     */
     uid: number
-    /**
-     * 微信unionid
-     */
-    wechat_unionid: string
-    /**
-     * 微信openid
-     */
-    wechat_openid: string
+    wechatUnionid: string | null
+    wechatOpenid: string | null
   }, ExtArgs["result"]["userThirdParty"]>
   composites: {}
 }
@@ -714,6 +788,7 @@ readonly fields: UserThirdPartyFieldRefs;
  */
 export interface Prisma__UserThirdPartyClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -745,8 +820,8 @@ export interface Prisma__UserThirdPartyClient<T, Null = never, ExtArgs extends r
 export interface UserThirdPartyFieldRefs {
   readonly id: Prisma.FieldRef<"UserThirdParty", 'Int'>
   readonly uid: Prisma.FieldRef<"UserThirdParty", 'Int'>
-  readonly wechat_unionid: Prisma.FieldRef<"UserThirdParty", 'String'>
-  readonly wechat_openid: Prisma.FieldRef<"UserThirdParty", 'String'>
+  readonly wechatUnionid: Prisma.FieldRef<"UserThirdParty", 'String'>
+  readonly wechatOpenid: Prisma.FieldRef<"UserThirdParty", 'String'>
 }
     
 
@@ -763,6 +838,10 @@ export type UserThirdPartyFindUniqueArgs<ExtArgs extends runtime.Types.Extension
    * Omit specific fields from the UserThirdParty
    */
   omit?: Prisma.UserThirdPartyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserThirdPartyInclude<ExtArgs> | null
   /**
    * Filter, which UserThirdParty to fetch.
    */
@@ -782,6 +861,10 @@ export type UserThirdPartyFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Ex
    */
   omit?: Prisma.UserThirdPartyOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserThirdPartyInclude<ExtArgs> | null
+  /**
    * Filter, which UserThirdParty to fetch.
    */
   where: Prisma.UserThirdPartyWhereUniqueInput
@@ -799,6 +882,10 @@ export type UserThirdPartyFindFirstArgs<ExtArgs extends runtime.Types.Extensions
    * Omit specific fields from the UserThirdParty
    */
   omit?: Prisma.UserThirdPartyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserThirdPartyInclude<ExtArgs> | null
   /**
    * Filter, which UserThirdParty to fetch.
    */
@@ -848,6 +935,10 @@ export type UserThirdPartyFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Ext
    */
   omit?: Prisma.UserThirdPartyOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserThirdPartyInclude<ExtArgs> | null
+  /**
    * Filter, which UserThirdParty to fetch.
    */
   where?: Prisma.UserThirdPartyWhereInput
@@ -896,6 +987,10 @@ export type UserThirdPartyFindManyArgs<ExtArgs extends runtime.Types.Extensions.
    */
   omit?: Prisma.UserThirdPartyOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserThirdPartyInclude<ExtArgs> | null
+  /**
    * Filter, which UserThirdParties to fetch.
    */
   where?: Prisma.UserThirdPartyWhereInput
@@ -923,6 +1018,11 @@ export type UserThirdPartyFindManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Skip the first `n` UserThirdParties.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of UserThirdParties.
+   */
   distinct?: Prisma.UserThirdPartyScalarFieldEnum | Prisma.UserThirdPartyScalarFieldEnum[]
 }
 
@@ -939,9 +1039,13 @@ export type UserThirdPartyCreateArgs<ExtArgs extends runtime.Types.Extensions.In
    */
   omit?: Prisma.UserThirdPartyOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserThirdPartyInclude<ExtArgs> | null
+  /**
    * The data needed to create a UserThirdParty.
    */
-  data?: Prisma.XOR<Prisma.UserThirdPartyCreateInput, Prisma.UserThirdPartyUncheckedCreateInput>
+  data: Prisma.XOR<Prisma.UserThirdPartyCreateInput, Prisma.UserThirdPartyUncheckedCreateInput>
 }
 
 /**
@@ -967,6 +1071,10 @@ export type UserThirdPartyUpdateArgs<ExtArgs extends runtime.Types.Extensions.In
    * Omit specific fields from the UserThirdParty
    */
   omit?: Prisma.UserThirdPartyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserThirdPartyInclude<ExtArgs> | null
   /**
    * The data needed to update a UserThirdParty.
    */
@@ -1008,6 +1116,10 @@ export type UserThirdPartyUpsertArgs<ExtArgs extends runtime.Types.Extensions.In
    */
   omit?: Prisma.UserThirdPartyOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserThirdPartyInclude<ExtArgs> | null
+  /**
    * The filter to search for the UserThirdParty to update in case it exists.
    */
   where: Prisma.UserThirdPartyWhereUniqueInput
@@ -1033,6 +1145,10 @@ export type UserThirdPartyDeleteArgs<ExtArgs extends runtime.Types.Extensions.In
    * Omit specific fields from the UserThirdParty
    */
   omit?: Prisma.UserThirdPartyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserThirdPartyInclude<ExtArgs> | null
   /**
    * Filter which UserThirdParty to delete.
    */
@@ -1065,4 +1181,8 @@ export type UserThirdPartyDefaultArgs<ExtArgs extends runtime.Types.Extensions.I
    * Omit specific fields from the UserThirdParty
    */
   omit?: Prisma.UserThirdPartyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserThirdPartyInclude<ExtArgs> | null
 }

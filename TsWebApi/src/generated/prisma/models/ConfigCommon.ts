@@ -9,12 +9,12 @@
  * 🟢 You can import this file directly.
  */
 import type * as runtime from "@prisma/client/runtime/client"
-import type * as $Enums from "../enums.js"
-import type * as Prisma from "../internal/prismaNamespace.js"
+import type * as $Enums from "../enums"
+import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model ConfigCommon
- * 通用配置
+ * 
  */
 export type ConfigCommonModel = runtime.Types.Result.DefaultSelection<Prisma.$ConfigCommonPayload>
 
@@ -38,7 +38,6 @@ export type ConfigCommonMinAggregateOutputType = {
   id: number | null
   key: string | null
   value: string | null
-  text: string | null
   describe: string | null
 }
 
@@ -46,7 +45,6 @@ export type ConfigCommonMaxAggregateOutputType = {
   id: number | null
   key: string | null
   value: string | null
-  text: string | null
   describe: string | null
 }
 
@@ -54,7 +52,6 @@ export type ConfigCommonCountAggregateOutputType = {
   id: number
   key: number
   value: number
-  text: number
   describe: number
   _all: number
 }
@@ -72,7 +69,6 @@ export type ConfigCommonMinAggregateInputType = {
   id?: true
   key?: true
   value?: true
-  text?: true
   describe?: true
 }
 
@@ -80,7 +76,6 @@ export type ConfigCommonMaxAggregateInputType = {
   id?: true
   key?: true
   value?: true
-  text?: true
   describe?: true
 }
 
@@ -88,7 +83,6 @@ export type ConfigCommonCountAggregateInputType = {
   id?: true
   key?: true
   value?: true
-  text?: true
   describe?: true
   _all?: true
 }
@@ -183,7 +177,6 @@ export type ConfigCommonGroupByOutputType = {
   id: number
   key: string
   value: string
-  text: string
   describe: string
   _count: ConfigCommonCountAggregateOutputType | null
   _avg: ConfigCommonAvgAggregateOutputType | null
@@ -192,7 +185,7 @@ export type ConfigCommonGroupByOutputType = {
   _max: ConfigCommonMaxAggregateOutputType | null
 }
 
-type GetConfigCommonGroupByPayload<T extends ConfigCommonGroupByArgs> = Prisma.PrismaPromise<
+export type GetConfigCommonGroupByPayload<T extends ConfigCommonGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<ConfigCommonGroupByOutputType, T['by']> &
       {
@@ -214,7 +207,6 @@ export type ConfigCommonWhereInput = {
   id?: Prisma.IntFilter<"ConfigCommon"> | number
   key?: Prisma.StringFilter<"ConfigCommon"> | string
   value?: Prisma.StringFilter<"ConfigCommon"> | string
-  text?: Prisma.StringFilter<"ConfigCommon"> | string
   describe?: Prisma.StringFilter<"ConfigCommon"> | string
 }
 
@@ -222,7 +214,6 @@ export type ConfigCommonOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   key?: Prisma.SortOrder
   value?: Prisma.SortOrder
-  text?: Prisma.SortOrder
   describe?: Prisma.SortOrder
   _relevance?: Prisma.ConfigCommonOrderByRelevanceInput
 }
@@ -234,7 +225,6 @@ export type ConfigCommonWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ConfigCommonWhereInput | Prisma.ConfigCommonWhereInput[]
   key?: Prisma.StringFilter<"ConfigCommon"> | string
   value?: Prisma.StringFilter<"ConfigCommon"> | string
-  text?: Prisma.StringFilter<"ConfigCommon"> | string
   describe?: Prisma.StringFilter<"ConfigCommon"> | string
 }, "id">
 
@@ -242,7 +232,6 @@ export type ConfigCommonOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   key?: Prisma.SortOrder
   value?: Prisma.SortOrder
-  text?: Prisma.SortOrder
   describe?: Prisma.SortOrder
   _count?: Prisma.ConfigCommonCountOrderByAggregateInput
   _avg?: Prisma.ConfigCommonAvgOrderByAggregateInput
@@ -258,29 +247,25 @@ export type ConfigCommonScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"ConfigCommon"> | number
   key?: Prisma.StringWithAggregatesFilter<"ConfigCommon"> | string
   value?: Prisma.StringWithAggregatesFilter<"ConfigCommon"> | string
-  text?: Prisma.StringWithAggregatesFilter<"ConfigCommon"> | string
   describe?: Prisma.StringWithAggregatesFilter<"ConfigCommon"> | string
 }
 
 export type ConfigCommonCreateInput = {
-  key?: string
-  value?: string
-  text?: string
-  describe?: string
+  key: string
+  value: string
+  describe: string
 }
 
 export type ConfigCommonUncheckedCreateInput = {
   id?: number
-  key?: string
-  value?: string
-  text?: string
-  describe?: string
+  key: string
+  value: string
+  describe: string
 }
 
 export type ConfigCommonUpdateInput = {
   key?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.StringFieldUpdateOperationsInput | string
-  text?: Prisma.StringFieldUpdateOperationsInput | string
   describe?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -288,22 +273,19 @@ export type ConfigCommonUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   key?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.StringFieldUpdateOperationsInput | string
-  text?: Prisma.StringFieldUpdateOperationsInput | string
   describe?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type ConfigCommonCreateManyInput = {
   id?: number
-  key?: string
-  value?: string
-  text?: string
-  describe?: string
+  key: string
+  value: string
+  describe: string
 }
 
 export type ConfigCommonUpdateManyMutationInput = {
   key?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.StringFieldUpdateOperationsInput | string
-  text?: Prisma.StringFieldUpdateOperationsInput | string
   describe?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -311,7 +293,6 @@ export type ConfigCommonUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   key?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.StringFieldUpdateOperationsInput | string
-  text?: Prisma.StringFieldUpdateOperationsInput | string
   describe?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -325,7 +306,6 @@ export type ConfigCommonCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   key?: Prisma.SortOrder
   value?: Prisma.SortOrder
-  text?: Prisma.SortOrder
   describe?: Prisma.SortOrder
 }
 
@@ -337,7 +317,6 @@ export type ConfigCommonMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   key?: Prisma.SortOrder
   value?: Prisma.SortOrder
-  text?: Prisma.SortOrder
   describe?: Prisma.SortOrder
 }
 
@@ -345,24 +324,11 @@ export type ConfigCommonMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   key?: Prisma.SortOrder
   value?: Prisma.SortOrder
-  text?: Prisma.SortOrder
   describe?: Prisma.SortOrder
 }
 
 export type ConfigCommonSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
-}
-
-export type StringFieldUpdateOperationsInput = {
-  set?: string
-}
-
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
 }
 
 
@@ -371,7 +337,6 @@ export type ConfigCommonSelect<ExtArgs extends runtime.Types.Extensions.Internal
   id?: boolean
   key?: boolean
   value?: boolean
-  text?: boolean
   describe?: boolean
 }, ExtArgs["result"]["configCommon"]>
 
@@ -381,11 +346,10 @@ export type ConfigCommonSelectScalar = {
   id?: boolean
   key?: boolean
   value?: boolean
-  text?: boolean
   describe?: boolean
 }
 
-export type ConfigCommonOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "value" | "text" | "describe", ExtArgs["result"]["configCommon"]>
+export type ConfigCommonOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "value" | "describe", ExtArgs["result"]["configCommon"]>
 
 export type $ConfigCommonPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ConfigCommon"
@@ -394,10 +358,6 @@ export type $ConfigCommonPayload<ExtArgs extends runtime.Types.Extensions.Intern
     id: number
     key: string
     value: string
-    text: string
-    /**
-     * 描述
-     */
     describe: string
   }, ExtArgs["result"]["configCommon"]>
   composites: {}
@@ -771,7 +731,6 @@ export interface ConfigCommonFieldRefs {
   readonly id: Prisma.FieldRef<"ConfigCommon", 'Int'>
   readonly key: Prisma.FieldRef<"ConfigCommon", 'String'>
   readonly value: Prisma.FieldRef<"ConfigCommon", 'String'>
-  readonly text: Prisma.FieldRef<"ConfigCommon", 'String'>
   readonly describe: Prisma.FieldRef<"ConfigCommon", 'String'>
 }
     
@@ -949,6 +908,11 @@ export type ConfigCommonFindManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Skip the first `n` ConfigCommons.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of ConfigCommons.
+   */
   distinct?: Prisma.ConfigCommonScalarFieldEnum | Prisma.ConfigCommonScalarFieldEnum[]
 }
 
@@ -967,7 +931,7 @@ export type ConfigCommonCreateArgs<ExtArgs extends runtime.Types.Extensions.Inte
   /**
    * The data needed to create a ConfigCommon.
    */
-  data?: Prisma.XOR<Prisma.ConfigCommonCreateInput, Prisma.ConfigCommonUncheckedCreateInput>
+  data: Prisma.XOR<Prisma.ConfigCommonCreateInput, Prisma.ConfigCommonUncheckedCreateInput>
 }
 
 /**

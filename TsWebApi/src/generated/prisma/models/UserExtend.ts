@@ -9,12 +9,12 @@
  * 🟢 You can import this file directly.
  */
 import type * as runtime from "@prisma/client/runtime/client"
-import type * as $Enums from "../enums.js"
-import type * as Prisma from "../internal/prismaNamespace.js"
+import type * as $Enums from "../enums"
+import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model UserExtend
- * 用户扩展
+ * 
  */
 export type UserExtendModel = runtime.Types.Result.DefaultSelection<Prisma.$UserExtendPayload>
 
@@ -208,7 +208,7 @@ export type UserExtendGroupByOutputType = {
   _max: UserExtendMaxAggregateOutputType | null
 }
 
-type GetUserExtendGroupByPayload<T extends UserExtendGroupByArgs> = Prisma.PrismaPromise<
+export type GetUserExtendGroupByPayload<T extends UserExtendGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<UserExtendGroupByOutputType, T['by']> &
       {
@@ -232,6 +232,7 @@ export type UserExtendWhereInput = {
   birthday?: Prisma.IntFilter<"UserExtend"> | number
   height?: Prisma.IntFilter<"UserExtend"> | number
   weight?: Prisma.IntFilter<"UserExtend"> | number
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type UserExtendOrderByWithRelationInput = {
@@ -240,18 +241,20 @@ export type UserExtendOrderByWithRelationInput = {
   birthday?: Prisma.SortOrder
   height?: Prisma.SortOrder
   weight?: Prisma.SortOrder
+  user?: Prisma.UserOrderByWithRelationInput
 }
 
 export type UserExtendWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  uid?: number
   AND?: Prisma.UserExtendWhereInput | Prisma.UserExtendWhereInput[]
   OR?: Prisma.UserExtendWhereInput[]
   NOT?: Prisma.UserExtendWhereInput | Prisma.UserExtendWhereInput[]
-  uid?: Prisma.IntFilter<"UserExtend"> | number
   birthday?: Prisma.IntFilter<"UserExtend"> | number
   height?: Prisma.IntFilter<"UserExtend"> | number
   weight?: Prisma.IntFilter<"UserExtend"> | number
-}, "id">
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+}, "id" | "uid">
 
 export type UserExtendOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -278,25 +281,25 @@ export type UserExtendScalarWhereWithAggregatesInput = {
 }
 
 export type UserExtendCreateInput = {
-  uid?: number
   birthday?: number
   height?: number
   weight?: number
+  user: Prisma.UserCreateNestedOneWithoutUserExtendInput
 }
 
 export type UserExtendUncheckedCreateInput = {
   id?: number
-  uid?: number
+  uid: number
   birthday?: number
   height?: number
   weight?: number
 }
 
 export type UserExtendUpdateInput = {
-  uid?: Prisma.IntFieldUpdateOperationsInput | number
   birthday?: Prisma.IntFieldUpdateOperationsInput | number
   height?: Prisma.IntFieldUpdateOperationsInput | number
   weight?: Prisma.IntFieldUpdateOperationsInput | number
+  user?: Prisma.UserUpdateOneRequiredWithoutUserExtendNestedInput
 }
 
 export type UserExtendUncheckedUpdateInput = {
@@ -309,14 +312,13 @@ export type UserExtendUncheckedUpdateInput = {
 
 export type UserExtendCreateManyInput = {
   id?: number
-  uid?: number
+  uid: number
   birthday?: number
   height?: number
   weight?: number
 }
 
 export type UserExtendUpdateManyMutationInput = {
-  uid?: Prisma.IntFieldUpdateOperationsInput | number
   birthday?: Prisma.IntFieldUpdateOperationsInput | number
   height?: Prisma.IntFieldUpdateOperationsInput | number
   weight?: Prisma.IntFieldUpdateOperationsInput | number
@@ -328,6 +330,11 @@ export type UserExtendUncheckedUpdateManyInput = {
   birthday?: Prisma.IntFieldUpdateOperationsInput | number
   height?: Prisma.IntFieldUpdateOperationsInput | number
   weight?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
+export type UserExtendNullableScalarRelationFilter = {
+  is?: Prisma.UserExtendWhereInput | null
+  isNot?: Prisma.UserExtendWhereInput | null
 }
 
 export type UserExtendCountOrderByAggregateInput = {
@@ -370,6 +377,80 @@ export type UserExtendSumOrderByAggregateInput = {
   weight?: Prisma.SortOrder
 }
 
+export type UserExtendCreateNestedOneWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.UserExtendCreateWithoutUserInput, Prisma.UserExtendUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.UserExtendCreateOrConnectWithoutUserInput
+  connect?: Prisma.UserExtendWhereUniqueInput
+}
+
+export type UserExtendUncheckedCreateNestedOneWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.UserExtendCreateWithoutUserInput, Prisma.UserExtendUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.UserExtendCreateOrConnectWithoutUserInput
+  connect?: Prisma.UserExtendWhereUniqueInput
+}
+
+export type UserExtendUpdateOneWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.UserExtendCreateWithoutUserInput, Prisma.UserExtendUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.UserExtendCreateOrConnectWithoutUserInput
+  upsert?: Prisma.UserExtendUpsertWithoutUserInput
+  disconnect?: Prisma.UserExtendWhereInput | boolean
+  delete?: Prisma.UserExtendWhereInput | boolean
+  connect?: Prisma.UserExtendWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserExtendUpdateToOneWithWhereWithoutUserInput, Prisma.UserExtendUpdateWithoutUserInput>, Prisma.UserExtendUncheckedUpdateWithoutUserInput>
+}
+
+export type UserExtendUncheckedUpdateOneWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.UserExtendCreateWithoutUserInput, Prisma.UserExtendUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.UserExtendCreateOrConnectWithoutUserInput
+  upsert?: Prisma.UserExtendUpsertWithoutUserInput
+  disconnect?: Prisma.UserExtendWhereInput | boolean
+  delete?: Prisma.UserExtendWhereInput | boolean
+  connect?: Prisma.UserExtendWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserExtendUpdateToOneWithWhereWithoutUserInput, Prisma.UserExtendUpdateWithoutUserInput>, Prisma.UserExtendUncheckedUpdateWithoutUserInput>
+}
+
+export type UserExtendCreateWithoutUserInput = {
+  birthday?: number
+  height?: number
+  weight?: number
+}
+
+export type UserExtendUncheckedCreateWithoutUserInput = {
+  id?: number
+  birthday?: number
+  height?: number
+  weight?: number
+}
+
+export type UserExtendCreateOrConnectWithoutUserInput = {
+  where: Prisma.UserExtendWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserExtendCreateWithoutUserInput, Prisma.UserExtendUncheckedCreateWithoutUserInput>
+}
+
+export type UserExtendUpsertWithoutUserInput = {
+  update: Prisma.XOR<Prisma.UserExtendUpdateWithoutUserInput, Prisma.UserExtendUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.UserExtendCreateWithoutUserInput, Prisma.UserExtendUncheckedCreateWithoutUserInput>
+  where?: Prisma.UserExtendWhereInput
+}
+
+export type UserExtendUpdateToOneWithWhereWithoutUserInput = {
+  where?: Prisma.UserExtendWhereInput
+  data: Prisma.XOR<Prisma.UserExtendUpdateWithoutUserInput, Prisma.UserExtendUncheckedUpdateWithoutUserInput>
+}
+
+export type UserExtendUpdateWithoutUserInput = {
+  birthday?: Prisma.IntFieldUpdateOperationsInput | number
+  height?: Prisma.IntFieldUpdateOperationsInput | number
+  weight?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
+export type UserExtendUncheckedUpdateWithoutUserInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  birthday?: Prisma.IntFieldUpdateOperationsInput | number
+  height?: Prisma.IntFieldUpdateOperationsInput | number
+  weight?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
 
 
 export type UserExtendSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -378,6 +459,7 @@ export type UserExtendSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   birthday?: boolean
   height?: boolean
   weight?: boolean
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["userExtend"]>
 
 
@@ -391,27 +473,20 @@ export type UserExtendSelectScalar = {
 }
 
 export type UserExtendOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uid" | "birthday" | "height" | "weight", ExtArgs["result"]["userExtend"]>
+export type UserExtendInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}
 
 export type $UserExtendPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "UserExtend"
-  objects: {}
+  objects: {
+    user: Prisma.$UserPayload<ExtArgs>
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
-    /**
-     * 用户ID
-     */
     uid: number
-    /**
-     * 生日(年月日)
-     */
     birthday: number
-    /**
-     * 身高(cm)
-     */
     height: number
-    /**
-     * 体重(kg)
-     */
     weight: number
   }, ExtArgs["result"]["userExtend"]>
   composites: {}
@@ -753,6 +828,7 @@ readonly fields: UserExtendFieldRefs;
  */
 export interface Prisma__UserExtendClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -804,6 +880,10 @@ export type UserExtendFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.In
    */
   omit?: Prisma.UserExtendOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserExtendInclude<ExtArgs> | null
+  /**
    * Filter, which UserExtend to fetch.
    */
   where: Prisma.UserExtendWhereUniqueInput
@@ -822,6 +902,10 @@ export type UserExtendFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extens
    */
   omit?: Prisma.UserExtendOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserExtendInclude<ExtArgs> | null
+  /**
    * Filter, which UserExtend to fetch.
    */
   where: Prisma.UserExtendWhereUniqueInput
@@ -839,6 +923,10 @@ export type UserExtendFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Omit specific fields from the UserExtend
    */
   omit?: Prisma.UserExtendOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserExtendInclude<ExtArgs> | null
   /**
    * Filter, which UserExtend to fetch.
    */
@@ -888,6 +976,10 @@ export type UserExtendFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensi
    */
   omit?: Prisma.UserExtendOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserExtendInclude<ExtArgs> | null
+  /**
    * Filter, which UserExtend to fetch.
    */
   where?: Prisma.UserExtendWhereInput
@@ -936,6 +1028,10 @@ export type UserExtendFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    */
   omit?: Prisma.UserExtendOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserExtendInclude<ExtArgs> | null
+  /**
    * Filter, which UserExtends to fetch.
    */
   where?: Prisma.UserExtendWhereInput
@@ -963,6 +1059,11 @@ export type UserExtendFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Skip the first `n` UserExtends.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of UserExtends.
+   */
   distinct?: Prisma.UserExtendScalarFieldEnum | Prisma.UserExtendScalarFieldEnum[]
 }
 
@@ -979,9 +1080,13 @@ export type UserExtendCreateArgs<ExtArgs extends runtime.Types.Extensions.Intern
    */
   omit?: Prisma.UserExtendOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserExtendInclude<ExtArgs> | null
+  /**
    * The data needed to create a UserExtend.
    */
-  data?: Prisma.XOR<Prisma.UserExtendCreateInput, Prisma.UserExtendUncheckedCreateInput>
+  data: Prisma.XOR<Prisma.UserExtendCreateInput, Prisma.UserExtendUncheckedCreateInput>
 }
 
 /**
@@ -1007,6 +1112,10 @@ export type UserExtendUpdateArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Omit specific fields from the UserExtend
    */
   omit?: Prisma.UserExtendOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserExtendInclude<ExtArgs> | null
   /**
    * The data needed to update a UserExtend.
    */
@@ -1048,6 +1157,10 @@ export type UserExtendUpsertArgs<ExtArgs extends runtime.Types.Extensions.Intern
    */
   omit?: Prisma.UserExtendOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserExtendInclude<ExtArgs> | null
+  /**
    * The filter to search for the UserExtend to update in case it exists.
    */
   where: Prisma.UserExtendWhereUniqueInput
@@ -1073,6 +1186,10 @@ export type UserExtendDeleteArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Omit specific fields from the UserExtend
    */
   omit?: Prisma.UserExtendOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserExtendInclude<ExtArgs> | null
   /**
    * Filter which UserExtend to delete.
    */
@@ -1105,4 +1222,8 @@ export type UserExtendDefaultArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the UserExtend
    */
   omit?: Prisma.UserExtendOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserExtendInclude<ExtArgs> | null
 }
