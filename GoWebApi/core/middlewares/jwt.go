@@ -31,7 +31,8 @@ func NewJwtClaims(uid int, expireTime int64) *JwtClaims {
 	return custom
 }
 
-// GetJwtClaims 从 Fiber 上下文中提取并验证 JWT 载荷
+// GetJwtClaims 从 Fiber 上下文中提取已由 JWT 中间件验证过的载荷, 并校验 Uid 非零
+// (签名/过期校验在 UseJwt 中间件完成; uid 从 1 起, 0 视为无效, 防御伪造 {"uid":0} 的 token)
 func GetJwtClaims(ctx fiber.Ctx) (*JwtClaims, error) {
 	token := contribJwt.FromContext(ctx)
 	if token != nil {

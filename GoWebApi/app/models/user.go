@@ -10,13 +10,17 @@ import (
 // UserTable 用户表名
 const UserTable = "user"
 
+// UserColumnsNoPassword 查询用户时使用的列 (排除 password)
+// 密码哈希只在登录校验时需要, 其它场景读取会把无用的敏感字段拉进内存
+const UserColumnsNoPassword = "id,type_id,account,mobile,email,nickname,avatar_url,sex,states,created_at"
+
 // User 用户
 type User struct {
 	ID        int       `gorm:"column:id;type:int;autoIncrement;primaryKey"`
 	TypeId    UserType  `gorm:"column:type_id;type:int;not null;default:0;comment:类型 1普通"`
 	Account   string    `gorm:"column:account;type:string;size:120;not null;index;default:'';comment:账号"`
 	Mobile    string    `gorm:"column:mobile;type:string;size:120;not null;index;default:'';comment:手机号"`
-	Email     string    `gorm:"column:email;type:string;size:120;not null;index;default:'';comment:邮箱"`
+	Email     string    `gorm:"column:email;type:string;size:120;not null;uniqueIndex;default:'';comment:邮箱"`
 	Password  string    `gorm:"column:password;type:string;size:120;not null;default:'';comment:密码"`
 	Nickname  string    `gorm:"column:nickname;type:string;size:120;not null;default:'';comment:昵称"`
 	AvatarUrl string    `gorm:"column:avatar_url;type:string;size:255;not null;default:'';comment:头像地址"`
@@ -58,6 +62,9 @@ func CreateUser(db *gorm.DB, user *User) error {
 }
 
 // UpdateUser 根据非零字段动态更新用户信息，同时更新 updated_at
+//
+// 注意边界: states 为 0 时无法通过本函数更新为 0 (封禁态);
+// 如需显式置 0 需另走 Updates 全量更新。
 func UpdateUser(db *gorm.DB, user *User) error {
 	if user.ID <= 0 {
 		return gorm.ErrPrimaryKeyRequired
@@ -100,13 +107,15 @@ func ListUser(db *gorm.DB, limit, offset int) ([]User, int, error) {
 	if total == 0 {
 		return nil, 0, nil
 	}
-	if err := db.Order(clause.OrderByColumn{Column: clause.Column{Name: "id"}, Desc: true}).
+	// 列表页同样不返回 password
+	if err := db.Select(UserColumnsNoPassword).
+		Order(clause.OrderByColumn{Column: clause.Column{Name: "id"}, Desc: true}).
 		Limit(limit).
 		Offset(offset).
 		Find(&list).Error; err != nil {
 		return nil, 0, err
 	}
 	// SELECT count(*) FROM `user`
-	// SELECT * FROM `user` ORDER BY `id` DESC LIMIT ? OFFSET ?
+	// SELECT <UserColumnsNoPassword> FROM `user` ORDER BY `id` DESC LIMIT ? OFFSET ?
 	return list, int(total), nil
 }

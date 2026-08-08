@@ -3,6 +3,8 @@ package core
 import (
 	"context"
 
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/recover"
 	"github.com/laixhe/gonet/db/gorm/mysql"
 	"github.com/laixhe/gonet/db/gorm/orm"
 	"github.com/laixhe/gonet/xfiber"
@@ -30,9 +32,21 @@ func NewServer(configFile string) *Server {
 	if err != nil {
 		panic(err)
 	}
-	server := xfiber.New(logClient.Logger()).
+	// 中间件注册顺序即执行顺序: 先 panic 恢复(外层) 后 CORS(内层),
+	// 保证任何响应(含 500/429/408)都带 CORS 头
+	// panic 恢复统一返回固定文案 500, 避免将 panic 内部信息泄露给客户端
+	server := xfiber.New(logClient.Logger(), fiber.Config{
+		// 自定义错误处理: 业务错误 (如参数校验) 原样透传, 未知错误记录日志后统一返回固定 500 文案
+		ErrorHandler: ErrorHandler(logClient),
+	}).
+		UseLog().
+		UseRecover(recover.Config{
+			PanicHandler: func(_ fiber.Ctx, _ any) error {
+				return fiber.NewError(fiber.StatusInternalServerError, "internal server error")
+			},
+		}).
 		UseCors().
-		UseRecover()
+		UseCompress()
 	s := &Server{
 		config: config,
 		log:    logClient,
@@ -42,8 +56,8 @@ func NewServer(configFile string) *Server {
 	return s.init()
 }
 
-// Server 返回 Fiber 服务器实例
-func (s *Server) Server() *xfiber.Server {
+// Fiber 返回 Fiber 服务器实例
+func (s *Server) Fiber() *xfiber.Server {
 	return s.server
 }
 
@@ -57,7 +71,7 @@ func (s *Server) Log() *xlog.ZClient {
 	return s.log
 }
 
-// initOrm 初始化 ORM 数据库连接，支持环境变量展开 DSN
+// initOrm 初始化 ORM 数据库连接 (DSN 直接使用配置原值, 不支持环境变量展开)
 func (s *Server) initOrm(config *orm.Config, key ...string) error {
 	db, err := mysql.Init(config, NewOrmWriter(s.server.LoggerConfig()), xfiber.RequestIdLogKey)
 	if err != nil {

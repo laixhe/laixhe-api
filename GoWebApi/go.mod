@@ -4,17 +4,17 @@ go 1.26
 
 require (
 	github.com/gofiber/contrib/v3/jwt v1.2.0
-	github.com/gofiber/contrib/v3/zap v1.0.9
+	github.com/gofiber/contrib/v3/zap v1.0.10
 	github.com/gofiber/fiber/v3 v3.4.0
 	github.com/golang-jwt/jwt/v5 v5.3.1
-	github.com/laixhe/gonet/config v0.0.0-20260806060918-37aa203abf83
-	github.com/laixhe/gonet/crypto v0.0.0-20260806060918-37aa203abf83
-	github.com/laixhe/gonet/db/gorm/mysql v0.0.0-20260806060918-37aa203abf83
-	github.com/laixhe/gonet/db/gorm/orm v0.0.0-20260806060918-37aa203abf83
-	github.com/laixhe/gonet/jwt v0.0.0-20260806060918-37aa203abf83
-	github.com/laixhe/gonet/utils v0.0.0-20260806060918-37aa203abf83
-	github.com/laixhe/gonet/xfiber v0.0.0-20260806060918-37aa203abf83
-	github.com/laixhe/gonet/xlog v0.0.0-20260806060918-37aa203abf83
+	github.com/laixhe/gonet/config v0.0.0-20260808045723-2278d58aabb1
+	github.com/laixhe/gonet/crypto v0.0.0-20260808045723-2278d58aabb1
+	github.com/laixhe/gonet/db/gorm/mysql v0.0.0-20260808045723-2278d58aabb1
+	github.com/laixhe/gonet/db/gorm/orm v0.0.0-20260808045723-2278d58aabb1
+	github.com/laixhe/gonet/jwt v0.0.0-20260808045723-2278d58aabb1
+	github.com/laixhe/gonet/utils v0.0.0-20260808045723-2278d58aabb1
+	github.com/laixhe/gonet/xfiber v0.0.0-20260808045723-2278d58aabb1
+	github.com/laixhe/gonet/xlog v0.0.0-20260808045723-2278d58aabb1
 	github.com/rs/xid v1.6.0
 	gorm.io/gorm v1.31.2
 )

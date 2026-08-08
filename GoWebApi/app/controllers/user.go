@@ -42,15 +42,12 @@ func (c *User) Update(ctx fiber.Ctx) error {
 		return err
 	}
 	req := &entity.UserUpdateRequest{}
-	if err = ctx.Bind().JSON(req); err != nil {
+	if err = ctx.Bind().WithAutoHandling().JSON(req); err != nil {
 		return err
 	}
-	// 验证昵称格式
-	if len(req.Nickname) < 2 {
-		return xfiber.ParamError("昵称长度不能小于2位")
-	}
-	if len(req.Nickname) > 20 {
-		return xfiber.ParamError("昵称长度不能超过20位")
+	// 校验昵称格式
+	if err := validateNickname(req.Nickname); err != nil {
+		return err
 	}
 	// 验证头像地址格式
 	if len(req.AvatarUrl) > 255 {
@@ -81,7 +78,7 @@ func (c *User) Update(ctx fiber.Ctx) error {
 // @Router   /api/v1/user/info [get]
 func (c *User) Info(ctx fiber.Ctx) error {
 	req := &entity.UserInfoRequest{}
-	if err := ctx.Bind().Query(req); err != nil {
+	if err := ctx.Bind().WithAutoHandling().Query(req); err != nil {
 		return err
 	}
 	if req.Uid <= 0 {
@@ -106,7 +103,7 @@ func (c *User) Info(ctx fiber.Ctx) error {
 // @Router   /api/v1/user/list [get]
 func (c *User) List(ctx fiber.Ctx) error {
 	req := &entity.UserListRequest{}
-	if err := ctx.Bind().Query(req); err != nil {
+	if err := ctx.Bind().WithAutoHandling().Query(req); err != nil {
 		return err
 	}
 	if req.Page <= 0 {
@@ -114,6 +111,10 @@ func (c *User) List(ctx fiber.Ctx) error {
 	}
 	if req.PageSize <= 0 {
 		req.PageSize = 12
+	}
+	// 上限保护: 防止超大 page_size 触发全量查询
+	if req.PageSize > 100 {
+		req.PageSize = 100
 	}
 	resp, err := c.service.User.List(ctx, req)
 	if err != nil {

@@ -1,5 +1,8 @@
 package entity
 
+// 提示: 各结构体中的 validate tag 仅用于 swag 生成 API 文档,
+// 项目未注册 validator, tag 不参与请求校验; 真实校验在控制器层手写完成。
+
 // AuthRegisterRequest 请求-注册
 type AuthRegisterRequest struct {
 	Nickname string `json:"nickname" validate:"required"` // 昵称

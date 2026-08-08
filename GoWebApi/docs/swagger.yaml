@@ -1,4 +1,22 @@
 definitions:
+  controllers.HealthResponse:
+    properties:
+      database:
+        description: 数据库状态 (固定 "up")
+        type: string
+      now:
+        description: 当前时间 (服务器本地时区)
+        type: string
+      started_at:
+        description: 服务启动时间 (服务器本地时区)
+        type: string
+      status:
+        description: 服务状态 (固定 "ok")
+        type: string
+      version:
+        description: 服务版本
+        type: string
+    type: object
   core.Error:
     properties:
       code:
@@ -300,6 +318,22 @@ paths:
       summary: 注册
       tags:
       - Auth
+  /api/v1/health:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.HealthResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/core.Error'
+      summary: 健康检查
+      tags:
+      - Health
   /api/v1/user/info:
     get:
       consumes:

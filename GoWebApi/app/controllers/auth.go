@@ -51,15 +51,12 @@ func validateEmailAndPassword(email, password string) error {
 // @Router   /api/v1/auth/register [post]
 func (c *Auth) Register(ctx fiber.Ctx) error {
 	req := &entity.AuthRegisterRequest{}
-	if err := ctx.Bind().JSON(req); err != nil {
+	if err := ctx.Bind().WithAutoHandling().JSON(req); err != nil {
 		return err
 	}
-	// 验证昵称格式
-	if len(req.Nickname) < 2 {
-		return xfiber.ParamError("昵称长度不能小于2位")
-	}
-	if len(req.Nickname) > 20 {
-		return xfiber.ParamError("昵称长度不能超过20位")
+	// 校验昵称与邮箱密码格式
+	if err := validateNickname(req.Nickname); err != nil {
+		return err
 	}
 	if err := validateEmailAndPassword(req.Email, req.Password); err != nil {
 		return err
@@ -83,7 +80,7 @@ func (c *Auth) Register(ctx fiber.Ctx) error {
 // @Router   /api/v1/auth/login [post]
 func (c *Auth) Login(ctx fiber.Ctx) error {
 	req := &entity.AuthLoginRequest{}
-	if err := ctx.Bind().JSON(req); err != nil {
+	if err := ctx.Bind().WithAutoHandling().JSON(req); err != nil {
 		return err
 	}
 	if err := validateEmailAndPassword(req.Email, req.Password); err != nil {

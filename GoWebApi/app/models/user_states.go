@@ -1,7 +1,8 @@
 package models
 
 // UserState 用户账号状态（0=封禁 1=正常）
-type UserState = int
+// 使用定义类型而非别名, 避免与普通 int 混用导致赋值越界
+type UserState int
 
 const (
 	UserStateBanned UserState = 0 // 禁用

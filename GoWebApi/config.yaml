@@ -1,6 +1,8 @@
 http:
     ip: 0.0.0.0
     port: 6600
+    # 请求超时时间(单位秒), 缺省 30 秒, 用于请求超时中间件
+    timeout: 30
 
 log:
   # 日志模式 console file
@@ -27,9 +29,20 @@ orm:
   max_open_count: 100
   # 设置了连接可复用的最大时间(要比数据库设置连接超时时间少)(单位秒)
   max_life_time: 300
+  # 设置日志级别 1=Silent 2=Error 3=Warn 4=Info (缺省 4=Info 会逐条格式化 SQL;
+  # 设 3 只记录慢 SQL(>200ms)与错误 SQL)
+  log_level: 3
 
 jwt:
   # 密钥
   secret_key: 6Kbj0VFeXYMp60lEyiFoVq4UzqX8Z0GSSfnvTh2VuAQn0oHgQNYexU6yYVTk4xf9
   # 过期时长(单位秒)
   expire_time: 2592000
+
+limit:
+  # 是否启用接口限流
+  enable: true
+  # 单个 IP 在窗口内允许的最大请求数
+  max: 1000
+  # 滑动窗口时长(单位秒)
+  window: 60

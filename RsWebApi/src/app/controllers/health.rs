@@ -1,0 +1,64 @@
+//! 健康检查控制器 (新增)
+//!
+//! GET /api/v1/health: 探测服务与数据库是否正常, 成功返回裸实体 JSON (与 Go 版一致)
+
+use axum::extract::State;
+use axum::Json;
+use jiff::Timestamp;
+use sea_orm::DatabaseConnection;
+use serde::Serialize;
+
+use crate::error::ApiError;
+use crate::state::AppState;
+
+/// 健康检查响应体
+#[derive(Debug, Clone, Serialize)]
+pub struct HealthResponse {
+    /// 服务状态 (固定 "ok"; DB 异常不输出 degraded, 直接走 503 统一错误体)
+    pub status: &'static str,
+    /// 数据库状态 (固定 "up"; DB 异常不输出 down, 直接走 503 统一错误体)
+    pub database: &'static str,
+    /// 服务版本
+    pub version: &'static str,
+    /// 服务启动时间 (RFC3339, UTC)
+    pub started_at: String,
+    /// 当前时间 (RFC3339, UTC)
+    pub now: String,
+}
+
+/// GET /health 健康检查
+///
+/// 通过连接级 ping 探测数据库, 成功返回 200 + 健康信息。
+/// 数据库不可用时返回 503 + 统一错误格式, 便于负载均衡探活。
+pub async fn health(
+    State(state): State<AppState>,
+) -> Result<Json<HealthResponse>, ApiError> {
+    let resp = HealthResponse {
+        status: "ok",
+        database: "up",
+        version: env!("CARGO_PKG_VERSION"),
+        started_at: STARTED_AT.to_string(),
+        now: now_rfc3339(),
+    };
+    if !ping_db(&state.db).await {
+        // 数据库不可用 → 503 统一错误格式 (对齐 Go 版 fiber.NewError)
+        return Err(ApiError {
+            code: 503,
+            message: "database unavailable".to_string(),
+        });
+    }
+    Ok(Json(resp))
+}
+
+/// 服务启动时间 (进程级常量)
+static STARTED_AT: std::sync::LazyLock<String> = std::sync::LazyLock::new(now_rfc3339);
+
+/// 当前 UTC 时间 RFC3339
+fn now_rfc3339() -> String {
+    Timestamp::now().to_string()
+}
+
+/// 探测数据库连接 (连接级 ping)
+async fn ping_db(db: &DatabaseConnection) -> bool {
+    db.ping().await.is_ok()
+}
