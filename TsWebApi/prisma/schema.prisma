@@ -11,9 +11,9 @@ datasource db {
 model User {
   id        Int      @id @default(autoincrement())
   typeId    Int      @default(0) @map("type_id")    // 用户类型: 1-普通用户
-  account   String   @db.VarChar(120)               // 账号(全局唯一)
+  account   String   @unique @db.VarChar(120)      // 账号(全局唯一)
   mobile    String?  @db.VarChar(120)               // 手机号
-  email     String?  @db.VarChar(120)               // 邮箱
+  email     String?  @unique @db.VarChar(120)      // 邮箱(全局唯一)
   password  String   @db.VarChar(120)               // 密码(bcrypt加密)
   nickname  String   @db.VarChar(120)               // 昵称
   avatarUrl String?  @default("") @map("avatar_url") @db.VarChar(255) // 头像地址
@@ -25,9 +25,7 @@ model User {
   userExtend     UserExtend?
   userThirdParty UserThirdParty?
 
-  @@index([account])
   @@index([mobile])
-  @@index([email])
   @@map("user")
 }
 

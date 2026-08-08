@@ -6,7 +6,7 @@ import config from "../config";
 import { info, warn } from "../util/logger";
 
 // JwtPayload JWT 令牌载荷，存储用户 UID
-export interface JwtPayload {
+interface JwtPayload {
   uid: number;
 }
 
@@ -27,13 +27,14 @@ export async function generateToken(uid: number): Promise<string> {
 }
 
 // 从请求头中解析 JWT Token 并返回 payload
-export async function getJwtClaims(
+async function getJwtClaims(
   authHeader: string | null
 ): Promise<JwtPayload | null> {
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return null;
   }
 
+  // 截掉 "Bearer " 前缀（7 个字符），仅保留 Token 本身
   const token = authHeader.slice(7);
   try {
     const { payload } = await jwtVerify(token, config.jwt.secretKey);

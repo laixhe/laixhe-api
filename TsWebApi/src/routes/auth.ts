@@ -5,10 +5,13 @@ import { Elysia, t } from "elysia";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 import { prisma } from "../lib/prisma";
-import { generateToken, getJwtClaimsFromHeaders } from "../middleware/jwt";
+import { Prisma } from "../generated/prisma/client";
+import { generateToken } from "../middleware/jwt";
+import { requireAuth } from "../middleware/authGuard";
 import { isEmail, isPasswordTooShort, isPasswordInvalid, isNicknameTooShort, isNicknameTooLong } from "../util/validate";
-import { info, warn, error } from "../util/logger";
+import { info, debug, warn, error } from "../util/logger";
 import { toUserInfo } from "../util/common";
+import { fail } from "../util/response";
 import { rateLimit } from "../middleware/rateLimit";
 import type {
   AuthTokenResponse,
@@ -26,102 +29,101 @@ export const authRoutes = new Elysia({ prefix: "/api/v1/auth" })
       // 参数校验
       if (isNicknameTooShort(nickname)) {
         warn("auth", "注册-昵称过短", { nickname });
-        set.status = 400;
-        return { code: 400, message: "昵称长度不能小于2位" };
+        return fail(set, 400, "昵称长度不能小于2位");
       }
       if (isNicknameTooLong(nickname)) {
         warn("auth", "注册-昵称过长", { nickname });
-        set.status = 400;
-        return { code: 400, message: "昵称长度不能超过20位" };
+        return fail(set, 400, "昵称长度不能超过20位");
       }
       if (!isEmail(email)) {
         warn("auth", "注册-邮箱格式错误", { email });
-        set.status = 400;
-        return { code: 400, message: "邮箱格式错误" };
+        return fail(set, 400, "邮箱格式错误");
       }
       if (isPasswordTooShort(password)) {
         warn("auth", "注册-密码过短");
-        set.status = 400;
-        return { code: 400, message: "密码长度不能小于6位" };
+        return fail(set, 400, "密码长度不能小于6位");
       }
       if (isPasswordInvalid(password)) {
         warn("auth", "注册-密码字符非法");
-        set.status = 400;
-        return { code: 400, message: "密码格式错误，只能包含字母 数字 _ @ $" };
+        return fail(set, 400, "密码格式错误，只能包含字母 数字 _ @ $");
       }
 
       // 先检查邮箱是否已注册，避免无效的 bcrypt 计算
-      info("auth", "注册-开始检查邮箱是否已存在", { email });
+      debug("auth", "注册-开始检查邮箱是否已存在", { email });
       const existUser = await prisma.user.findFirst({
         where: { email },
         select: { id: true },
       });
       if (existUser) {
         warn("auth", "注册-邮箱已存在", { email });
-        set.status = 400;
-        return { code: 400, message: "邮箱已存在" };
+        return fail(set, 400, "邮箱已存在");
       }
 
       // bcrypt 加密密码
-      info("auth", "注册-开始加密密码");
+      debug("auth", "注册-开始加密密码");
       const hashedPassword = await bcrypt.hash(password, 10);
-      info("auth", "注册-密码加密完成");
+      debug("auth", "注册-密码加密完成");
 
-      // 事务创建用户（在同一事务中创建用户、扩展信息、第三方关联）
-      // 事务中任何错误都会自动回滚
-      info("auth", "注册-开始事务创建用户");
-      let user;
+      // 事务创建用户（同一事务中创建用户、扩展信息、第三方关联），任何错误自动回滚
+      // 成功分支直接在 try 内 return，避免 let + 类型收窄技巧
+      debug("auth", "注册-开始事务创建用户");
       try {
-        user = await prisma.$transaction(async (tx) => {
-          // INSERT INTO `user` (...)
+        const user = await prisma.$transaction(async (tx) => {
           const newUser = await tx.user.create({
             data: {
               typeId: 1,
-              account: randomUUID(), // 生成全局唯一账号
+              // 账号使用随机 UUID 保证全局唯一（当前为内部标识，后续可按需改为可读的展示账号）
+              account: randomUUID(),
               email,
               password: hashedPassword,
               nickname,
-              states: 1,
+              states: UserState.Normal,
             },
             omit: { password: true },
           });
-          info("auth", "注册-事务用户记录已创建", { uid: newUser.id });
+          debug("auth", "注册-事务用户记录已创建", { uid: newUser.id });
 
-          // INSERT INTO `user_extend` (uid) VALUES (?)
           await tx.userExtend.create({
             data: { uid: newUser.id },
           });
-          info("auth", "注册-事务用户扩展已创建", { uid: newUser.id });
+          debug("auth", "注册-事务用户扩展已创建", { uid: newUser.id });
 
-          // INSERT INTO `user_third_party` (uid) VALUES (?)
           await tx.userThirdParty.create({
             data: { uid: newUser.id },
           });
-          info("auth", "注册-事务第三方记录已创建", { uid: newUser.id });
+          debug("auth", "注册-事务第三方记录已创建", { uid: newUser.id });
 
           return newUser;
         });
+
+        debug("auth", "注册-开始生成Token", { uid: user.id });
+        const token = await generateToken(user.id);
+        debug("auth", "注册-Token生成成功");
+        const userInfo = toUserInfo(user);
+
+        info("auth", "注册成功", { uid: user.id, email });
+        const response: AuthTokenResponse = { token, user: userInfo };
+        return response;
       } catch (err) {
-        error("auth", "注册-事务创建用户失败", { email, error: String(err) });
-        set.status = 500;
-        return { code: 500, message: "注册失败，请稍后再试" };
+        // 并发注册时唯一约束兜底（email/account 为 @unique，冲突码 P2002）
+        if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+          warn("auth", "注册-邮箱已存在(唯一约束冲突)", { email });
+          return fail(set, 400, "邮箱已存在");
+        }
+        error("auth", "注册-创建用户失败", { email, error: String(err) });
+        return fail(set, 500, "注册失败，请稍后再试");
       }
-
-      info("auth", "注册-开始生成Token", { uid: user.id });
-      const token = await generateToken(user.id);
-      info("auth", "注册-Token生成成功");
-      const userInfo = toUserInfo(user);
-
-      info("auth", "注册成功", { uid: user.id, email });
-      const response: AuthTokenResponse = { token, user: userInfo };
-      return response;
     },
     {
+      // Elysia schema 校验：请求参数不合法时自动返回 400（见 index.ts 全局 VALIDATION 处理）
       body: t.Object({
         nickname: t.String(),
         email: t.String(),
         password: t.String(),
       }),
+      // 速率限制：注册会执行 bcrypt（CPU 密集）并写 3 张表，
+      // 防止脚本刷注册造成 CPU/存储滥用（与 login 同规格）
+      beforeHandle: rateLimit(5, 60_000),
     }
   )
   // POST /api/v1/auth/login
@@ -134,51 +136,44 @@ export const authRoutes = new Elysia({ prefix: "/api/v1/auth" })
       // 参数校验
       if (!isEmail(email)) {
         warn("auth", "登录-邮箱格式错误", { email });
-        set.status = 400;
-        return { code: 400, message: "邮箱格式错误" };
+        return fail(set, 400, "邮箱格式错误");
       }
       if (isPasswordTooShort(password)) {
         warn("auth", "登录-密码过短");
-        set.status = 400;
-        return { code: 400, message: "密码长度不能小于6位" };
+        return fail(set, 400, "密码长度不能小于6位");
       }
       if (isPasswordInvalid(password)) {
         warn("auth", "登录-密码字符非法");
-        set.status = 400;
-        return { code: 400, message: "密码格式错误，只能包含字母 数字 _ @ $" };
+        return fail(set, 400, "密码格式错误，只能包含字母 数字 _ @ $");
       }
 
-      // 查询用户
-      info("auth", "登录-开始查询用户", { email });
+      // 一次查询取回全部字段（含密码），验证通过后直接映射响应，避免二次查询
+      debug("auth", "登录-开始查询用户", { email });
       const user = await prisma.user.findFirst({
         where: { email },
       });
       if (!user) {
         warn("auth", "登录-用户不存在", { email });
-        set.status = 400;
-        return { code: 400, message: "邮箱或密码错误" };
+        return fail(set, 400, "邮箱或密码错误");
       }
-      info("auth", "登录-用户查询成功", { uid: user.id });
 
       // 检查用户状态（禁用用户返回 401）
       if (user.states !== UserState.Normal) {
         warn("auth", "登录-账号已被禁用", { uid: user.id, email });
-        set.status = 401;
-        return { code: 401, message: "登录失败，账号已被禁用" };
+        return fail(set, 401, "登录失败，账号已被禁用");
       }
 
       // 验证密码
-      info("auth", "登录-开始验证密码", { uid: user.id });
+      debug("auth", "登录-开始验证密码", { uid: user.id });
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
         warn("auth", "登录-密码错误", { uid: user.id, email });
-        set.status = 400;
-        return { code: 400, message: "邮箱或密码错误" };
+        return fail(set, 400, "邮箱或密码错误");
       }
-      info("auth", "登录-密码验证通过", { uid: user.id });
+      debug("auth", "登录-密码验证通过", { uid: user.id });
 
       const token = await generateToken(user.id);
-      info("auth", "登录-Token生成成功", { uid: user.id });
+      debug("auth", "登录-Token生成成功", { uid: user.id });
       const userInfo = toUserInfo(user);
 
       info("auth", "登录成功", { uid: user.id, email });
@@ -186,6 +181,7 @@ export const authRoutes = new Elysia({ prefix: "/api/v1/auth" })
       return response;
     },
     {
+      // Elysia schema 校验：请求参数不合法时自动返回 400（见 index.ts 全局 VALIDATION 处理）
       body: t.Object({
         email: t.String(),
         password: t.String(),
@@ -194,37 +190,14 @@ export const authRoutes = new Elysia({ prefix: "/api/v1/auth" })
       beforeHandle: rateLimit(5, 60_000),
     }
   )
+  // 以下路由需要 JWT 鉴权（由 requireAuth 插件注入 user）
+  .use(requireAuth)
   // POST /api/v1/auth/refresh
-  .post("/refresh", async ({ headers, set }) => {
-    info("auth", "POST /refresh 请求");
-    const claims = await getJwtClaimsFromHeaders(headers);
-    if (!claims) {
-      warn("auth", "刷新Token-JWT无效或缺失");
-      set.status = 401;
-      return { code: 401, message: "未授权" };
-    }
+  .post("/refresh", async ({ user }) => {
+    info("auth", "POST /refresh 请求", { uid: user.id });
 
-    // 查询用户
-    info("auth", "刷新Token-开始查询用户", { uid: claims.uid });
-    const user = await prisma.user.findUnique({
-      where: { id: claims.uid },
-      omit: { password: true },
-    });
-    if (!user) {
-      warn("auth", "刷新Token-用户不存在", { uid: claims.uid });
-      set.status = 401;
-      return { code: 401, message: "用户不存在" };
-    }
-    info("auth", "刷新Token-用户查询成功", { uid: user.id });
-
-    // 检查用户状态（禁用用户返回 401）
-    if (user.states !== UserState.Normal) {
-      warn("auth", "刷新Token-账号已被禁用", { uid: user.id });
-      set.status = 401;
-      return { code: 401, message: "登录失败，账号已被禁用" };
-    }
-
-    info("auth", "刷新Token-开始生成新Token", { uid: user.id });
+    // JWT 校验、用户查询、状态检查已由 requireAuth 插件完成
+    debug("auth", "刷新Token-开始生成新Token", { uid: user.id });
     const token = await generateToken(user.id);
     const userInfo = toUserInfo(user);
 

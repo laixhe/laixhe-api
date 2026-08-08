@@ -9,7 +9,7 @@ use crate::app::models::user::Model as UserModel;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct User {
     /// 用户id
-    pub uid: u32,
+    pub uid: i32,
     /// 类型 (1 - 普通用户)
     pub type_id: i32,
     /// 账号
@@ -64,7 +64,7 @@ impl User {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserPublic {
     /// 用户id
-    pub uid: u32,
+    pub uid: i32,
     /// 类型 (1 - 普通用户)
     pub type_id: i32,
     /// 昵称
@@ -118,7 +118,7 @@ fn format_created_at(ndt: &chrono::NaiveDateTime) -> String {
 pub struct UserUpdateRequest {
     /// 用户id (由 JWT 提供, 反序列化时忽略请求体中的 uid)
     #[serde(skip)]
-    pub uid: u32,
+    pub uid: i32,
     /// 昵称
     #[serde(default)]
     pub nickname: String,
@@ -132,7 +132,7 @@ pub struct UserUpdateRequest {
 pub struct UserInfoRequest {
     /// 用户id
     #[serde(default)]
-    pub uid: u32,
+    pub uid: i32,
 }
 
 /// 请求-获取用户列表

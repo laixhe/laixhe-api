@@ -55,7 +55,7 @@ pub struct AuthLoginResponse {
 #[derive(Debug)]
 pub struct AuthRefreshRequest {
     /// 用户id
-    pub uid: u32,
+    pub uid: i32,
 }
 
 /// 响应-刷新Jwt

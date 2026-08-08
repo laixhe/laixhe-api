@@ -9,6 +9,7 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+// DATABASE_URL 已在 config.ts 启动时校验（缺失即退出），此处可安全使用非空断言
 const connectionString = process.env.DATABASE_URL!;
 
 // 解析连接字符串构建 PoolConfig（显式配置 pool size，默认 10）

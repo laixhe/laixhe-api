@@ -3,6 +3,7 @@ package core
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/laixhe/gonet/config"
 	"github.com/laixhe/gonet/db/gorm/orm"
@@ -76,11 +77,18 @@ func (c *Config) Check() error {
 }
 
 // NewConfig 加载配置文件并校验
+//
+// JWT 密钥支持环境变量 JWT_SECRET_KEY 覆盖 config.yaml,
+// 生产环境应通过环境变量注入, 避免把密钥写死在配置仓库里。
 func NewConfig(configFile string) *Config {
 	c := &Config{
 		Common: &Common{},
 	}
 	config.Init(configFile, c)
+	// 环境变量优先于配置文件 (需在 Check 之前完成覆盖)
+	if secret := os.Getenv("JWT_SECRET_KEY"); secret != "" {
+		c.Jwt.SecretKey = secret
+	}
 	if err := c.Check(); err != nil {
 		panic(err)
 	}

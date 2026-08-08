@@ -133,9 +133,18 @@ curl -X POST http://127.0.0.1:6600/api/v1/auth/register \
   ```
 
 - **SQL 日志**：默认 debug 级输出（对齐 Go `OrmWriter`），生产以 `info` 级别运行时零 SQL 日志开销
-- **限流器**：按 IP 哈希 16 分片锁，同一 IP 串行计数、不同 IP 并行，锁竞争仅为单锁的 1/16
+- **限流器**：按 IP 哈希 16 分片锁，同一 IP 串行计数、不同 IP 并行，锁竞争仅为单锁的 1/16；分片满时清理过期 key、拒绝新 key（安全背压），不做全表清零
 - **静态接口**：`/api/v1/swagger*` 使用 `include_str!` 内嵌常量 + 缓存头，零序列化开销
 - 压测建议：`wrk -t4 -c100 -d30s http://127.0.0.1:6600/api/v1/health`
+
+## 已知限制
+
+| 项 | 说明 |
+| -- | ---- |
+| 限流器为进程内实现 | 多实例部署时每实例独立计数，实际限流上限会随实例数放大；如需全局限流需引入 Redis 等共享存储 |
+| `bcrypt` cost 固定 10 | 对齐 Go 原版 `DefaultCost`；OWASP 现建议 12+，升级会拖慢注册/登录接口（约 4 倍耗时） |
+| `/user/list` 的 `count(*)` | 表数据量大时全表 count 较慢（InnoDB 全扫），与 Go 版语义一致暂不缓存；可用计数表 / 游标分页优化 |
+| 密码最小长度 6 位 | 沿用 Go 原版校验，若需更高安全基线可上调 |
 
 ## 请求处理流程（中间件顺序）
 
@@ -149,7 +158,7 @@ curl -X POST http://127.0.0.1:6600/api/v1/auth/register \
 | -- | ------- | ------- | ---- |
 | 成功响应 | 裸实体 JSON | 裸实体 JSON | 已对齐 |
 | 参数错误 | HTTP 422（`xfiber.ParamError`） | HTTP 422 | 已对齐 Go 实际行为 |
-| uid 类型 | `int` | `u32` | 数据库列为 INT UNSIGNED |
+| uid 类型 | `int` | `i32` | 与 Go 版一致, 兼容已存在的有符号 INT 旧库 (无需改表) |
 | bcrypt cost | 10（`DefaultCost`） | 10 | 已对齐 |
 | 密码哈希 | gonet/crypto | bcrypt crate | 算法一致（bcrypt） |
 | ORM | GORM | sea-orm | SQL 日志默认 debug 级（对齐 OrmWriter） |
@@ -157,12 +166,53 @@ curl -X POST http://127.0.0.1:6600/api/v1/auth/register \
 | 公开接口返回 | 完整 User | 脱敏 UserPublic | `/user/info`、`/user/list` 不再返回 email/mobile/account |
 | 额外能力 | - | 健康检查 / 限流 / 优雅停机 / gzip / 超时 / 统一日志 / CI | 增强特性 |
 
+## 如何新增一个接口
+
+以新增 `GET /api/v1/user/detail`（按 uid 查用户公开信息）为例，走一遍完整链路：
+
+1. **定义请求 DTO**：在 [src/app/entity/user.rs](./src/app/entity/user.rs) 添加
+   ```rust
+   #[derive(Debug, Deserialize)]
+   pub struct UserDetailRequest {
+       /// 用户id
+       #[serde(default)]
+       pub uid: u32,
+   }
+   ```
+   注意 `#[serde(default)]`：Query/JSON 缺省字段不报错（对齐 Go 的零值语义）。
+2. **添加控制器**：在 [src/app/controllers/user.rs](./src/app/controllers/user.rs) 添加 handler，模式固定为
+   ```rust
+   pub async fn detail(
+       State(state): State<AppState>,
+       QueryParams(req): QueryParams<UserDetailRequest>,
+   ) -> Result<Json<UserPublic>, ApiError> {
+       // 参数校验 → 调 service → 返回裸实体 JSON
+       let resp = services::user::detail(&state, &req).await?;
+       Ok(Json(resp))
+   }
+   ```
+   需要鉴权时追加 `JwtAuth(claims): JwtAuth` 参数即可。
+3. **添加业务逻辑**：在 [src/app/services/user.rs](./src/app/services/user.rs) 添加对应函数，复用 `user_model::find_by_id`，错误用 `?` 传播（`DbErr` 自动转 500 统一文案）。
+4. **添加数据访问**：表查询函数写在 [src/app/models/user.rs](./src/app/models/user.rs)；若已有等价查询（如 `find_by_id`）直接复用。
+5. **注册路由**：在 [src/routes/user.rs](./src/routes/user.rs) 的 `Router::new()` 链上追加
+   ```rust
+   .route("/user/detail", get(ctrl::detail))
+   ```
+   需要 JWT 鉴权时改用 `.route("/user/detail", get(ctrl::detail)).route_layer(from_fn_with_state(state, jwt_middleware))`。
+6. **文档与测试**：用 `///` 在 handler 上写接口说明，`cargo doc --open` 可生成参考文档（本项目注释质量较高，`cargo doc` 产物很适合入门阅读）；接口涉及数据库时在 [src/tests.rs](./src/tests.rs) 补一条集成测试。
+
 ## 测试
 
 依赖本机 MySQL（读取 config.yaml 配置）：
 
 ```bash
 cargo test
+```
+
+代码文档（基于 `///` 注释生成，含模块结构图与接口说明）：
+
+```bash
+cargo doc --open
 ```
 
 ## Docker 构建

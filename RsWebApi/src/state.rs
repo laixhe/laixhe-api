@@ -17,10 +17,6 @@ use crate::log_elapsed;
 use crate::logger::Timer;
 use crate::middleware::rate_limit::RateLimiter;
 
-/// 默认 orm key
-#[allow(dead_code)]
-pub const DEFAULT: &str = "default";
-
 /// 日志文件写入器 guard: 静态持有到进程退出, 退出时自动 drop 并 flush 尾部缓冲日志
 /// (替代 mem::forget, 避免优雅停机时丢失 file 模式的尾部日志)
 static LOG_GUARD: Mutex<Option<tracing_appender::non_blocking::WorkerGuard>> = Mutex::new(None);

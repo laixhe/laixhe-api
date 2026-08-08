@@ -6,7 +6,14 @@
 
 - Go 1.26+（使用了 `clear` 内建函数、`strings.Cut` 等新特性）
 - MySQL 5.7+
-- 依赖的自研基础库 [laixhe/gonet](https://github.com/laixhe/gonet)（本地 workspace 引用，见下方"核心封装速查"）
+- 依赖的自研基础库 [laixhe/gonet](https://github.com/laixhe/gonet)：版本已在 [go.mod](go.mod) 锁定，构建时由 Go 模块代理自动拉取，无需手动 clone。若你想在本地直接调试 gonet 源码（比如改限流/错误处理逻辑），可以在该目录下创建 `go.work` 把 GoWebApi 与 gonet 加入同一工作区：
+
+```bash
+# 在 gonet 仓库根目录执行, 将用到的 gonet 子模块与 GoWebApi 加入同一工作区
+# (/绝对路径/laixhe-api/GoWebApi 换成实际路径):
+go work init
+go work use ./config ./db/gorm/mysql ./db/gorm/orm ./jwt ./utils ./xfiber ./xlog /绝对路径/laixhe-api/GoWebApi
+```
 
 ## 快速启动
 
@@ -84,6 +91,8 @@ http://127.0.0.1:6600/api/v1/swagger.json
 
 `app/entity/` 中各结构体上的 `validate` tag 仅用于 swag 生成 API 文档，项目未注册 validator，tag **不参与请求校验**。真正的校验在 controllers 层手写完成（如昵称长度、邮箱/密码格式、头像地址前缀等），失败时返回 `xfiber.ParamError`（422）。
 
+其中昵称长度按**字符**统计（`utf8.RuneCountInString`），中文等多字节字符不会被按字节数误判。
+
 ## 错误约定
 
 - 业务错误（参数校验、鉴权失败、限流、超时）返回 `*fiber.Error`，携带对应状态码与提示信息，原样透传给客户端。
@@ -96,7 +105,7 @@ http://127.0.0.1:6600/api/v1/swagger.json
 - **限流与代理头**：IP 限流优先信任 `X-Forwarded-For`，直接面向公网时客户端可伪造该头绕过限流，建议仅在有可信反向代理时启用（见 [rate_limit.go](core/middlewares/rate_limit.go)）。
 - **密码**：bcrypt 哈希存储，注册先查邮箱避免无效计算，`user.email` 唯一索引兜底并发重复注册。
 - **JWT**：从 1 开始计的用户 id，`uid <= 0` 视为无效，防御伪造 `{"uid":0}` 的令牌。
-- **生产环境务必更换 [config.yaml](config.yaml) 中 `jwt.secret_key` 的默认值**，否则任何人都能用已知密钥伪造令牌。
+- **生产环境务必更换 [config.yaml](config.yaml) 中 `jwt.secret_key` 的默认值**，否则任何人都能用已知密钥伪造令牌。推荐通过环境变量 `JWT_SECRET_KEY` 注入（优先于配置文件），避免密钥进入版本库。注意 `jwt.signing_method` 是必填项（仅支持 HS256/HS384/HS512），缺失会导致启动失败。
 
 ## 单元测试
 
@@ -104,7 +113,7 @@ http://127.0.0.1:6600/api/v1/swagger.json
 go test ./...
 ```
 
-当前覆盖纯逻辑部分：密码格式校验、IP 限流器滑动窗口、枚举取值/合法性判断。
+当前覆盖纯逻辑部分：昵称/密码格式校验、IP 限流器滑动窗口、枚举取值/合法性判断。
 
 ## 与 Rust 版本的关系
 

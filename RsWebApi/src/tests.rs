@@ -58,7 +58,7 @@ fn unique_email() -> String {
 }
 
 /// 注册一个测试用户, 返回 (uid, token)
-async fn register_user(app: &Router, email: &str) -> (u32, String) {
+async fn register_user(app: &Router, email: &str) -> (i32, String) {
     let req = post_json(
         "/api/v1/auth/register",
         format!(r#"{{"nickname":"testuser","email":"{email}","password":"abc123"}}"#),
@@ -66,13 +66,13 @@ async fn register_user(app: &Router, email: &str) -> (u32, String) {
     let (status, json) = send(app, req).await;
     assert_eq!(status, StatusCode::OK, "register should succeed: {json}");
     // 成功响应为裸实体 JSON (与 Go 版一致), 无 code/message 包裹
-    let uid = json["user"]["uid"].as_i64().unwrap() as u32;
+    let uid = json["user"]["uid"].as_i64().unwrap() as i32;
     let token = json["token"].as_str().unwrap().to_string();
     (uid, token)
 }
 
 /// 清理测试用户数据 (user + user_extend + user_third_party)
-async fn cleanup_user(state: &AppState, uid: u32) {
+async fn cleanup_user(state: &AppState, uid: i32) {
     let db = &state.db;
     user_third_party::Entity::delete_many()
         .filter(user_third_party::Column::Uid.eq(uid))
@@ -323,7 +323,7 @@ async fn auth_roundtrip() {
     let (status, json) = send(&app, req).await;
     assert_eq!(status, StatusCode::OK, "register should succeed: {json}");
     // 成功响应为裸实体 JSON, 无 code/message 包裹
-    let uid = json["user"]["uid"].as_i64().unwrap() as u32;
+    let uid = json["user"]["uid"].as_i64().unwrap() as i32;
     let token = json["token"].as_str().unwrap().to_string();
     assert!(!token.is_empty(), "register should return token");
 

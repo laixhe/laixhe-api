@@ -4,17 +4,13 @@ use sea_orm::entity::prelude::*;
 use sea_orm::sea_query::StringLen;
 use sea_orm::{EntityTrait, QueryFilter};
 
-/// 通用配置表名
-#[allow(dead_code)]
-pub const CONFIG_COMMON_TABLE: &str = "config_common";
-
 /// 通用配置
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "config_common")]
 pub struct Model {
-    /// 主键 (数据库为 INT UNSIGNED)
+    /// 主键 (数据库为 INT)
     #[sea_orm(primary_key)]
-    pub id: u32,
+    pub id: i32,
     #[sea_orm(column_type = "String(StringLen::N(50))", default_value = "")]
     pub key: String,
     #[sea_orm(column_type = "String(StringLen::N(500))", default_value = "")]

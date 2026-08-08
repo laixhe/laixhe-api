@@ -4,7 +4,6 @@ ENV TZ=Asia/Shanghai
 
 WORKDIR /tswebapi
 COPY . /tswebapi
-#RUN rm -rf /tswebapi/node_modules
 
 RUN bun install
 RUN bun prisma generate
@@ -22,8 +21,7 @@ WORKDIR /tswebapi
 
 COPY --from=builder /tswebapi/node_modules/.prisma /tswebapi/node_modules/.prisma
 COPY --from=builder /tswebapi/dist/ /tswebapi/
-#COPY --from=builder /tswebapi/.env /tswebapi/.env
 
-EXPOSE 80
+EXPOSE 6600
 
 ENTRYPOINT ["bun", "/tswebapi/index.js"]

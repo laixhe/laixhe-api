@@ -1,6 +1,11 @@
 //! 接口限流中间件 (基于客户端 IP 的滑动窗口)
 //!
 //! 超过阈值时返回 429 + 统一 JSON 格式: {"code": 429, "message": "请求过于频繁，请稍后再试"}
+//!
+//! # 已知限制
+//!
+//! 限流器为进程内内存实现 (与 Go 版一致): 多实例部署时每个实例独立计数,
+//! 实际限流上限会随实例数放大。如需多实例全局限流, 需引入 Redis 等共享存储。
 
 use std::collections::{HashMap, VecDeque};
 use std::hash::{DefaultHasher, Hash, Hasher};
@@ -77,6 +82,18 @@ impl RateLimiter {
         // 避免后续每次请求都 panic (限流计数场景数据一致性可接受)
         let mut buckets = crate::sync::lock_unpoison(self.shard(key));
         let now = Instant::now();
+        // 内存保护: 新 key 且分片已满时, 先清理窗口内已无活动的 key, 仍满则拒绝本次请求。
+        // 注意不能整体 clear(): 攻击者可批量伪造 IP 触发全量清零, 从而绕过自己已触发的
+        // 限流计数 (旧 IP 的计数被一并重置); 拒绝新 key 才是安全的背压策略。
+        if !buckets.contains_key(key) && buckets.len() >= MAX_KEYS_PER_SHARD {
+            buckets.retain(|_, d| {
+                d.back()
+                    .map_or(false, |t| now.duration_since(*t) < self.window)
+            });
+            if buckets.len() >= MAX_KEYS_PER_SHARD {
+                return false;
+            }
+        }
         // 优先复用已有 key 的队列, 仅在首次出现时分配 String (全局限流中间件, 最高频路径)
         let deque = match buckets.get_mut(key) {
             Some(d) => d,
@@ -95,16 +112,6 @@ impl RateLimiter {
             return false;
         }
         deque.push_back(now);
-        // 内存保护: key 数量超限时, 先清理窗口内已无活动的 key, 仍超限则整体清空
-        if buckets.len() > MAX_KEYS_PER_SHARD {
-            buckets.retain(|_, d| {
-                d.back()
-                    .map_or(false, |t| now.duration_since(*t) < self.window)
-            });
-            if buckets.len() > MAX_KEYS_PER_SHARD {
-                buckets.clear();
-            }
-        }
         true
     }
 }

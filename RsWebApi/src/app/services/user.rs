@@ -30,6 +30,9 @@ pub async fn update(state: &AppState, req: &UserUpdateRequest) -> Result<User, A
     if user.states != USER_STATE_NORMAL {
         return Err(ApiError::unauthorized());
     }
+    // 先按"数据库原值 + 请求覆盖字段"构造响应实体 (from_model 的 override 参数:
+    // 请求值非空才覆盖 nickname/avatar_url, 空字符串时回退数据库原值),
+    // 后续 update_user 仅负责落库, 与响应保持同一套"非空才更新"语义
     let resp = User::from_model(&user, &req.nickname, &req.avatar_url);
     // 空字符串不更新，与 Go 的非零字段更新语义一致
     let data = user_model::UserUpdateData {

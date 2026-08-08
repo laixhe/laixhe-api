@@ -35,6 +35,7 @@ func NewServer(configFile string) *Server {
 	// 中间件注册顺序即执行顺序: 先 panic 恢复(外层) 后 CORS(内层),
 	// 保证任何响应(含 500/429/408)都带 CORS 头
 	// panic 恢复统一返回固定文案 500, 避免将 panic 内部信息泄露给客户端
+	// xfiber.New 底层封装 gofiber/fiber v3: 创建默认 App, 并内置 requestId 与默认错误处理
 	server := xfiber.New(logClient.Logger(), fiber.Config{
 		// 自定义错误处理: 业务错误 (如参数校验) 原样透传, 未知错误记录日志后统一返回固定 500 文案
 		ErrorHandler: ErrorHandler(logClient),
@@ -73,6 +74,7 @@ func (s *Server) Log() *xlog.ZClient {
 
 // initOrm 初始化 ORM 数据库连接 (DSN 直接使用配置原值, 不支持环境变量展开)
 func (s *Server) initOrm(config *orm.Config, key ...string) error {
+	// mysql.Init 底层为 gorm mysql 驱动: 建立连接池, 并将 SQL 日志接入 zap
 	db, err := mysql.Init(config, NewOrmWriter(s.server.LoggerConfig()), xfiber.RequestIdLogKey)
 	if err != nil {
 		return err

@@ -20,7 +20,7 @@ use crate::state::AppState;
 /// JWT 令牌载荷，存储用户 UID
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JwtClaims {
-    pub uid: u32,
+    pub uid: i32,
     /// 过期时间 (Unix 秒)
     pub exp: i64,
     /// 发布时间 (Unix 秒)
@@ -29,16 +29,8 @@ pub struct JwtClaims {
     pub nbf: i64,
 }
 
-impl JwtClaims {
-    /// 返回 JWT 中的用户 UID
-    #[allow(dead_code)]
-    pub fn get_uid(&self) -> u32 {
-        self.uid
-    }
-}
-
 /// 创建 JWT 载荷并设置过期时间、发布时间、生效时间
-pub fn new_jwt_claims(uid: u32, expire_time: i64) -> JwtClaims {
+pub fn new_jwt_claims(uid: i32, expire_time: i64) -> JwtClaims {
     let now = jiff::Timestamp::now();
     let now_secs = now.as_second();
     JwtClaims {

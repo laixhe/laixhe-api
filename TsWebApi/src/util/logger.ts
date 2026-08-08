@@ -24,30 +24,39 @@ function timestamp(): string {
   return new Date().toISOString();
 }
 
+// 安全序列化日志数据：循环引用等异常数据降级为 String 输出，避免日志本身抛错
+function toJson(data: unknown): string {
+  try {
+    return JSON.stringify(data);
+  } catch {
+    return String(data);
+  }
+}
+
 export function debug(module: string, message: string, data?: unknown) {
   if (debugEnabled) {
-    const extra = data !== undefined ? ` | ${JSON.stringify(data)}` : "";
+    const extra = data !== undefined ? ` | ${toJson(data)}` : "";
     console.debug(`[${timestamp()}] [DEBUG] [${module}] ${message}${extra}`);
   }
 }
 
 export function info(module: string, message: string, data?: unknown) {
   if (infoEnabled) {
-    const extra = data !== undefined ? ` | ${JSON.stringify(data)}` : "";
+    const extra = data !== undefined ? ` | ${toJson(data)}` : "";
     console.info(`[${timestamp()}] [INFO] [${module}] ${message}${extra}`);
   }
 }
 
 export function warn(module: string, message: string, data?: unknown) {
   if (warnEnabled) {
-    const extra = data !== undefined ? ` | ${JSON.stringify(data)}` : "";
+    const extra = data !== undefined ? ` | ${toJson(data)}` : "";
     console.warn(`[${timestamp()}] [WARN] [${module}] ${message}${extra}`);
   }
 }
 
 export function error(module: string, message: string, data?: unknown) {
   if (errorEnabled) {
-    const extra = data !== undefined ? ` | ${JSON.stringify(data)}` : "";
+    const extra = data !== undefined ? ` | ${toJson(data)}` : "";
     console.error(`[${timestamp()}] [ERROR] [${module}] ${message}${extra}`);
   }
 }

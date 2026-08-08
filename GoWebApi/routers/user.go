@@ -14,6 +14,7 @@ func (r *Router) User(routerApi fiber.Router) {
 		groupRouter.Get("list", r.app.Controller.User.List) // 获取用户列表
 	}
 	// Use(Jwt) 只作用于其后注册的路由: 仅 update 需要 JWT
+	// xfiber.UseJwt 底层为 gofiber/contrib jwt: 校验令牌签名与过期时间
 	groupRouter.Use(xfiber.UseJwt(r.middleware.UseJwtConfig))
 	{
 		groupRouter.Post("update", r.app.Controller.User.Update) // 更新用户信息

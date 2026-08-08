@@ -4,11 +4,12 @@
 
 import { Elysia, t } from "elysia";
 import { prisma } from "../lib/prisma";
-import { getJwtClaimsFromHeaders } from "../middleware/jwt";
+import { requireAuth } from "../middleware/authGuard";
 import { isNicknameTooShort, isNicknameTooLong } from "../util/validate";
-import { info, warn, error } from "../util/logger";
+import { info, debug, warn, error } from "../util/logger";
 import { toUserInfo } from "../util/common";
-import { UserState } from "../entity/user";
+import { fail } from "../util/response";
+import { rateLimit } from "../middleware/rateLimit";
 
 export const userRoutes = new Elysia({ prefix: "/api/v1/user" })
   // GET /api/v1/user/info?uid=xxx（公开接口）
@@ -17,35 +18,40 @@ export const userRoutes = new Elysia({ prefix: "/api/v1/user" })
     info("user", "GET /info 请求", { uid });
     if (!uid || uid <= 0) {
       warn("user", "查询用户信息-无效uid", { uid: query.uid });
-      set.status = 400;
-      return { code: 400, message: "无效的用户ID" };
+      return fail(set, 400, "无效的用户ID");
     }
 
-    info("user", "查询用户信息-开始查询", { uid });
+    debug("user", "查询用户信息-开始查询", { uid });
     const user = await prisma.user.findUnique({
       where: { id: uid },
       omit: { password: true },
     });
     if (!user) {
       warn("user", "查询用户信息-用户不存在", { uid });
-      set.status = 400;
-      return { code: 400, message: "用户不存在" };
+      return fail(set, 400, "用户不存在");
     }
 
     info("user", "查询用户信息成功", { uid });
     return toUserInfo(user);
   }, {
     query: t.Object({ uid: t.String() }),
+    // 公开接口防刷：宽松限流（60 次/分钟）
+    beforeHandle: rateLimit(60, 60_000),
   })
   // GET /api/v1/user/list?page=1&page_size=12（公开接口）
-  .get("/list", async ({ query, set }) => {
-    const page = Math.max(parseInt(query.page || "1", 10), 1);
-    const pageSize = Math.max(parseInt(query.page_size || "12", 10), 1);
+  .get("/list", async ({ query }) => {
+    // 分页参数钳制：page 最小 1；page_size 限制在 [1, MAX_PAGE_SIZE]，
+    // 防止恶意大分页触发全表级 LIMIT/OFFSET 查询
+    const MAX_PAGE_SIZE = 100;
+    let page = parseInt(query.page || "1", 10);
+    page = Number.isFinite(page) ? Math.max(page, 1) : 1;
+    let pageSize = parseInt(query.page_size || "12", 10);
+    pageSize = Number.isFinite(pageSize) ? Math.min(Math.max(pageSize, 1), MAX_PAGE_SIZE) : 12;
     const offset = (page - 1) * pageSize;
     info("user", "GET /list 请求", { page, pageSize });
 
     // SELECT count(*) FROM `user` + SELECT * FROM `user` ORDER BY `id` DESC LIMIT ? OFFSET ?
-    info("user", "查询用户列表-开始查询", { page, pageSize, offset });
+    debug("user", "查询用户列表-开始查询", { page, pageSize, offset });
     const [users, total] = await Promise.all([
       prisma.user.findMany({
         skip: offset,
@@ -68,86 +74,58 @@ export const userRoutes = new Elysia({ prefix: "/api/v1/user" })
       page: t.Optional(t.String()),
       page_size: t.Optional(t.String()),
     }),
+    // 公开接口防刷：宽松限流（60 次/分钟）
+    beforeHandle: rateLimit(60, 60_000),
   })
+  // 以下路由需要 JWT 鉴权（由 requireAuth 插件注入 user，无需重复查询用户）
+  .use(requireAuth)
   // POST /api/v1/user/update
   .post(
     "/update",
-    async ({ body, headers, set }) => {
-      const claims = await getJwtClaimsFromHeaders(headers);
-      if (!claims) {
-        warn("user", "更新用户信息-JWT无效或缺失");
-        set.status = 401;
-        return { code: 401, message: "未授权" };
-      }
-
+    async ({ body, set, user }) => {
       const { nickname, avatar_url } = body;
-      info("user", "POST /update 请求", { uid: claims.uid, nickname });
+      info("user", "POST /update 请求", { uid: user.id, nickname });
 
       // 验证昵称格式
       if (isNicknameTooShort(nickname)) {
-        warn("user", "更新用户信息-昵称过短", { uid: claims.uid, nickname });
-        set.status = 400;
-        return { code: 400, message: "昵称长度不能小于2位" };
+        warn("user", "更新用户信息-昵称过短", { uid: user.id, nickname });
+        return fail(set, 400, "昵称长度不能小于2位");
       }
       if (isNicknameTooLong(nickname)) {
-        warn("user", "更新用户信息-昵称过长", { uid: claims.uid, nickname });
-        set.status = 400;
-        return { code: 400, message: "昵称长度不能超过20位" };
+        warn("user", "更新用户信息-昵称过长", { uid: user.id, nickname });
+        return fail(set, 400, "昵称长度不能超过20位");
       }
       // 验证头像地址格式
       if (avatar_url.length > 255) {
-        warn("user", "更新用户信息-头像地址过长", { uid: claims.uid });
-        set.status = 400;
-        return { code: 400, message: "头像地址长度不能超过255位" };
+        warn("user", "更新用户信息-头像地址过长", { uid: user.id });
+        return fail(set, 400, "头像地址长度不能超过255位");
       }
       if (avatar_url.length > 0 && !avatar_url.startsWith("http")) {
-        warn("user", "更新用户信息-头像地址格式错误", { uid: claims.uid, avatar_url });
-        set.status = 400;
-        return { code: 400, message: "头像地址必须以http或https开头" };
-      }
-
-      // 查询用户
-      info("user", "更新用户信息-开始查询用户", { uid: claims.uid });
-      const user = await prisma.user.findUnique({
-        where: { id: claims.uid },
-        omit: { password: true },
-      });
-      if (!user) {
-        warn("user", "更新用户信息-用户不存在", { uid: claims.uid });
-        set.status = 400;
-        return { code: 400, message: "用户不存在" };
-      }
-      info("user", "更新用户信息-用户查询成功", { uid: user.id });
-
-      // 检查用户状态（禁用用户返回 401）
-      if (user.states !== UserState.Normal) {
-        warn("user", "更新用户信息-账号已被禁用", { uid: user.id });
-        set.status = 401;
-        return { code: 401, message: "登录失败，账号已被禁用" };
+        warn("user", "更新用户信息-头像地址格式错误", { uid: user.id, avatar_url });
+        return fail(set, 400, "头像地址必须以http或https开头");
       }
 
       // 更新用户（仅非空字段更新，avatar_url 为空时保留旧值，与 Go 行为一致）
-      let updatedUser;
+      // 成功分支直接在 try 内 return，避免 let + 类型收窄技巧
       try {
         const updateData: { nickname: string; avatarUrl?: string } = { nickname };
         if (avatar_url !== "") {
           updateData.avatarUrl = avatar_url;
         }
-        info("user", "更新用户信息-开始更新数据库", { uid: claims.uid });
-        updatedUser = await prisma.user.update({
-          where: { id: claims.uid },
+        debug("user", "更新用户信息-开始更新数据库", { uid: user.id });
+        const updatedUser = await prisma.user.update({
+          where: { id: user.id },
           data: updateData,
         });
+        info("user", "更新用户信息成功", { uid: user.id, nickname });
+        return toUserInfo(updatedUser);
       } catch (err) {
-        error("user", "更新用户信息-数据库更新失败", { uid: claims.uid, error: String(err) });
-        set.status = 500;
-        return { code: 500, message: "更新失败，请稍后再试" };
+        error("user", "更新用户信息-数据库更新失败", { uid: user.id, error: String(err) });
+        return fail(set, 500, "更新失败，请稍后再试");
       }
-
-      info("user", "更新用户信息成功", { uid: claims.uid, nickname });
-      return toUserInfo(updatedUser);
     },
     {
+      // Elysia schema 校验：请求参数不合法时自动返回 400（见 index.ts 全局 VALIDATION 处理）
       body: t.Object({
         nickname: t.String(),
         avatar_url: t.String(),

@@ -2,20 +2,16 @@
 
 use sea_orm::entity::prelude::*;
 
-/// 用户扩展表名
-#[allow(dead_code)]
-pub const USER_EXTEND_TABLE: &str = "user_extend";
-
 /// 用户扩展
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "user_extend")]
 pub struct Model {
-    /// 主键 (数据库为 INT UNSIGNED)
+    /// 主键 (数据库为 INT)
     #[sea_orm(primary_key)]
-    pub id: u32,
-    /// 用户UID (数据库为 INT UNSIGNED)
+    pub id: i32,
+    /// 用户UID (数据库为 INT)
     #[sea_orm(indexed)]
-    pub uid: u32,
+    pub uid: i32,
     /// 生日(年月日)
     #[sea_orm(column_type = "Integer", default_value = 0)]
     pub birthday: i32,

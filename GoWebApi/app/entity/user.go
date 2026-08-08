@@ -6,8 +6,9 @@ import (
 	"webapi/app/models"
 )
 
-// 提示: 各结构体中的 validate tag 仅用于 swag 生成 API 文档,
-// 项目未注册 validator, tag 不参与请求校验; 真实校验在控制器层手写完成。
+// 新手提示: 本文件各结构体上的 validate tag 仅用于 swag 生成 API 文档的必填标记,
+// 项目未注册 validator, 请求到达时它不会做任何校验 (容易被误认为会自动校验)。
+// 真正的参数校验在 controllers 层手写完成 (如昵称/邮箱/密码格式), 失败返回 422。
 
 // User 用户信息
 type User struct {
