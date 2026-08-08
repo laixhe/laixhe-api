@@ -2,15 +2,17 @@
 
 namespace App\Utils;
 
-use DateTimeZone;
 use DateTimeImmutable;
 use Throwable;
 use RuntimeException;
 
+use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Token\DataSet;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Validation\Constraint\SignedWith;
+use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
 
 use App\Result\ResultCode;
 
@@ -23,8 +25,12 @@ class JwtUtil
 
     private function __construct()
     {
-        $this->secretKey = env('JWT_SECRET', '');
-        $this->expireTime = env('JWT_EXPIRE_TIME', 604800);
+        $this->secretKey = (string)env('JWT_SECRET', '');
+        // 密钥为空时直接报错, 避免用空密钥签发可被伪造的 token (新手最容易踩的坑)
+        if ($this->secretKey === '') {
+            throw new RuntimeException('JWT_SECRET 未配置, 请检查 .env', ResultCode::Service->value);
+        }
+        $this->expireTime = (int)env('JWT_EXPIRE_TIME', 604800);
 
         $config = Configuration::forSymmetricSigner(
             new Sha256(),
@@ -50,12 +56,15 @@ class JwtUtil
     }
 
     /**
-     * 创建 JWT Token
-     * @param array $claims
+     * 创建 JWT Token (HS256 签名, 含 uid/exp/iat/nbf 声明)
+     *
+     * @param int   $uid    用户id
+     * @param array $claims 附加自定义声明 (可选, 必须为一维关联数组)
      * @return string
-     * @throws RuntimeException
+     *
+     * @throws RuntimeException 过期时间生成失败 / claims 非关联数组时抛出 Service 错误
      */
-    public function createToken(int $uid, array $claims=[]): string
+    public function createToken(int $uid, array $claims = []): string
     {
         $config = $this->config;
         $builder = $config->builder();
@@ -69,10 +78,10 @@ class JwtUtil
             $builder = $builder->expiresAt($expiresAt)->issuedAt($now)->canOnlyBeUsedAfter($now);
             $builder = $builder->withClaim('uid', $uid);
 
-            // 判断是否为数组并且是一维关联数组
+            // 附加自定义声明: 必须是一维关联数组 (key 全为字符串)
             if (!empty($claims)) {
                 $claims_keys = array_keys($claims);
-                if (count($claims_keys) !== count(array_filter($claims_keys, 'is_string'))){
+                if (count($claims_keys) !== count(array_filter($claims_keys, 'is_string'))) {
                     throw new RuntimeException('创建 JWT Token 参数 claims 必须为关联数组');
                 }
             }
@@ -82,17 +91,20 @@ class JwtUtil
             // 生成新令牌
             return $builder->getToken($config->signer(), $config->signingKey())->toString();
         } catch (Throwable $e) {
-            // echo $e->getMessage();
             throw new RuntimeException('', ResultCode::Service->value);
         }
     }
 
     /**
-     * 解析 token
+     * 解析 token (仅解码, 不校验签名/有效期!)
+     *
+     * 注意: 该方法只做结构解析, 不能用于鉴权。
+     * 需要校验 token 合法性请使用 validatorToken()。
+     *
      * @param string $jwt
      * @return DataSet
      *
-     * @throws RuntimeException
+     * @throws RuntimeException token 结构不合法时抛出 AuthInvalid
      */
     public function parseToken(string $jwt): DataSet
     {
@@ -100,36 +112,44 @@ class JwtUtil
             $config = $this->config;
             return $config->parser()->parse($jwt)->claims();
         } catch (Throwable $e) {
-            // echo $e->getMessage();
             throw new RuntimeException('', ResultCode::AuthInvalid->value);
         }
     }
 
     /**
-     * 验证令牌
-     * @param $jwt
+     * 验证令牌 (与 Go 端 JWT 中间件对齐)
+     *
+     * 必须校验 HMAC 签名 (SignedWith) 与有效期 (StrictValidAt):
+     * 仅解析不验签的话, 攻击者可伪造任意 uid 的令牌通过鉴权。
+     *
+     * @param string $jwt
      * @return DataSet
      *
-     * @throws RuntimeException
+     * @throws RuntimeException 签名无效 / 已过期 / 声明缺失 / uid 非法时抛出 AuthInvalid
      */
     public function validatorToken($jwt): DataSet
     {
-        $now = new DateTimeImmutable();
         $config = $this->config;
-        $token = null;
         try {
-            $token = $config->parser()->parse($jwt);
+            $token = $config->parser()->parse((string)$jwt);
         } catch (Throwable $e) {
-            // echo $e->getMessage();
+            // 结构不合法 (base64 解码失败等)
+            throw new RuntimeException('', ResultCode::AuthInvalid->value);
+        }
+
+        try {
+            // 校验签名 (密钥不匹配即拒绝) 与有效期 (StrictValidAt: exp/iat/nbf 缺失或非法均拒绝)。
+            // 注意: 5.x 的 validate() 只返回 bool 不抛异常, 必须用 assert() 才会抛出 RequiredConstraintsViolated。
+            $config->validator()->assert(
+                $token,
+                new SignedWith($config->signer(), $config->signingKey()),
+                new StrictValidAt(new SystemClock(new \DateTimeZone('UTC')))
+            );
+        } catch (Throwable $e) {
             throw new RuntimeException('', ResultCode::AuthInvalid->value);
         }
 
         $claims = $token->claims();
-
-        $exp = $claims->get('exp')->setTimezone(new DateTimeZone(date_default_timezone_get()));
-        if ($exp < $now) {
-            throw new RuntimeException('', ResultCode::AuthInvalid->value);
-        }
         $uid = (int)$claims->get('uid');
         if ($uid <= 0) {
             throw new RuntimeException('', ResultCode::AuthInvalid->value);

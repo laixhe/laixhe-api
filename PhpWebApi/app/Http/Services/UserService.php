@@ -8,22 +8,23 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 use App\Models\User;
 use App\Result\ResultCode;
-use App\Http\Request\UserUpdateRequest;
+use App\Http\Requests\UserUpdateRequest;
 
 /**
- * 用户服务相关
+ * 用户服务相关 (与 Go 端 services/user.go 对齐)
  */
 class UserService
 {
     /**
-     * 查询用户信息
+     * 查询用户信息 (排除 password)
+     *
      * @param int $uid
-     * @return array
+     * @return array 未找到时返回空数组
      */
     public function info(int $uid): array
     {
-        // select * from `user` where `id` = ? limit 1
         $user = User::query()
+            ->select(User::noPassword())
             ->where('id', $uid)
             ->first();
         if (empty($user)) {
@@ -33,40 +34,49 @@ class UserService
     }
 
     /**
-     * 查询用户列表
-     * @param int $size 每页页数(数量)
+     * 查询用户列表 (排除 password, 按 ID 降序)
+     *
+     * @param int $page 分页-当前页(默认 1)
+     * @param int $pageSize 分页-每页数量(默认 12)
      * @return LengthAwarePaginator
      */
-    public function list(int $limit): LengthAwarePaginator
+    public function list(int $page, int $pageSize): LengthAwarePaginator
     {
-        // select count(*) as aggregate from `user`
-        // select * from `user` order by `id` desc limit 2 offset 0
         return User::query()
+            ->select(User::noPassword())
             ->orderByDesc('id')
-            ->paginate($limit);
+            ->paginate($pageSize, ['*'], 'page', $page);
     }
 
     /**
-     * 修改用户信息
-     * @param int $uid
+     * 修改用户信息 (与 Go 端 User.Update 对齐)
+     *
+     * 先查后改: 查询 (排除 password) 用于 states 校验与响应组装。
+     *
+     * @param int $uid 用户id (由 JWT 提供)
      * @param UserUpdateRequest $req
-     * @return void
+     * @return array 更新后的用户信息
+     *
+     * @throws RuntimeException 用户不存在 (422) / 账号被封禁 (401)
      */
-    public function update(int $uid, UserUpdateRequest $req): void
+    public function update(int $uid, UserUpdateRequest $req): array
     {
-        // select `id` from `user` where `nickname` = ? limit 1
-        $userID = User::query()->where('nickname', $req->nickname)->value('id');
-        if (!empty($userID)) {
-            $userID = (int)$userID;
-            if ($userID === $uid){
-                return;
-            }
-            throw new RuntimeException('用户名已存在！', ResultCode::Param->value);
+        $user = User::query()
+            ->select(User::noPassword())
+            ->where('id', $uid)
+            ->first();
+        if (empty($user)) {
+            throw new RuntimeException('用户不存在', ResultCode::Param->value);
         }
-        // update `user` set `nickname` = ?, `avatar_url` = ?, `user`.`updated_at` = ? where `id` = ? limit 1
-        User::query()->where('id', $uid)->limit(1)->update([
-            'nickname' => $req->nickname,
-            'avatar_url' => $req->avatar_url
-        ]);
+        if ((int)$user->states !== 1) {
+            throw new RuntimeException('', ResultCode::AuthInvalid->value);
+        }
+        $user->nickname = $req->nickname;
+        // 头像地址为空时不更新 (与 Go 端 UpdateUser 按非零字段更新一致)
+        if ($req->avatar_url !== '') {
+            $user->avatar_url = $req->avatar_url;
+        }
+        $user->save();
+        return $user->toArray();
     }
 }

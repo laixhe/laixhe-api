@@ -13,8 +13,9 @@ class AuthJwt
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $authorization = $request->header('Authorization');
-        if (strlen($authorization) <= 7) {
+        $authorization = (string)$request->header('Authorization');
+        // 严格校验 Bearer 前缀, 避免非 Bearer 方案被误解析
+        if (!str_starts_with($authorization, 'Bearer ')) {
             return response_error(ResultCode::AuthInvalid);
         }
         $token = substr($authorization, 7);

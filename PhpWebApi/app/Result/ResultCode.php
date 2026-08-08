@@ -7,10 +7,12 @@ namespace App\Result;
  */
 enum ResultCode: int
 {
-    case Success = 0;        // 成功
-    case AuthInvalid = 401;  // 授权无效
-    case Param = 422;        // 参数错误
-    case Service = 500;      // 服务错误
+    case Success = 0;              // 成功
+    case AuthInvalid = 401;        // 授权无效
+    case Param = 422;              // 参数错误
+    case TooManyRequests = 429;    // 请求过于频繁
+    case Service = 500;            // 服务错误
+    case ServiceUnavailable = 503; // 服务不可用
 
     public function text(): string
     {
@@ -19,6 +21,8 @@ enum ResultCode: int
             self::Service => '服务错误',
             self::Param => '参数错误',
             self::AuthInvalid => '授权无效',
+            self::TooManyRequests => '请求过于频繁，请稍后再试',
+            self::ServiceUnavailable => '服务不可用',
         };
     }
 
@@ -26,6 +30,8 @@ enum ResultCode: int
         return match ($code) {
             401 => self::AuthInvalid,
             422 => self::Param,
+            429 => self::TooManyRequests,
+            503 => self::ServiceUnavailable,
             default => self::Service,
         };
     }
