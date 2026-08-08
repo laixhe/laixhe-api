@@ -34,6 +34,7 @@ mod logger;
 mod middleware;
 mod routes;
 mod state;
+mod sync;
 
 #[cfg(test)]
 mod tests;

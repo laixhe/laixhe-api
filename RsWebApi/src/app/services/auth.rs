@@ -15,6 +15,18 @@ use crate::logger::Timer;
 use crate::middleware::jwt::{gen_token, new_jwt_claims};
 use crate::state::AppState;
 
+/// 判断数据库错误是否为唯一键冲突 (MySQL 1062 Duplicate entry)
+///
+/// 用于兜底注册并发竞态: 预检查通过后插入时若撞上 email UNIQUE 约束, 收敛为"邮箱已存在"。
+fn is_unique_violation(err: &sea_orm::DbErr) -> bool {
+    match err {
+        sea_orm::DbErr::Exec(sea_orm::RuntimeErr::SqlxError(e)) => e
+            .as_database_error()
+            .is_some_and(|d| d.is_unique_violation()),
+        _ => false,
+    }
+}
+
 /// 注册
 pub async fn register(
     state: &AppState,
@@ -62,7 +74,15 @@ pub async fn register(
 
     // 事务创建用户 + 扩展信息 + 第三方关联
     let step = Timer::new();
-    let uid = user_model::create_user(&state.db, user).await?;
+    let uid = match user_model::create_user(&state.db, user).await {
+        Ok(uid) => uid,
+        // 并发注册相同邮箱: 预检查通过但插入时撞上 email UNIQUE 约束 (兜底竞态)
+        Err(e) if is_unique_violation(&e) => {
+            log_elapsed!(step, elapsed_ms, debug, email = %req.email, "邮箱唯一键冲突，注册失败");
+            return Err(ApiError::param_error("邮箱已存在"));
+        }
+        Err(e) => return Err(e.into()),
+    };
     log_elapsed!(
         step,
         elapsed_ms,

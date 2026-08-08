@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS `user` (
     PRIMARY KEY (`id`),
     KEY `idx_user_account` (`account`),
     KEY `idx_user_mobile` (`mobile`),
-    KEY `idx_user_email` (`email`)
+    -- 邮箱唯一约束: 兜底注册接口的"先查后插"竞态, 并发注册相同邮箱时数据库层拒绝重复插入
+    UNIQUE KEY `idx_user_email` (`email`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '用户表';
 
 CREATE TABLE IF NOT EXISTS `user_extend` (

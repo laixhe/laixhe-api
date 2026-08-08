@@ -9,7 +9,7 @@ use axum::middleware::Next;
 use axum::response::Response;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
-use std::sync::{LazyLock, Mutex};
+use std::sync::OnceLock;
 
 use crate::error::ApiError;
 use crate::log_elapsed;
@@ -57,25 +57,24 @@ struct JwtKeys {
     encoding_key: EncodingKey,
 }
 
-static JWT_KEYS: LazyLock<Mutex<Option<JwtKeys>>> = LazyLock::new(|| Mutex::new(None));
+/// OnceLock 只初始化一次: 认证热路径上读取为原子加载, 无锁竞争
+static JWT_KEYS: OnceLock<JwtKeys> = OnceLock::new();
 
-/// 获取缓存的 JWT 密钥对象, 首次调用时按 secret_key 构建
-fn jwt_keys(secret_key: &str) -> std::sync::MutexGuard<'static, Option<JwtKeys>> {
-    let mut guard = JWT_KEYS.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
-    if guard.is_none() {
+/// 获取缓存的 JWT 密钥对象, 首次调用时按 secret_key 构建 (线程安全)
+fn jwt_keys(secret_key: &str) -> &'static JwtKeys {
+    JWT_KEYS.get_or_init(|| {
         let mut validation = Validation::new(Algorithm::HS256);
         // 校验 nbf (生效时间), 对齐 Go jwtv5 默认行为
         validation.validate_nbf = true;
         // 对齐 Go jwtv5: leeway=0 (无签发/过期宽限期), exp 可选 (缺失时不强制校验)
         validation.leeway = 0;
         validation.set_required_spec_claims(&[] as &[String]);
-        *guard = Some(JwtKeys {
+        JwtKeys {
             validation,
             decoding_key: DecodingKey::from_secret(secret_key.as_bytes()),
             encoding_key: EncodingKey::from_secret(secret_key.as_bytes()),
-        });
-    }
-    guard
+        }
+    })
 }
 
 /// 签发 JWT 令牌
@@ -84,7 +83,7 @@ pub fn gen_token(secret_key: &str, claims: &JwtClaims) -> Result<String, ApiErro
     encode(
         &Header::new(Algorithm::HS256),
         claims,
-        &keys.as_ref().expect("jwt keys initialized").encoding_key,
+        &keys.encoding_key,
     )
     .map_err(|e| {
         // 收敛为固定文案, 避免错误细节泄露 (对齐 Go fork DefaultErrorHandler); 原始错误记服务端日志
@@ -96,7 +95,6 @@ pub fn gen_token(secret_key: &str, claims: &JwtClaims) -> Result<String, ApiErro
 /// 校验并解析 JWT 令牌
 pub fn parse_token(secret_key: &str, token: &str) -> Result<JwtClaims, ApiError> {
     let keys = jwt_keys(secret_key);
-    let keys = keys.as_ref().expect("jwt keys initialized");
     let data = decode::<JwtClaims>(token, &keys.decoding_key, &keys.validation)
         .map_err(|_| ApiError::unauthorized())?;
     // uid 从 1 起, 0 视为无效载荷: 防御伪造 {"uid":0} 的 token (对齐 Go 侧 Uid > 0 判断)
@@ -121,7 +119,7 @@ pub async fn jwt_middleware(
         .get::<RequestId>()
         .map(|r| r.0.clone())
         .unwrap_or_default();
-    tracing::info!(
+    tracing::debug!(
         request_id = %request_id,
         method = %method,
         path = %path,
@@ -156,7 +154,7 @@ pub async fn jwt_middleware(
     log_elapsed!(
         step,
         elapsed_ms,
-        info,
+        debug,
         request_id = %request_id,
         method = %method,
         path = %path,
@@ -171,7 +169,7 @@ pub async fn jwt_middleware(
     log_elapsed!(
         start,
         total_ms,
-        info,
+        debug,
         request_id = %request_id,
         method = %method,
         path = %path,

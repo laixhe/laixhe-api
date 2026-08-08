@@ -12,7 +12,7 @@
 ## 目录结构
 
 ```
-temp/
+RsWebApi/
 ├── src/
 │   ├── main.rs                 # 入口：参数解析 / 优雅停机 / 启动
 │   ├── config.rs               # YAML 配置加载（支持 ${ENV} 展开）+ 校验
@@ -71,7 +71,7 @@ curl -X POST http://127.0.0.1:6600/api/v1/auth/register \
 | `log` | 日志模式（console/file）、输出格式（`format`：console/json）、级别、按大小轮转（max_size / max_backups） |
 | `orm` | 数据库驱动、DSN、连接池大小（max_idle / max_open / max_life_time） |
 | `jwt` | 签名密钥、过期时长（秒） |
-| `limit` | 接口限流：`enable` 开关、`max` 窗口内最大请求数、`window` 窗口时长（秒） |
+| `limit` | 接口限流：`enable` 开关、`max` 窗口内最大请求数、`window` 窗口时长（秒）、`trust_proxy` 是否信任代理头 `X-Forwarded-For`（默认 `false`，仅在可信反向代理之后部署时开启，否则客户端可伪造该头绕过限流） |
 
 支持环境变量展开，例如 `dsn: ${MYSQL_DSN}`。`log.format: json` 时输出结构化 JSON 日志，便于 ELK / Loki 采集。
 
@@ -110,8 +110,8 @@ curl -X POST http://127.0.0.1:6600/api/v1/auth/register \
 | POST | `/api/v1/auth/register` | 注册 | 无 |
 | POST | `/api/v1/auth/login` | 登录 | 无 |
 | POST | `/api/v1/auth/refresh` | 刷新 JWT | Bearer |
-| GET | `/api/v1/user/info` | 获取用户信息 | 无 |
-| GET | `/api/v1/user/list` | 用户列表（分页） | 无 |
+| GET | `/api/v1/user/info` | 获取用户信息（公开视图，不含 email/mobile/account） | 无 |
+| GET | `/api/v1/user/list` | 用户列表（分页，公开视图，不含 email/mobile/account） | 无 |
 | POST | `/api/v1/user/update` | 更新用户信息 | Bearer |
 
 ## 特性
@@ -154,6 +154,7 @@ curl -X POST http://127.0.0.1:6600/api/v1/auth/register \
 | 密码哈希 | gonet/crypto | bcrypt crate | 算法一致（bcrypt） |
 | ORM | GORM | sea-orm | SQL 日志默认 debug 级（对齐 OrmWriter） |
 | Web 框架 | Fiber | axum | 均支持中间件链 |
+| 公开接口返回 | 完整 User | 脱敏 UserPublic | `/user/info`、`/user/list` 不再返回 email/mobile/account |
 | 额外能力 | - | 健康检查 / 限流 / 优雅停机 / gzip / 超时 / 统一日志 / CI | 增强特性 |
 
 ## 测试

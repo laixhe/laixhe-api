@@ -116,9 +116,7 @@ pub fn init_log(log_config: &LogConfig) {
     let (non_blocking, guard) = tracing_appender::non_blocking(appender);
     // 静态持有 guard: 进程退出时自动 drop 并 flush 尾部缓冲日志 (替代 mem::forget, 避免丢尾部日志);
     // 重复初始化(测试场景)时覆盖旧 guard, 旧 guard drop 即 flush
-    *LOG_GUARD
-        .lock()
-        .unwrap_or_else(|poisoned| poisoned.into_inner()) = Some(guard);
+    *crate::sync::lock_unpoison(&LOG_GUARD) = Some(guard);
     // try_init: 重复初始化(如测试场景)时不 panic
     if is_json {
         let layer = tracing_subscriber::fmt::layer()

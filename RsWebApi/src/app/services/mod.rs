@@ -14,11 +14,8 @@ pub async fn init_config_common(state: &AppState) {
         Ok(configs) => {
             for c in configs {
                 if c.key == CONFIG_COMMON_ENV {
-                    // 锁中毒时取回数据继续使用 (启动期单次写入, 数据一致性可接受; 与 rate_limit.rs 处理一致)
-                    let mut common = state
-                        .common
-                        .lock()
-                        .unwrap_or_else(|poisoned| poisoned.into_inner());
+                    // 锁中毒时取回数据继续使用 (启动期单次写入, 数据一致性可接受)
+                    let mut common = crate::sync::lock_unpoison(&state.common);
                     common.env = c.value;
                 }
             }
@@ -28,10 +25,6 @@ pub async fn init_config_common(state: &AppState) {
     tracing::debug!("config http={:?}", state.config.http);
     tracing::debug!(
         "config common env={}",
-        state
-            .common
-            .lock()
-            .map(|c| c.env.clone())
-            .unwrap_or_default()
+        crate::sync::lock_unpoison(&state.common).env
     );
 }

@@ -112,6 +112,9 @@ pub struct LimitConfig {
     pub max: usize,
     /// 滑动窗口时长 (单位秒)
     pub window: u64,
+    /// 是否信任代理头 X-Forwarded-For (仅当服务部署在可信反向代理之后时开启;
+    /// 缺省 false: 直接信任该头可被客户端伪造绕过限流)
+    pub trust_proxy: bool,
 }
 
 /// 运行时通用配置，从数据库 config_common 表动态加载
@@ -164,6 +167,7 @@ impl Config {
                 enable: true,
                 max: 1000,
                 window: 60,
+                trust_proxy: false,
             }),
         };
         config.check()?;

@@ -75,10 +75,7 @@ impl RateLimiter {
     pub fn check(&self, key: &str) -> bool {
         // 分片锁: 若临界区内曾 panic 导致锁中毒, 取回数据继续使用,
         // 避免后续每次请求都 panic (限流计数场景数据一致性可接受)
-        let mut buckets = self
-            .shard(key)
-            .lock()
-            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        let mut buckets = crate::sync::lock_unpoison(self.shard(key));
         let now = Instant::now();
         // 优先复用已有 key 的队列, 仅在首次出现时分配 String (全局限流中间件, 最高频路径)
         let deque = match buckets.get_mut(key) {
@@ -128,7 +125,7 @@ pub async fn rate_limit_middleware(
     if req.uri().path() == HEALTH_PATH {
         return next.run(req).await;
     }
-    let client_ip = resolve_client_ip(&req);
+    let client_ip = resolve_client_ip(&req, state.config.limit.trust_proxy);
 
     if !state.limiter.check(&client_ip) {
         tracing::warn!(ip = %client_ip, "接口限流触发");
@@ -144,21 +141,24 @@ pub async fn rate_limit_middleware(
     next.run(req).await
 }
 
-/// 解析客户端 IP: 优先代理头 X-Forwarded-For, 其次 ConnectInfo 真实地址,
-/// 兜底使用 "unknown" (如 oneshot 测试场景)
+/// 解析客户端 IP
 ///
-/// 注意: 直接信任 X-Forwarded-For 时客户端可伪造该头绕过限流,
-/// 生产环境建议仅在有可信反向代理时启用, 或直接去掉该分支只使用 ConnectInfo。
-fn resolve_client_ip(req: &Request) -> String {
-    if let Some(ip) = req
-        .headers()
-        .get("X-Forwarded-For")
-        .and_then(|v| v.to_str().ok())
-        .and_then(|s| s.split(',').next())
-        .map(|s| s.trim().to_string())
-        .filter(|s| !s.is_empty())
-    {
-        return ip;
+/// - `trust_proxy = true`: 优先取代理头 X-Forwarded-For 的第一个 IP (仅应在可信反向代理
+///   之后部署时开启, 此时代理会覆写该头, 客户端无法伪造);
+/// - `trust_proxy = false` (默认): 直接使用 ConnectInfo 中的真实对端地址, 客户端无法伪造;
+/// - 两者均取不到时兜底 "unknown" (如 oneshot 测试场景)。
+fn resolve_client_ip(req: &Request, trust_proxy: bool) -> String {
+    if trust_proxy {
+        if let Some(ip) = req
+            .headers()
+            .get("X-Forwarded-For")
+            .and_then(|v| v.to_str().ok())
+            .and_then(|s| s.split(',').next())
+            .map(|s| s.trim().to_string())
+            .filter(|s| !s.is_empty())
+        {
+            return ip;
+        }
     }
     if let Some(ConnectInfo(addr)) = req.extensions().get::<ConnectInfo<SocketAddr>>() {
         return addr.ip().to_string();

@@ -59,6 +59,41 @@ impl User {
     }
 }
 
+/// 用户公开信息 (用于无鉴权的公开接口, 不含 email/mobile/account 等敏感字段,
+/// 避免匿名用户枚举 uid 泄露用户隐私; 完整字段仅注册/登录/刷新/更新等本人场景返回)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserPublic {
+    /// 用户id
+    pub uid: u32,
+    /// 类型 (1 - 普通用户)
+    pub type_id: i32,
+    /// 昵称
+    pub nickname: String,
+    /// 头像地址
+    pub avatar_url: String,
+    /// 性别 (0 - 未填写, 1 - 男, 2 - 女)
+    pub sex: i32,
+    /// 状态 (0 - 禁用, 1 - 正常)
+    pub states: i32,
+    /// 创建时间
+    pub created_at: String,
+}
+
+impl UserPublic {
+    /// 从 DB 模型转换为公开响应实体 (不含敏感字段)
+    pub fn from_model(m: &UserModel) -> Self {
+        UserPublic {
+            uid: m.id,
+            type_id: m.type_id,
+            nickname: m.nickname.clone(),
+            avatar_url: m.avatar_url.clone(),
+            sex: m.sex,
+            states: m.states,
+            created_at: format_created_at(&m.created_at),
+        }
+    }
+}
+
 /// 格式化创建时间 (业务统一使用 jiff, 对应 Go time.DateTime "2006-01-02 15:04:05")
 ///
 /// chrono 仅用于读取 sea-orm 实体字段 (NaiveDateTime) 的数值, 格式化交给 jiff 完成。
@@ -120,6 +155,6 @@ pub struct UserListResponse {
     pub page: i32,
     /// 分页-每页数量
     pub page_size: i32,
-    /// 列表
-    pub list: Vec<User>,
+    /// 列表 (公开视图, 不含 email/mobile/account 等敏感字段)
+    pub list: Vec<UserPublic>,
 }

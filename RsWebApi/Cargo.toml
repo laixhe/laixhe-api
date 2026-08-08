@@ -2,6 +2,8 @@
 name = "webapi"
 version = "1.0.0"
 edition = "2024"
+# 最低 Rust 工具链版本 (edition 2024 要求 >= 1.85, 显式声明便于新手/CI 检查)
+rust-version = "1.85"
 description = "用户认证与用户管理 API 服务"
 
 [[bin]]

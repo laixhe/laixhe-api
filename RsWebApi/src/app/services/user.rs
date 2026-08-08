@@ -1,7 +1,7 @@
 //! 用户业务 (对应 Go 项目 app/services/user.go)
 
 use crate::app::entity::user::{
-    User, UserInfoRequest, UserListRequest, UserListResponse, UserUpdateRequest,
+    User, UserInfoRequest, UserListRequest, UserListResponse, UserPublic, UserUpdateRequest,
 };
 use crate::app::models::user as user_model;
 use crate::app::models::USER_STATE_NORMAL;
@@ -50,8 +50,8 @@ pub async fn update(state: &AppState, req: &UserUpdateRequest) -> Result<User, A
     Ok(resp)
 }
 
-/// 获取用户信息
-pub async fn info(state: &AppState, req: &UserInfoRequest) -> Result<User, ApiError> {
+/// 获取用户信息 (公开接口, 返回脱敏后的公开视图)
+pub async fn info(state: &AppState, req: &UserInfoRequest) -> Result<UserPublic, ApiError> {
     let start = Timer::new();
     tracing::info!(uid = req.uid, "开始查询用户信息");
     let user = match user_model::find_by_id(&state.db, req.uid).await? {
@@ -59,7 +59,7 @@ pub async fn info(state: &AppState, req: &UserInfoRequest) -> Result<User, ApiEr
         None => return Err(ApiError::param_error("用户不存在")),
     };
     log_elapsed!(start, total_ms, debug, uid = req.uid, "查询用户信息完成");
-    Ok(User::from_model(&user, "", ""))
+    Ok(UserPublic::from_model(&user))
 }
 
 /// 获取用户列表
@@ -72,7 +72,8 @@ pub async fn list(state: &AppState, req: &UserListRequest) -> Result<UserListRes
     );
     let (limit, offset) = page_offset_calculation(req.page, req.page_size);
     let (users, total) = user_model::list_user(&state.db, limit, offset).await?;
-    let list = users.iter().map(|u| User::from_model(u, "", "")).collect();
+    // 公开列表使用脱敏视图, 不含 email/mobile/account 等敏感字段
+    let list = users.iter().map(UserPublic::from_model).collect();
     log_elapsed!(
         start,
         total_ms,

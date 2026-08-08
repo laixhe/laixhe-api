@@ -5,7 +5,7 @@ use axum::Json;
 
 use crate::app::controllers::{JsonBody, QueryParams};
 use crate::app::entity::user::{
-    User, UserInfoRequest, UserListRequest, UserListResponse, UserUpdateRequest,
+    User, UserInfoRequest, UserListRequest, UserListResponse, UserPublic, UserUpdateRequest,
 };
 use crate::app::services;
 use crate::app::util::validate::{validate_avatar_url, validate_nickname};
@@ -39,11 +39,11 @@ pub async fn update(
     Ok(Json(resp))
 }
 
-/// 获取用户信息 (成功返回裸实体 JSON)
+/// 获取用户信息 (公开接口, 成功返回脱敏后的公开实体 JSON)
 pub async fn info(
     State(state): State<AppState>,
     QueryParams(req): QueryParams<UserInfoRequest>,
-) -> Result<Json<User>, ApiError> {
+) -> Result<Json<UserPublic>, ApiError> {
     let start = Timer::new();
     tracing::info!(uid = req.uid, "收到获取用户信息请求");
     if req.uid == 0 {

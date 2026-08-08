@@ -433,7 +433,7 @@ async fn user_info_ok() {
     let (app, state) = build_app().await;
     let email = unique_email();
     let (uid, _token) = register_user(&app, &email).await;
-    // 查询用户信息 → 200, 返回邮箱一致
+    // 查询用户信息 → 200, 公开视图不含 email 等敏感字段, 校验 uid 与昵称
     let req = Request::builder()
         .uri(format!("/api/v1/user/info?uid={uid}"))
         .body(Body::empty())
@@ -441,7 +441,11 @@ async fn user_info_ok() {
     let (status, json) = send(&app, req).await;
     assert_eq!(status, StatusCode::OK);
     assert_eq!(json["uid"], uid as i64);
-    assert_eq!(json["email"], email);
+    assert_eq!(json["nickname"], "testuser");
+    // 敏感字段不应出现在公开接口响应中
+    assert!(json.get("email").is_none());
+    assert!(json.get("mobile").is_none());
+    assert!(json.get("account").is_none());
     cleanup_user(&state, uid).await;
 }
 

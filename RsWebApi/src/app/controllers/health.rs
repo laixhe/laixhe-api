@@ -7,6 +7,8 @@ use axum::Json;
 use jiff::Timestamp;
 use sea_orm::DatabaseConnection;
 use serde::Serialize;
+use std::sync::{LazyLock, Mutex};
+use std::time::{Duration, Instant};
 
 use crate::error::ApiError;
 use crate::state::AppState;
@@ -58,7 +60,22 @@ fn now_rfc3339() -> String {
     Timestamp::now().to_string()
 }
 
-/// 探测数据库连接 (连接级 ping)
+/// 数据库探活结果缓存 (TTL 内复用, 避免被负载均衡秒级高频探活持续打数据库)
+static DB_STATUS: LazyLock<Mutex<Option<(Instant, bool)>>> = LazyLock::new(|| Mutex::new(None));
+
+/// 探活结果缓存有效期: 数据库短暂抖动时 LB 判活有 5 秒缓冲, 避免探活抖动误摘节点
+const DB_PING_TTL: Duration = Duration::from_secs(5);
+
+/// 探测数据库连接 (连接级 ping, 结果按 TTL 缓存)
 async fn ping_db(db: &DatabaseConnection) -> bool {
-    db.ping().await.is_ok()
+    let now = Instant::now();
+    // 命中缓存则直接复用 (锁在读后立即释放, 不跨 await 持锁)
+    if let Some((at, ok)) = *crate::sync::lock_unpoison(&DB_STATUS) {
+        if now.duration_since(at) < DB_PING_TTL {
+            return ok;
+        }
+    }
+    let ok = db.ping().await.is_ok();
+    *crate::sync::lock_unpoison(&DB_STATUS) = Some((now, ok));
+    ok
 }

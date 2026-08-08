@@ -45,3 +45,5 @@ limit:
   max: 1000
   # 滑动窗口时长(单位秒)
   window: 60
+  # 是否信任代理头 X-Forwarded-For (仅当部署在可信反向代理之后时开启, 否则客户端可伪造该头绕过限流)
+  trust_proxy: false

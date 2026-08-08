@@ -37,7 +37,8 @@ pub async fn request_logger(req: Request, next: Next) -> Response {
     let path = req.uri().path().to_string();
     // 生成或透传 request id
     let request_id = resolve_request_id(req.headers());
-    tracing::info!(
+    // debug 级: 逐请求日志, 高 QPS 下 info 级别会产生大量日志开销 (见 jwt.rs 同策略)
+    tracing::debug!(
         request_id = %request_id,
         method = %method,
         path = %path,
@@ -52,7 +53,7 @@ pub async fn request_logger(req: Request, next: Next) -> Response {
     log_elapsed!(
         start,
         total_ms,
-        info,
+        debug,
         request_id = %request_id,
         method = %method,
         path = %path,

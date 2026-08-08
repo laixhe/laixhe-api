@@ -28,8 +28,8 @@ pub struct Model {
     /// 手机号
     #[sea_orm(column_type = "String(StringLen::N(120))", default_value = "", indexed)]
     pub mobile: String,
-    /// 邮箱
-    #[sea_orm(column_type = "String(StringLen::N(120))", default_value = "", indexed)]
+    /// 邮箱 (唯一约束, 兜底注册竞态; 与 docs/schema.sql 的 UNIQUE KEY idx_user_email 保持一致)
+    #[sea_orm(column_type = "String(StringLen::N(120))", default_value = "", unique)]
     pub email: String,
     /// 密码
     #[sea_orm(column_type = "String(StringLen::N(120))", default_value = "")]
