@@ -1,0 +1,54 @@
+server:
+  port: 6600
+  compression:
+    # gzip 压缩 (与 Go/Python 端 gzip 中间件对齐, 响应体 >= 1KB 时压缩)
+    enabled: true
+    min-response-size: 1000
+    mime-types: application/json,application/x-yaml,text/html,text/plain,application/xml
+
+spring:
+  application:
+    name: webapi
+  jackson:
+    # 全局 snake_case 命名 (与 swagger.yaml 字段名一致: created_at / avatar_url 等)
+    property-naming-strategy: SNAKE_CASE
+  datasource:
+    # 与 Go 版 config.yaml 对齐 (webapi 库, 表结构见仓库根目录 webapi.sql)
+    url: jdbc:mysql://127.0.0.1:3306/webapi?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: "123456"
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      minimum-idle: 10
+      maximum-pool-size: 100
+      max-lifetime: 300000
+  jpa:
+    open-in-view: false
+    hibernate:
+      # 演示项目: 表不存在时自动建表 (account/email 唯一索引由实体 uniqueConstraints 生成)
+      ddl-auto: update
+
+springdoc:
+  # OpenAPI 文档由 springdoc 从代码注解动态生成, 原始端点为 /v3/api-docs(.yaml);
+  # /api/v1/swagger.yaml|.json 由 SwaggerDocController 内部转发到上述端点 (与 Go 版路径对齐)
+  # 内置 Swagger UI 关闭, 继续使用自研页面 /api/v1/swagger (与其余语言端一致, CDN 加载 swagger-ui)
+  swagger-ui:
+    enabled: false
+
+app:
+  # 请求超时时间(秒), 超时返回 408 (与 Go 版 config.yaml http.timeout 对齐)
+  http-timeout: 30
+  jwt:
+    # 与 Go 版 config.yaml 相同密钥; 生产环境务必通过环境变量 JWT_SECRET_KEY 覆盖
+    secret-key: ${JWT_SECRET_KEY:6Kbj0VFeXYMp60lEyiFoVq4UzqX8Z0GSSfnvTh2VuAQn0oHgQNYexU6yYVTk4xf9}
+    expire-seconds: ${JWT_EXPIRE_SECONDS:2592000}
+  limit:
+    # 接口限流 (单个 IP 滑动窗口内最大请求数, 与 Go 版 config.yaml 对齐; 健康检查豁免)
+    enable: true
+    max: 1000
+    window-seconds: 60
+  version: ${APP_VERSION:1.0.0}
+
+logging:
+  level:
+    root: info

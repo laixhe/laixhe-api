@@ -1,0 +1,421 @@
+definitions:
+  controllers.HealthResponse:
+    properties:
+      database:
+        description: 数据库状态 (正常时为 "up"; 数据库不可用时直接返回 503 错误体, 不返回本字段)
+        type: string
+      now:
+        description: 当前时间 (服务器本地时区)
+        type: string
+      started_at:
+        description: 服务启动时间 (服务器本地时区)
+        type: string
+      status:
+        description: 服务状态 (固定 "ok")
+        type: string
+      version:
+        description: 服务版本
+        type: string
+    required:
+    - database
+    - now
+    - started_at
+    - status
+    - version
+    type: object
+  core.Error:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    required:
+    - code
+    - message
+    type: object
+  entity.AuthLoginRequest:
+    properties:
+      email:
+        description: 邮箱
+        type: string
+      password:
+        description: 密码
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  entity.AuthLoginResponse:
+    properties:
+      token:
+        description: jwt token
+        type: string
+      user:
+        $ref: '#/definitions/entity.User'
+    required:
+    - token
+    - user
+    type: object
+  entity.AuthRefreshResponse:
+    properties:
+      token:
+        description: jwt token
+        type: string
+      user:
+        $ref: '#/definitions/entity.User'
+    required:
+    - token
+    - user
+    type: object
+  entity.AuthRegisterRequest:
+    properties:
+      email:
+        description: 邮箱
+        type: string
+      nickname:
+        description: 昵称
+        type: string
+      password:
+        description: 密码
+        type: string
+    required:
+    - email
+    - nickname
+    - password
+    type: object
+  entity.AuthRegisterResponse:
+    properties:
+      token:
+        description: jwt token
+        type: string
+      user:
+        $ref: '#/definitions/entity.User'
+    required:
+    - token
+    - user
+    type: object
+  entity.User:
+    properties:
+      account:
+        description: 账号
+        type: string
+      avatar_url:
+        description: 头像地址
+        type: string
+      created_at:
+        description: 创建时间
+        type: string
+      email:
+        description: 邮箱
+        type: string
+      mobile:
+        description: 手机号
+        type: string
+      nickname:
+        description: 昵称
+        type: string
+      sex:
+        description: |-
+          UserSex:
+          * 0 - 未填写
+          * 1 - 男
+          * 2 - 女
+        enum:
+        - 0
+        - 1
+        - 2
+        type: integer
+      states:
+        description: |-
+          UserState:
+          * 0 - 禁用
+          * 1 - 正常
+        enum:
+        - 0
+        - 1
+        type: integer
+      type_id:
+        description: |-
+          UserType:
+          * 1 - 普通用户
+        enum:
+        - 1
+        type: integer
+      uid:
+        description: 用户id
+        type: integer
+    required:
+    - account
+    - avatar_url
+    - created_at
+    - email
+    - mobile
+    - nickname
+    - sex
+    - states
+    - type_id
+    - uid
+    type: object
+  entity.UserListResponse:
+    properties:
+      list:
+        description: 列表
+        items:
+          $ref: '#/definitions/entity.User'
+        type: array
+      page:
+        description: 分页-当前页
+        type: integer
+      page_size:
+        description: 分页-每页数量
+        type: integer
+      total:
+        description: 总数
+        type: integer
+    required:
+    - list
+    - page
+    - page_size
+    - total
+    type: object
+  entity.UserUpdateRequest:
+    properties:
+      avatar_url:
+        description: 头像地址
+        type: string
+      nickname:
+        description: 昵称
+        type: string
+    required:
+    - nickname
+    type: object
+info:
+  contact: {}
+  description: 用户认证与用户管理 API 服务
+  title: API接口
+  version: "1.0"
+paths:
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/entity.AuthLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.AuthLoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/core.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.Error'
+      summary: 登录
+      tags:
+      - Auth
+  /api/v1/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer XXX令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.AuthRefreshResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/core.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.Error'
+      summary: 刷新Jwt
+      tags:
+      - Auth
+  /api/v1/auth/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/entity.AuthRegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.AuthRegisterResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/core.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.Error'
+      summary: 注册
+      tags:
+      - Auth
+  /api/v1/health:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.HealthResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/core.Error'
+      summary: 健康检查
+      tags:
+      - Health
+  /api/v1/user/info:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户id
+        in: query
+        name: uid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/core.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.Error'
+      summary: 获取用户信息
+      tags:
+      - User
+  /api/v1/user/list:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分页-当前页(默认 1)
+        in: query
+        name: page
+        type: integer
+      - description: 分页-每页数量(默认 12)
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.UserListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/core.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.Error'
+      summary: 获取用户列表
+      tags:
+      - User
+  /api/v1/user/update:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer XXX令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 请求参数（Uid 由 JWT 提供）
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UserUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/core.Error'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/core.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.Error'
+      summary: 更新用户信息
+      tags:
+      - User
+swagger: "2.0"

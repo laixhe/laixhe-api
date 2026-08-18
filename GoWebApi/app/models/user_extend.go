@@ -1,0 +1,17 @@
+package models
+
+// UserExtendTable 用户扩展表名
+const UserExtendTable = "user_extend"
+
+// UserExtend 用户扩展
+type UserExtend struct {
+	ID       int `gorm:"column:id;type:int;autoIncrement;primaryKey"`
+	Uid      int `gorm:"column:uid;type:int;not null;uniqueIndex;comment:用户UID"`
+	Birthday int `gorm:"column:birthday;type:int;not null;default:0;comment:生日(年月日)"`
+	Height   int `gorm:"column:height;type:int;not null;default:0;comment:身高(cm)"`
+	Weight   int `gorm:"column:weight;type:int;not null;default:0;comment:体重(kg)"`
+}
+
+func (m *UserExtend) TableName() string {
+	return UserExtendTable
+}

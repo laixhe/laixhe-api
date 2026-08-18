@@ -1,0 +1,64 @@
+generator client {
+  provider   = "prisma-client"
+  output     = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// 用户主表
+model User {
+  id        Int      @id @default(autoincrement())
+  typeId    Int      @default(0) @map("type_id")    // 用户类型: 1-普通用户
+  account   String   @unique @db.VarChar(120)      // 账号(全局唯一)
+  mobile    String?  @db.VarChar(120)               // 手机号
+  email     String?  @unique @db.VarChar(120)       // 邮箱(唯一索引, 与 webapi.sql 一致; 注册先查后插 + 数据库唯一约束双重防重)
+  password  String   @db.VarChar(120)               // 密码(bcrypt加密)
+  nickname  String   @db.VarChar(120)               // 昵称
+  avatarUrl String?  @default("") @map("avatar_url") @db.VarChar(255) // 头像地址
+  sex       Int      @default(0)                    // 性别: 0-未填写 1-男 2-女
+  states    Int      @default(0)                    // 状态: 0-禁用 1-正常
+  createdAt DateTime @default(now()) @map("created_at") // 创建时间
+  updatedAt DateTime @updatedAt @map("updated_at")       // 更新时间
+
+  userExtend     UserExtend?
+  userThirdParty UserThirdParty?
+
+  @@index([mobile])
+  @@map("user")
+}
+
+model UserExtend {
+  id       Int @id @default(autoincrement())
+  uid      Int @unique
+  birthday Int @default(0)
+  height   Int @default(0)
+  weight   Int @default(0)
+
+  user User @relation(fields: [uid], references: [id], onDelete: Cascade)
+
+  @@map("user_extend")
+}
+
+model UserThirdParty {
+  id            Int     @id @default(autoincrement())
+  uid           Int     @unique
+  wechatUnionid String? @default("") @map("wechat_unionid") @db.VarChar(200)
+  wechatOpenid  String? @default("") @map("wechat_openid") @db.VarChar(200)
+
+  user User @relation(fields: [uid], references: [id], onDelete: Cascade)
+
+  @@index([wechatOpenid])
+  @@map("user_third_party")
+}
+
+model ConfigCommon {
+  id       Int    @id @default(autoincrement())
+  key      String @db.VarChar(255)
+  value    String @db.VarChar(512)
+  describe String @db.VarChar(255)
+
+  @@index([key])
+  @@map("config_common")
+}

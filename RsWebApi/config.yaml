@@ -1,0 +1,51 @@
+http:
+    ip: 0.0.0.0
+    port: 6600
+    # 请求超时时间(单位秒), 缺省 30 秒, 用于请求超时中间件 (与 Go config.yaml 显式写 timeout: 30 等价)
+    timeout: 30
+
+log:
+  # 日志模式 console file
+  run: console
+  # 日志输出格式 console(文本) json(结构化)
+  format: console
+  # 日志文件路径
+  path: logs.log
+  # 日志级别 debug info warn error
+  # 默认 info: 每请求的业务日志已降为 debug 级, info 只记录启动/错误/限流等关键事件,
+  # 排查问题时再临时改为 debug
+  level: info
+  # 每个日志文件保存大小 20M
+  max_size: 20
+  # 保留 N 个备份
+  max_backups: 20
+  # 保留 N 天
+  max_age: 7
+
+orm:
+  # 驱动名称 mysql postgresql sqlite
+  driver: mysql
+  # 连接地址
+  dsn: root:123456@tcp(127.0.0.1:3306)/webapi?charset=utf8mb4&parseTime=True&loc=Local
+  # 设置空闲连接池中连接的最大数量
+  max_idle_count: 10
+  # 设置打开数据库连接的最大数量
+  max_open_count: 100
+  # 连接总寿命 (对齐 gorm SetConnMaxLifetime, 要比数据库的连接超时时间少)(单位秒)
+  max_life_time: 300
+
+jwt:
+  # 密钥
+  secret_key: 6Kbj0VFeXYMp60lEyiFoVq4UzqX8Z0GSSfnvTh2VuAQn0oHgQNYexU6yYVTk4xf9
+  # 过期时长(单位秒)
+  expire_time: 2592000
+
+limit:
+  # 是否启用接口限流
+  enable: true
+  # 单个 IP 在窗口内允许的最大请求数
+  max: 1000
+  # 滑动窗口时长(单位秒)
+  window: 60
+  # 是否信任代理头 X-Forwarded-For (仅当部署在可信反向代理之后时开启, 否则客户端可伪造该头绕过限流)
+  trust_proxy: false

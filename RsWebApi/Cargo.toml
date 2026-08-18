@@ -1,0 +1,86 @@
+[package]
+name = "webapi"
+version = "0.0.1"
+edition = "2024"
+# 最低 Rust 工具链版本 (edition 2024 要求 >= 1.85, 显式声明便于新手/CI 检查)
+rust-version = "1.85"
+description = "用户认证与用户管理 API 服务"
+
+[[bin]]
+name = "webapi"
+path = "src/main.rs"
+
+[dependencies]
+# 运行时 (按需裁剪特性, 仅包含实际用到的, 减少编译时间与二进制体积)
+tokio = { version = "1.53", features = [
+    "rt-multi-thread", # #[tokio::main] / #[tokio::test] 多线程运行时
+    "macros",          # #[tokio::main] / tokio::select!
+    "net",             # TcpListener (axum 底层监听)
+    "signal",          # ctrl_c / SIGTERM 优雅停机
+    "time",            # tokio::time::sleep / 超时控制
+    "sync",            # 异步锁 (sqlx 连接池等)
+    "io-util",         # 异步 IO (tokio-rustls 需要)
+] }
+# Web 框架
+axum = { version = "0.8", features = ["json"] }
+# 序列化
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# YAML 配置解析: serde_yaml 已被作者归档(2024-02), 迁移到 YAML 官方组织维护的分叉 yaml_serde。
+# 通过 package 重命名保持代码中 use serde_yaml:: 不变, 零代码改动。
+serde_yaml = { package = "yaml_serde", version = "0.10" }
+# 时间库: 业务时间统一使用 jiff
+jiff = "0.2"
+# chrono 仅供 sea-orm 实体字段使用 (MySQL DATETIME 列映射, sea-orm 2.0 不支持 jiff 映射),
+# 业务代码不直接依赖 chrono 做时间逻辑
+chrono = "0.4"
+# ORM (仅编译 MySQL 后端, 减小编译时间与二进制体积; 如需 postgres/sqlite, 追加 sqlx-postgres / sqlx-sqlite)
+sea-orm = { version = "2.0", features = [
+    "sqlx-mysql",
+    "runtime-tokio-rustls",
+    "macros",
+    "with-chrono",
+] }
+# JWT (jsonwebtoken >= 11 必须显式启用 crypto 后端 feature)
+jsonwebtoken = { version = "11", features = ["rust_crypto"] }
+# 密码哈希
+bcrypt = "0.19"
+# 全局唯一 ID
+xid = "1.1"
+# 正则
+regex = "1.13"
+# 日志
+tracing = "0.1"
+# sqlx/sea-orm 底层日志级别控制 (log::LevelFilter)
+log = "0.4"
+# 日志 (fmt + json 结构化格式 + 环境变量过滤)
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt", "json"] }
+tracing-appender = "0.2"
+# 日志文件按大小轮转
+rolling-file = "0.2"
+# CORS / HTTP 工具 (cors 跨域, compression-gzip 响应压缩, catch-panic 恢复;
+# timeout 仅测试用: src/tests.rs 独立验证超时行为, 生产超时走自定义 timeout_middleware)
+tower-http = { version = "0.7", features = [
+    "cors",
+    "compression-gzip",
+    "catch-panic",
+    "timeout",
+] }
+utoipa = { version = "5.5.0", features = ["yaml"] }
+
+[dev-dependencies]
+# 单元/集成测试 (axum oneshot)
+tower = { version = "0.5", features = ["util"] }
+
+[profile.release]
+# 运行性能: 完整优化 + 链接期优化 + 单 codegen 单元
+opt-level = 3
+lto = true
+codegen-units = 1
+# 减小二进制体积 (剥离符号表)
+strip = true
+# 注意: 不用 panic="abort", 会破坏 tower-http CatchPanicLayer (依赖 catch_unwind 栈展开)
+
+# 开发调试: 依赖 crate 用 O2 编译, 本地 API 性能接近 release; 自身代码保持快速编译
+[profile.dev.package."*"]
+opt-level = 2

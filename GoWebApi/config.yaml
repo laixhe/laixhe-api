@@ -1,0 +1,60 @@
+http:
+    ip: 0.0.0.0
+    port: 6600
+    # 请求超时时间(单位秒), 缺省 30 秒, 用于请求超时中间件
+    timeout: 30
+
+log:
+  # 日志模式 console file
+  run: console
+  # 日志文件路径
+  path: logs.log
+  # 日志级别 debug info warn error
+  # 注意: 访问日志 (xfiber.UseLog) 会记录请求 body (仅跳过 multipart), debug 级别下更详细,
+  # 高并发时日志 IO 与磁盘占用明显; 生产建议 info, 排查问题时再临时切回 debug
+  level: info
+  # 每个日志文件保存大小 20M
+  max_size: 20
+  # 保留 N 个备份
+  max_backups: 20
+  # 保留 N 天
+  max_age: 7
+
+orm:
+  # 驱动名称 mysql postgresql sqlite
+  driver: mysql
+  # 连接地址
+  dsn: root:123456@tcp(127.0.0.1:3306)/webapi?charset=utf8mb4&parseTime=True&loc=Local
+  # 设置空闲连接池中连接的最大数量
+  max_idle_count: 10
+  # 设置打开数据库连接的最大数量
+  max_open_count: 100
+  # 设置了连接可复用的最大时间(要比数据库设置连接超时时间少)(单位秒)
+  max_life_time: 300
+  # 设置日志级别 1=Silent 2=Error 3=Warn 4=Info (缺省 4=Info 会逐条格式化 SQL;
+  # 设 3 只记录慢 SQL(>200ms)与错误 SQL)
+  log_level: 3
+
+jwt:
+  # 密钥 (生产环境务必修改; 也可通过环境变量 JWT_SECRET_KEY 覆盖, 环境变量优先)
+  secret_key: 6Kbj0VFeXYMp60lEyiFoVq4UzqX8Z0GSSfnvTh2VuAQn0oHgQNYexU6yYVTk4xf9
+  # 签名算法 (可选 HS256 / HS384 / HS512, 缺省会报错, 必须显式指定)
+  signing_method: HS256
+  # 过期时长(单位秒)
+  expire_time: 2592000
+
+limit:
+  # 是否启用接口限流
+  enable: true
+  # 单个 IP 在窗口内允许的最大请求数
+  max: 1000
+  # 滑动窗口时长(单位秒)
+  window: 60
+
+bcrypt:
+  # bcrypt 计算 worker 池大小 (并发执行密码哈希/校验的 goroutine 数)
+  # 0 或负数 = 自动取 CPU 逻辑核数 (GOMAXPROCS)
+  # bcrypt 为纯 CPU 计算, 建议不超过核数: 池过大徒增线程切换开销,
+  # 池过小则高并发注册/登录在提交处排队 (背压), 表现为接口延迟上升;
+  # 生产按压测调整: 观察 CPU 使用率与注册/登录接口 P99 延迟
+  workers: 0

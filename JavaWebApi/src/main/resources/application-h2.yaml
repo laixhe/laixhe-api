@@ -1,0 +1,14 @@
+# 本地开发/测试免安装 profile: H2 内存库 (MySQL 兼容模式)
+# 启动方式: ./gradlew bootRun --args='--spring.profiles.active=h2'
+spring:
+  datasource:
+    url: jdbc:h2:mem:webapi;MODE=MySQL;NON_KEYWORDS=USER;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+    hikari:
+      minimum-idle: 1
+      maximum-pool-size: 10
+  jpa:
+    hibernate:
+      ddl-auto: update

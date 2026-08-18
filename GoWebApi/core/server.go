@@ -1,0 +1,118 @@
+package core
+
+import (
+	"context"
+
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/recover"
+	"github.com/laixhe/gonet/db/gorm/mysql"
+	"github.com/laixhe/gonet/db/gorm/orm"
+	"github.com/laixhe/gonet/xfiber"
+	"github.com/laixhe/gonet/xlog"
+	"gorm.io/gorm"
+)
+
+// DEFAULT 默认key
+const DEFAULT = "default"
+
+// Server 服务
+type Server struct {
+	config *Config
+	log    *xlog.ZClient
+	server *xfiber.Server
+	orm    map[string]orm.Client
+	// bcryptPool bcrypt 计算 worker 池: 将 CPU 密集的 bcrypt 卸载到独立 goroutine,
+	// 避免阻塞请求 goroutine (对齐 Rust 版 spawn_blocking 思路), 见 BcryptPool
+	bcryptPool *BcryptPool
+}
+
+// NewServer 创建服务
+func NewServer(configFile string) *Server {
+	config := NewConfig(configFile)
+	// 初始化日志
+	config.Log.CallerSkip = 1
+	logClient, err := xlog.InitZap(config.Log)
+	if err != nil {
+		panic(err)
+	}
+	// 中间件注册顺序即执行顺序: 先 panic 恢复(外层) 后 CORS(内层),
+	// 保证任何响应(含 500/429/408)都带 CORS 头
+	// panic 恢复统一返回固定文案 500, 避免将 panic 内部信息泄露给客户端
+	// xfiber.New 底层封装 gofiber/fiber v3: 创建默认 App, 并内置 requestId 与默认错误处理
+	server := xfiber.New(logClient.Logger(), fiber.Config{
+		// 自定义错误处理: 业务错误 (如参数校验) 原样透传, 未知错误记录日志后统一返回固定 500 文案
+		ErrorHandler: ErrorHandler(logClient),
+	}).
+		UseLog().
+		UseRecover(recover.Config{
+			PanicHandler: func(_ fiber.Ctx, _ any) error {
+				return fiber.NewError(fiber.StatusInternalServerError, "internal server error")
+			},
+		}).
+		UseCors().
+		UseCompress()
+	s := &Server{
+		config:     config,
+		log:        logClient,
+		server:     server,
+		orm:        make(map[string]orm.Client),
+		bcryptPool: NewBcryptPool(config.Bcrypt.Workers), // worker 数来自 config.yaml 的 bcrypt.workers (0=自动 GOMAXPROCS)
+	}
+	return s.init()
+}
+
+// Fiber 返回 Fiber 服务器实例
+func (s *Server) Fiber() *xfiber.Server {
+	return s.server
+}
+
+// Config 返回应用配置
+func (s *Server) Config() *Config {
+	return s.config
+}
+
+// Log 返回日志客户端
+func (s *Server) Log() *xlog.ZClient {
+	return s.log
+}
+
+// Bcrypt 返回 bcrypt 计算 worker 池 (Hash/Check 请走此入口, 而非在请求 goroutine 上直接计算)
+func (s *Server) Bcrypt() *BcryptPool {
+	return s.bcryptPool
+}
+
+// initOrm 初始化 ORM 数据库连接 (DSN 直接使用配置原值, 不支持环境变量展开)
+func (s *Server) initOrm(config *orm.Config, key ...string) error {
+	// mysql.Init 底层为 gorm mysql 驱动: 建立连接池, 并将 SQL 日志接入 zap
+	db, err := mysql.Init(config, NewOrmWriter(s.server.LoggerConfig()), xfiber.RequestIdLogKey)
+	if err != nil {
+		return err
+	}
+	if len(key) > 0 {
+		s.orm[key[0]] = db
+	} else {
+		s.orm[DEFAULT] = db
+	}
+	return nil
+}
+
+// Orm 返回 ORM 客户端，可选指定 key（默认 "default"）
+func (s *Server) Orm(key ...string) orm.Client {
+	if len(key) > 0 {
+		return s.orm[key[0]]
+	}
+	return s.orm[DEFAULT]
+}
+
+// Gorm 返回绑定了 context 的 GORM 实例
+func (s *Server) Gorm(ctx context.Context, key ...string) *gorm.DB {
+	return s.Orm(key...).WithContext(ctx)
+}
+
+// init 初始化服务（目前仅初始化 ORM）
+func (s *Server) init() *Server {
+	if err := s.initOrm(s.config.Orm); err != nil {
+		panic(err)
+	}
+	return s
+}
